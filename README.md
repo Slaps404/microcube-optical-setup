@@ -11,7 +11,11 @@ illumination source, and M37 lens mounting face.
 - `vendor/BOSL2`: pinned thread-geometry dependency.
 - `research`: sourced illumination research.
 - `exports`: printable STL outputs.
-- `previews/camera_integrated`: current multi-angle screenshots.
+- `previews/current`: curated screenshots for GitHub documentation.
+
+Additional multi-angle QA renders are generated locally under `previews/` and
+ignored by Git. Printable STL files are also generated locally under
+`exports/` and should be attached to a release when sharing a print version.
 
 ## Baseline geometry
 
