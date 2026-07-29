@@ -1,304 +1,448 @@
-// Parametric microcube beamsplitter carrier and compact light-source face.
-// Printable parts use modes 0-3. Modes 4-5 are reference assemblies only.
+// Official uCube beamsplitter and compact illumination module.
+// render_mode = 0 is the complete live assembly. Press F5 to preview.
 
+include <vendor/BOSL2/std.scad>
+include <vendor/BOSL2/threading.scad>
 include <vendor/uCube/uCube.scad>
-
-/* [Render] */
-render_mode = 4; // [0:beamsplitter_carrier, 1:light_face_body, 2:light_back_cover, 3:optic_cartridge, 4:assembly, 5:exploded_assembly, 6:inspection_assembly]
-
-/* [Microcube interface] */
-internal_clearance_mm = 40; // [40:0.5:80]
-frame_feature_mm = 7; // [5:0.5:10]
-face_gap_mm = 0.4; // [0.2:0.1:0.8]
-outer_plate_thickness_mm = 3.5; // [2:0.5:6]
-locator_depth_mm = 3.5; // [2:0.5:6]
-base_corner_radius_mm = 4; // [2:0.5:8]
-locator_clearance_mm = 0.2; // [0.1:0.1:0.6]
-locator_corner_radius_mm = 0.8; // [0.4:0.2:2]
-
-/* [Beamsplitter] */
-plate_width_mm = 50; // [40:0.1:60]
-plate_height_mm = 50; // [40:0.1:60]
-plate_thickness_mm = 2.05; // [1:0.05:5]
-slot_thickness_mm = 2.1; // [2.05:0.05:3]
-plate_side_clearance_mm = 0.3; // [0:0.1:1]
-beam_angle_degrees = 45; // [45]
-support_width_mm = 3; // [2:0.25:5]
-
-/* [Light source] */
-light_aperture_mm = 30; // [20:1:40]
-light_cavity_outer_mm = 48; // [42:1:52]
-light_cavity_inner_mm = 42; // [38:1:46]
-light_nose_inner_mm = 36; // [32:1:38]
-led_plane_distance_mm = 18; // [15:1:20]
-led_board_size_mm = 40; // [30:1:42]
-led_board_thickness_mm = 1.6; // [1:0.1:3]
-front_wall_thickness_mm = 1.5; // [1:0.25:3]
-optic_sheet_size_mm = 32; // [30:1:38]
-optic_sheet_thickness_mm = 0.6; // [0.2:0.1:2]
-optic_cartridge_size_mm = 34; // [32:1:36]
-optic_cartridge_thickness_mm = 1.2; // [0.8:0.2:2]
-back_cover_thickness_mm = 2.5; // [2:0.5:4]
-back_cover_screw_radius_mm = 1.1; // [0.8:0.1:1.5]
-back_cover_screw_offset_mm = 21; // [18:0.5:22]
-cable_notch_radius_mm = 3; // [2:0.5:5]
-
-/* [Preview colors] */
-show_light_rays = true;
 
 $fn = 64;
 epsilon = 0.02;
 
-face_size_mm = internal_clearance_mm + 2 * frame_feature_mm;
-base_size_mm = face_size_mm - 2 * face_gap_mm;
-hole_offset_mm = (face_size_mm - frame_feature_mm) / 2;
+/* [Preview] */
+render_mode = 0; // [0:complete_assembly, 1:beamsplitter_face, 2:light_face, 3:back_cover, 4:optic_cartridge, 5:camera_face, 6:camera_thread_test, 7:exploded_assembly, 8:inspection_assembly]
+show_optical_references = true;
+
+/* [Official uCube] */
+internal_clearance_mm = 40; // [40]
+frame_feature_mm = 7; // [7]
+face_gap_mm = 0.4; // [0.4]
+locator_clearance_mm = 0.2; // [0.1:0.1:0.6]
+
+/* [Beamsplitter] */
+plate_width_mm = 50; // [45:0.1:50]
+plate_height_mm = 50; // [45:0.1:50]
+plate_thickness_mm = 2.05; // [1:0.05:3]
+plate_slot_mm = 2.1; // [2.05:0.05:3]
+plate_angle_degrees = 45; // [45]
+support_width_mm = 3; // [2:0.25:5]
+support_length_mm = 48; // [44:0.5:48]
+
+/* [Light source] */
+light_output_diameter_mm = 30; // [25:1:32]
+light_body_outer_mm = 48; // [44:1:50]
+light_body_inner_mm = 42; // [38:1:44]
+light_body_depth_mm = 14.1; // [12:0.5:20]
+light_nose_inner_mm = 36; // [34:1:38]
+led_board_size_mm = 40; // [30:1:42]
+led_plane_setback_mm = 18; // [12:1:20]
+
+/* [Optic cartridge] */
+optic_cartridge_size_mm = 34; // [32:1:36]
+optic_cartridge_thickness_mm = 1.2; // [0.8:0.2:2]
+optic_sheet_size_mm = 32; // [30:1:33]
+optic_sheet_thickness_mm = 0.6; // [0.2:0.1:1]
+cartridge_fit_clearance_mm = 0.3; // [0.2:0.1:0.6]
+cartridge_stop_mm = 0.5; // [0.4:0.1:1]
+
+/* [Rear cover] */
+back_cover_thickness_mm = 2.5; // [2:0.5:4]
+cover_screw_offset_mm = 20.5; // [19:0.5:21]
+cover_screw_radius_mm = 1.2; // [1:0.1:1.6]
+cable_notch_mm = 6; // [4:1:9]
+
+/* [Camera face] */
+camera_lens_focal_length_mm = 16; // [16]
+camera_lens_body_diameter_mm = 39; // [39]
+camera_thread_diameter_mm = 37; // [37]
+camera_thread_pitch_mm = 0.75; // [0.75]
+camera_thread_clearance_mm = 0.20; // [0.1:0.05:0.4]
+camera_thread_boss_length_mm = 8; // [6:0.5:12]
+camera_optical_bore_mm = 30; // [26:1:32]
+camera_thread_weld_mm = 0.6; // [0.4:0.1:1]
+camera_thread_facets = 240; // [120:20:240]
+camera_lock_ring_diameter_mm = 42; // [40:1:44]
+camera_lock_ring_thickness_mm = 3; // [2:0.5:4]
+camera_test_base_diameter_mm = 44; // [42:1:48]
+camera_test_base_height_mm = 1; // [1:0.5:2]
+camera_test_thread_height_mm = 2; // [2:0.5:4]
+
+cube_spec = CubeSize(
+    size = internal_clearance_mm,
+    d = frame_feature_mm,
+    faceGap = face_gap_mm,
+    screw = defaultScrew
+);
+
+face_plate_thickness_mm = frame_feature_mm / 2;
+face_outline_mm = internal_clearance_mm + 2 * frame_feature_mm - 2 * face_gap_mm;
 locator_size_mm = internal_clearance_mm - locator_clearance_mm;
-wall_inner_plane_mm = internal_clearance_mm / 2;
-cube_outer_size_mm = internal_clearance_mm + 4 * frame_feature_mm;
-face_seat_plane_mm = wall_inner_plane_mm + frame_feature_mm;
-support_height_mm = frame_feature_mm - locator_depth_mm;
-support_length_mm = plate_width_mm + 2 * plate_side_clearance_mm;
-support_outer_spacing_mm = slot_thickness_mm / 2 + support_width_mm;
-light_body_back_mm = led_plane_distance_mm + led_board_thickness_mm + 1.5;
+inside_half_mm = internal_clearance_mm / 2;
+official_holder_span_mm = internal_clearance_mm + 1.5 * frame_feature_mm;
+face_outer_depth_mm = 2 * frame_feature_mm;
+face_inner_depth_mm = 1.5 * frame_feature_mm;
+face_center_from_origin_mm =
+    (internal_clearance_mm + 4 * frame_feature_mm) / 2
+        - face_plate_thickness_mm / 2;
 
-module rounded_box_xy(width, depth, height, radius, center_z = false) {
-    translate([0, 0, center_z ? -height / 2 : 0])
-        linear_extrude(height = height)
-            offset(r = radius)
-                square([width - 2 * radius, depth - 2 * radius], center = true);
+assert(plate_slot_mm >= plate_thickness_mm,
+       "The beamsplitter slot must be at least as thick as the plate.");
+assert(plate_width_mm * cos(plate_angle_degrees) <= internal_clearance_mm,
+       "The projected beamsplitter width does not fit the clear cube opening.");
+assert(plate_height_mm <= official_holder_span_mm,
+       "The beamsplitter is taller than the span between opposing uFaces.");
+assert(light_body_inner_mm >= led_board_size_mm,
+       "The selected LED board does not fit the light cavity.");
+assert(camera_lens_body_diameter_mm >= camera_thread_diameter_mm,
+       "The lens body must be at least as wide as its M37 thread.");
+assert(camera_optical_bore_mm < camera_thread_diameter_mm - 2,
+       "The camera bore leaves too little wall beneath the thread.");
+
+echo(str("uCube clear/face/overall: ", internal_clearance_mm, "/",
+         internal_clearance_mm + 2 * frame_feature_mm, "/",
+         internal_clearance_mm + 4 * frame_feature_mm, " mm"));
+echo(str("Beamsplitter endpoint clearance: ",
+         (internal_clearance_mm - plate_width_mm * cos(plate_angle_degrees)) / 2,
+         " mm per side"));
+
+// Rounded XY prism, centered in XY and extending upward from Z=0.
+module rounded_xy_prism(width, depth, height, radius) {
+    hull()
+        for (x = [-width / 2 + radius, width / 2 - radius])
+            for (y = [-depth / 2 + radius, depth / 2 - radius])
+                translate([x, y, 0])
+                    cylinder(h = height, r = radius);
 }
 
-module face_mount_holes(z_start, height) {
-    for (x = [-hole_offset_mm, hole_offset_mm])
-        for (y = [-hole_offset_mm, hole_offset_mm])
-            translate([x, y, z_start - epsilon])
-                cylinder(h = height + 2 * epsilon,
-                         r = getattr(defaultScrew, "screwR"));
+// Local Z=0 is the visible inner edge of the official 40 mm cube opening.
+// The uFace itself is flush with the outer cube surface at Z=-14 mm.
+module official_face_at_inside_plane() {
+    translate([0, 0,
+               -face_outer_depth_mm + face_plate_thickness_mm / 2])
+        uFace(cubeSize = cube_spec);
 }
 
-// The outside flange sits beyond the cube face seat. The square locator enters
-// only half of the 7 mm face depth, as requested.
-module common_face_base(center_opening_mm = 0) {
+module square_locator(solid = true, aperture_mm = 0) {
     difference() {
-        union() {
-            translate([0, 0, -frame_feature_mm - outer_plate_thickness_mm])
-                rounded_box_xy(base_size_mm,
-                               base_size_mm,
-                               outer_plate_thickness_mm,
-                               base_corner_radius_mm);
+        translate([-locator_size_mm / 2,
+                   -locator_size_mm / 2,
+                   -face_inner_depth_mm])
+            cube([locator_size_mm,
+                  locator_size_mm,
+                  face_plate_thickness_mm]);
 
-            translate([0, 0, -frame_feature_mm])
-                rounded_box_xy(locator_size_mm,
-                               locator_size_mm,
-                               locator_depth_mm,
-                               locator_corner_radius_mm);
-        }
-
-        face_mount_holes(-frame_feature_mm - outer_plate_thickness_mm,
-                         outer_plate_thickness_mm + locator_depth_mm);
-
-        if (center_opening_mm > 0)
-            translate([0, 0,
-                       -frame_feature_mm - outer_plate_thickness_mm - epsilon])
-                cylinder(h = frame_feature_mm +
-                             outer_plate_thickness_mm + 2 * epsilon,
-                         d = center_opening_mm);
+        if (!solid)
+            translate([-aperture_mm / 2,
+                       -aperture_mm / 2,
+                       -face_inner_depth_mm - epsilon])
+                cube([aperture_mm,
+                      aperture_mm,
+                      face_plate_thickness_mm + 2 * epsilon]);
     }
 }
 
-module beamsplitter_supports() {
-    // These two rails begin where the half-depth locator ends and stop exactly
-    // at z=0, the cube interior plane. They cannot be seen through a side face.
-    translate([0, 0, -support_height_mm])
-        rotate([0, 0, beam_angle_degrees]) {
-            translate([-support_length_mm / 2,
-                       -support_outer_spacing_mm,
-                       0])
-                cube([support_length_mm,
-                      support_width_mm,
-                      support_height_mm]);
-            translate([-support_length_mm / 2,
-                       slot_thickness_mm / 2,
-                       0])
-                cube([support_length_mm,
-                      support_width_mm,
-                      support_height_mm]);
-        }
-}
+// Printable bottom uFace and the two recessed rails that hold the plate.
+// Both rails stop at Z=0, so they are hidden below the clear side opening.
+module beamsplitter_mounting_face() {
+    union() {
+        official_face_at_inside_plane();
+        square_locator(solid = true);
 
-module beamsplitter_carrier() {
-    difference() {
-        union() {
-            common_face_base();
-            beamsplitter_supports();
-        }
+        rotate([0, 0, plate_angle_degrees]) {
+            // Long rails bridge the official face recess and end flush with
+            // the visible inner edge of the cube.
+            for (side = [-1, 1])
+                translate([-support_length_mm / 2,
+                           side * (plate_slot_mm / 2 + support_width_mm / 2)
+                               - support_width_mm / 2,
+                           -frame_feature_mm])
+                    cube([support_length_mm,
+                          support_width_mm,
+                          frame_feature_mm]);
 
-        // Keep screw bores clear through any overlapping support geometry.
-        face_mount_holes(-frame_feature_mm - outer_plate_thickness_mm,
-                         frame_feature_mm + outer_plate_thickness_mm);
+            // Hidden stop centers the 50 mm plate vertically while leaving
+            // its full 40 mm visible portion centered in the cube opening.
+            translate([-support_length_mm / 2,
+                       -plate_slot_mm / 2,
+                       -frame_feature_mm])
+                cube([support_length_mm,
+                      plate_slot_mm,
+                      frame_feature_mm - face_plate_thickness_mm]);
+        }
     }
 }
 
-module plate_reference() {
-    color([0.32, 0.72, 1.0, 0.42])
-        translate([0, 0, -support_height_mm])
-            rotate([0, 0, beam_angle_degrees])
-                translate([-plate_width_mm / 2,
-                           -plate_thickness_mm / 2,
-                           0])
-                    cube([plate_width_mm,
-                          plate_thickness_mm,
-                          plate_height_mm]);
+module beamsplitter_reference() {
+    color([0.45, 0.78, 1.0, 0.42])
+        rotate([0, 0, plate_angle_degrees])
+            translate([-plate_width_mm / 2,
+                       -plate_thickness_mm / 2,
+                       -face_plate_thickness_mm])
+                cube([plate_width_mm,
+                      plate_thickness_mm,
+                      plate_height_mm]);
 }
 
-module back_cover_screw_holes(z_start, height) {
-    for (x = [-back_cover_screw_offset_mm, back_cover_screw_offset_mm])
-        for (y = [-back_cover_screw_offset_mm, back_cover_screw_offset_mm])
-            // The +X/+Y corner is reserved for the cable exit.
-            if (!(x > 0 && y > 0))
-                translate([x, y, z_start - epsilon])
-                    cylinder(h = height + 2 * epsilon,
-                             r = back_cover_screw_radius_mm);
+module light_face_plate_with_aperture() {
+    difference() {
+        official_face_at_inside_plane();
+        translate([-light_nose_inner_mm / 2,
+                   -light_nose_inner_mm / 2,
+                   -face_outer_depth_mm - epsilon])
+            cube([light_nose_inner_mm,
+                  light_nose_inner_mm,
+                  face_plate_thickness_mm + 2 * epsilon]);
+    }
 }
 
-module cable_corner_notch(z_start, height) {
-    // Tangent to two outside walls, creating an open, orientation-independent
-    // corner route without choosing a Raspberry Pi mounting direction.
-    translate([light_cavity_outer_mm / 2 - cable_notch_radius_mm,
-               light_cavity_outer_mm / 2 - cable_notch_radius_mm,
-               z_start - epsilon])
-        cylinder(h = height + 2 * epsilon,
-                 r = cable_notch_radius_mm);
+module rear_screw_positions(include_cable_corner = false) {
+    for (x = [-cover_screw_offset_mm, cover_screw_offset_mm])
+        for (y = [-cover_screw_offset_mm, cover_screw_offset_mm])
+            if (include_cable_corner || x < 0 || y < 0)
+                translate([x, y, 0]) children();
 }
 
-module led_board_stops() {
-    stop_height = light_body_back_mm -
-                  led_plane_distance_mm -
-                  led_board_thickness_mm;
-    for (x = [-led_board_size_mm / 2 + 2,
-               led_board_size_mm / 2 - 2])
-        for (y = [-led_board_size_mm / 2 + 2,
-                   led_board_size_mm / 2 - 2])
-            translate([x - 1.5,
-                       y - 1.5,
-                       -light_body_back_mm])
-                cube([3, 3, stop_height]);
-}
+module external_light_chamber() {
+    chamber_back_z = -face_inner_depth_mm - light_body_depth_mm;
 
-module light_face_body() {
     difference() {
         union() {
-            difference() {
-                union() {
-                    common_face_base(center_opening_mm = light_aperture_mm);
+            translate([0, 0, chamber_back_z])
+                rounded_xy_prism(light_body_outer_mm,
+                                 light_body_outer_mm,
+                                 light_body_depth_mm,
+                                 2.5);
 
-                    // The 48 mm board cavity stays outside the official 40 mm
-                    // cube opening. Only the 39.8 mm nose passes through the
-                    // face recess and ends flush with the cube interior.
-                    translate([0, 0, -light_body_back_mm])
-                        rounded_box_xy(light_cavity_outer_mm,
-                                       light_cavity_outer_mm,
-                                       light_body_back_mm - frame_feature_mm,
-                                       2.5);
-                    translate([0, 0, -frame_feature_mm])
-                        rounded_box_xy(locator_size_mm,
-                                       locator_size_mm,
-                                       frame_feature_mm,
-                                       locator_corner_radius_mm);
-                }
-
-                // Rear chamber accepts the generic 40 mm board.
-                translate([-light_cavity_inner_mm / 2,
-                           -light_cavity_inner_mm / 2,
-                           -light_body_back_mm - epsilon])
-                    cube([light_cavity_inner_mm,
-                          light_cavity_inner_mm,
-                          light_body_back_mm - frame_feature_mm + epsilon]);
-
-                // Reduced nose clears the official 40 mm cube opening.
-                translate([-light_nose_inner_mm / 2,
-                           -light_nose_inner_mm / 2,
-                           -frame_feature_mm - epsilon])
-                    cube([light_nose_inner_mm,
-                          light_nose_inner_mm,
-                          frame_feature_mm -
-                              front_wall_thickness_mm + epsilon]);
-
-                // Thirty millimeter inside-facing optical output.
-                translate([0, 0, -front_wall_thickness_mm - epsilon])
-                    cylinder(h = front_wall_thickness_mm + 2 * epsilon,
-                             d = light_aperture_mm);
-
-                // Flush inside-face pocket for the press-fit optic cartridge.
-                translate([-optic_cartridge_size_mm / 2 - 0.15,
-                           -optic_cartridge_size_mm / 2 - 0.15,
-                           -optic_cartridge_thickness_mm])
-                    cube([optic_cartridge_size_mm + 0.3,
-                          optic_cartridge_size_mm + 0.3,
-                          optic_cartridge_thickness_mm + epsilon]);
-
-                // Small overlap at the top edge provides a pry/fingernail
-                // removal point without a tab entering the cube frame.
-                translate([0,
-                           optic_cartridge_size_mm / 2,
-                           -optic_cartridge_thickness_mm - epsilon])
-                    cylinder(h = optic_cartridge_thickness_mm + 2 * epsilon,
-                             r = 1.5);
-            }
-
-            // Four pads locate the generic 40 mm LED board 18 mm behind the
-            // output plane. The rear cover clamps it against these pads.
-            led_board_stops();
+            rear_screw_positions()
+                translate([0, 0, chamber_back_z])
+                    cylinder(h = light_body_depth_mm, r = 3.2);
         }
 
-        back_cover_screw_holes(-light_body_back_mm,
-                               light_body_back_mm);
-        cable_corner_notch(-light_body_back_mm,
-                           led_board_thickness_mm + 4);
+        translate([0, 0, chamber_back_z - epsilon])
+            rounded_xy_prism(light_body_inner_mm,
+                             light_body_inner_mm,
+                             light_body_depth_mm + 2 * epsilon,
+                             1.5);
+
+        rear_screw_positions()
+            translate([0, 0, chamber_back_z - epsilon])
+                cylinder(h = light_body_depth_mm + 2 * epsilon,
+                         r = cover_screw_radius_mm);
+
+        // Cable exits through the +X/+Y rear corner. That corner intentionally
+        // has no cover screw.
+        translate([light_body_outer_mm / 2 - cable_notch_mm,
+                   light_body_outer_mm / 2 - cable_notch_mm,
+                   chamber_back_z - epsilon])
+            cube([cable_notch_mm + epsilon,
+                  cable_notch_mm + epsilon,
+                  light_body_depth_mm + 2 * epsilon]);
+    }
+}
+
+module inside_light_nose() {
+    pocket_mm = optic_cartridge_size_mm + cartridge_fit_clearance_mm;
+
+    difference() {
+        translate([-locator_size_mm / 2,
+                   -locator_size_mm / 2,
+                   -face_inner_depth_mm])
+            cube([locator_size_mm,
+                  locator_size_mm,
+                  face_inner_depth_mm]);
+
+        // Mixing cavity stops behind a solid ledge. The cartridge seats on
+        // that ledge instead of falling through the square pocket.
+        translate([-light_nose_inner_mm / 2,
+                   -light_nose_inner_mm / 2,
+                   -face_inner_depth_mm - epsilon])
+            cube([light_nose_inner_mm,
+                  light_nose_inner_mm,
+                  face_inner_depth_mm
+                      - optic_cartridge_thickness_mm
+                      - cartridge_stop_mm
+                      + epsilon]);
+
+        // Press-fit cartridge pocket at the inside wall.
+        translate([-pocket_mm / 2,
+                   -pocket_mm / 2,
+                   -optic_cartridge_thickness_mm])
+            cube([pocket_mm,
+                  pocket_mm,
+                  optic_cartridge_thickness_mm + epsilon]);
+
+        // Thirty millimeter inside-facing optical output.
+        translate([0, 0, -face_inner_depth_mm - epsilon])
+            cylinder(h = face_inner_depth_mm + 2 * epsilon,
+                     d = light_output_diameter_mm);
+
+        // Small pry notch for removing the flush cartridge.
+        translate([0,
+                   optic_cartridge_size_mm / 2,
+                   -optic_cartridge_thickness_mm - epsilon])
+            cylinder(h = optic_cartridge_thickness_mm + 2 * epsilon,
+                     r = 2.2);
+    }
+}
+
+// Printable side uFace, locator, output nose, and external mixing chamber.
+module light_source_mounting_face() {
+    union() {
+        light_face_plate_with_aperture();
+        external_light_chamber();
+        inside_light_nose();
     }
 }
 
 module light_back_cover() {
     difference() {
         translate([0, 0, -back_cover_thickness_mm])
-            rounded_box_xy(light_cavity_outer_mm,
-                           light_cavity_outer_mm,
-                           back_cover_thickness_mm,
-                           2.5);
+            rounded_xy_prism(light_body_outer_mm,
+                             light_body_outer_mm,
+                             back_cover_thickness_mm,
+                             2.5);
 
-        back_cover_screw_holes(-back_cover_thickness_mm,
-                               back_cover_thickness_mm);
-        cable_corner_notch(-back_cover_thickness_mm,
-                           back_cover_thickness_mm);
+        rear_screw_positions()
+            translate([0, 0, -back_cover_thickness_mm - epsilon])
+                cylinder(h = back_cover_thickness_mm + 2 * epsilon,
+                         r = cover_screw_radius_mm);
+
+        translate([light_body_outer_mm / 2 - cable_notch_mm,
+                   light_body_outer_mm / 2 - cable_notch_mm,
+                   -back_cover_thickness_mm - epsilon])
+            cube([cable_notch_mm + epsilon,
+                  cable_notch_mm + epsilon,
+                  back_cover_thickness_mm + 2 * epsilon]);
     }
 }
 
-// Printable frame for a square diffuser, prism-film pair, or another thin
-// optical coupon. It loads from the open rear before the LED board/cover.
 module optic_cartridge() {
     difference() {
         translate([0, 0, -optic_cartridge_thickness_mm])
-            rounded_box_xy(optic_cartridge_size_mm,
-                           optic_cartridge_size_mm,
-                           optic_cartridge_thickness_mm,
-                           1.5);
+            rounded_xy_prism(optic_cartridge_size_mm,
+                             optic_cartridge_size_mm,
+                             optic_cartridge_thickness_mm,
+                             1);
 
         translate([0, 0, -optic_cartridge_thickness_mm - epsilon])
             cylinder(h = optic_cartridge_thickness_mm + 2 * epsilon,
-                     d = light_aperture_mm);
+                     d = light_output_diameter_mm);
 
-        // Front recess accepts a 32 mm square diffuser or prism-film coupon.
+        // Rear recess accepts a square diffuser or crossed-prism film coupon.
         translate([-optic_sheet_size_mm / 2 - 0.15,
                    -optic_sheet_size_mm / 2 - 0.15,
-                   -optic_sheet_thickness_mm])
+                   -optic_cartridge_thickness_mm - epsilon])
             cube([optic_sheet_size_mm + 0.3,
                   optic_sheet_size_mm + 0.3,
                   optic_sheet_thickness_mm + epsilon]);
     }
 }
 
+// Male M37 x 0.75 column used by the supplied Arducam lens face. The lens may
+// be C-mount at its camera end, but this printed interface uses its female M37
+// front/filter thread.
+module m37_threaded_column_solid(base_z,
+                                 length = camera_thread_boss_length_mm,
+                                 detailed_thread = true) {
+    translate([0, 0, base_z - camera_thread_weld_mm]) {
+        if (detailed_thread)
+            let($fn = camera_thread_facets)
+                threaded_rod(
+                    d = camera_thread_diameter_mm
+                        - camera_thread_clearance_mm,
+                    pitch = camera_thread_pitch_mm,
+                    l = length + camera_thread_weld_mm,
+                    bevel1 = false,
+                    bevel2 = false,
+                    blunt_start = true,
+                    anchor = BOTTOM
+                );
+        else
+            cylinder(h = length + camera_thread_weld_mm,
+                     d = camera_thread_diameter_mm
+                        - camera_thread_clearance_mm);
+    }
+}
+
+// Printable official uFace with a continuous optical bore and male M37 thread.
+module threaded_camera_mounting_face(detailed_thread = true) {
+    face_top_z = face_plate_thickness_mm / 2;
+
+    difference() {
+        union() {
+            uFace(cubeSize = cube_spec);
+            m37_threaded_column_solid(face_top_z,
+                                      camera_thread_boss_length_mm,
+                                      detailed_thread);
+        }
+
+        translate([0, 0, -frame_feature_mm])
+            cylinder(h = frame_feature_mm
+                         + face_top_z
+                         + camera_thread_boss_length_mm
+                         + camera_thread_weld_mm
+                         + 3,
+                     d = camera_optical_bore_mm);
+    }
+}
+
+module camera_thread_test_stub() {
+    difference() {
+        union() {
+            cylinder(h = camera_test_base_height_mm,
+                     d = camera_test_base_diameter_mm);
+            m37_threaded_column_solid(camera_test_base_height_mm,
+                                      camera_test_thread_height_mm,
+                                      true);
+        }
+
+        translate([0, 0, -1])
+            cylinder(h = camera_test_base_height_mm
+                         + camera_test_thread_height_mm
+                         + camera_thread_weld_mm
+                         + 3,
+                     d = camera_optical_bore_mm);
+    }
+}
+
+module camera_lens_reference() {
+    face_top_z = face_plate_thickness_mm / 2;
+    thread_engagement_mm = 3.6;
+    lens_reference_length_mm = 12;
+
+    color([0.55, 0.55, 0.58, 0.72])
+        translate([0, 0, face_top_z + 0.6])
+            difference() {
+                cylinder(h = camera_lock_ring_thickness_mm,
+                         d = camera_lock_ring_diameter_mm);
+                translate([0, 0, -epsilon])
+                    cylinder(h = camera_lock_ring_thickness_mm + 2 * epsilon,
+                             d = camera_thread_diameter_mm + 0.4);
+            }
+
+    color([0.26, 0.22, 0.48, 0.62])
+        translate([0, 0,
+                   face_top_z
+                       + camera_thread_boss_length_mm
+                       - thread_engagement_mm])
+            difference() {
+                cylinder(h = lens_reference_length_mm,
+                         d = camera_lens_body_diameter_mm);
+                translate([0, 0, -epsilon])
+                    cylinder(h = lens_reference_length_mm + 2 * epsilon,
+                             d = camera_thread_diameter_mm + 0.4);
+            }
+}
+
+module led_board_reference() {
+    color([1.0, 0.72, 0.12, 0.55])
+        translate([-led_board_size_mm / 2,
+                   -led_board_size_mm / 2,
+                   -led_plane_setback_mm - 0.8])
+            cube([led_board_size_mm, led_board_size_mm, 1.6]);
+}
+
 module optic_sheet_reference() {
-    color([0.94, 0.96, 1.0, 0.72])
+    color([0.75, 1.0, 0.95, 0.55])
         translate([-optic_sheet_size_mm / 2,
                    -optic_sheet_size_mm / 2,
                    -optic_sheet_thickness_mm])
@@ -307,126 +451,152 @@ module optic_sheet_reference() {
                   optic_sheet_thickness_mm]);
 }
 
-module led_board_reference() {
-    color([0.90, 0.90, 0.90, 1.0])
-        translate([-led_board_size_mm / 2,
-                   -led_board_size_mm / 2,
-                   -led_plane_distance_mm - led_board_thickness_mm])
-            cube([led_board_size_mm,
-                  led_board_size_mm,
-                  led_board_thickness_mm]);
-
-    color([1.0, 0.84, 0.24, 1.0])
-        for (x = [-16, -8, 0, 8, 16])
-            for (y = [-16, -8, 0, 8, 16])
-                translate([x, y, -led_plane_distance_mm + 0.01])
-                    cylinder(h = 0.8, d = 2.4, $fn = 24);
+module light_beam_reference() {
+    color([1.0, 0.95, 0.55, 0.16])
+        cylinder(h = internal_clearance_mm,
+                 d = light_output_diameter_mm);
 }
 
-module light_reference_stack() {
-    optic_cartridge();
-    optic_sheet_reference();
-    led_board_reference();
-    translate([0, 0, -light_body_back_mm])
-        light_back_cover();
+module light_face_transform() {
+    translate([-inside_half_mm, 0, 0])
+        rotate([0, 90, 0])
+            children();
 }
 
-// Transparent frame reference. This is intentionally not an STL part.
-module cube_reference() {
-    color([0.82, 0.84, 0.80, 0.30])
-        uCube(cubeSize = CubeSize(size = internal_clearance_mm,
-                                  d = frame_feature_mm,
-                                  faceGap = face_gap_mm,
-                                  screw = defaultScrew));
+// Demo placement only. Any compatible uFace can be moved to another cube side.
+module camera_face_transform() {
+    translate([0, face_center_from_origin_mm, 0])
+        rotate([-90, 0, 0])
+            children();
 }
 
-module wire_cube_reference(size, beam) {
-    color([0.72, 0.74, 0.72, 0.55]) {
-        for (x = [-size / 2 + beam / 2, size / 2 - beam / 2])
-            for (y = [-size / 2 + beam / 2, size / 2 - beam / 2])
-                translate([x, y, 0])
-                    cube([beam, beam, size], center = true);
+module complete_assembly(show_cube = true, show_references = true) {
+    chamber_back_z = -face_inner_depth_mm - light_body_depth_mm;
 
-        for (x = [-size / 2 + beam / 2, size / 2 - beam / 2])
-            for (z = [-size / 2 + beam / 2, size / 2 - beam / 2])
-                translate([x, 0, z])
-                    cube([beam, size, beam], center = true);
+    // Background modifier keeps the exact official shell visible in F5 while
+    // preventing it from obscuring the two mounting faces.
+    if (show_cube)
+        %color([0.72, 0.72, 0.72, 0.20])
+            uCube(cubeSize = cube_spec);
 
-        for (y = [-size / 2 + beam / 2, size / 2 - beam / 2])
-            for (z = [-size / 2 + beam / 2, size / 2 - beam / 2])
-                translate([0, y, z])
-                    cube([size, beam, beam], center = true);
+    // Orange bottom mounting plate and its recessed beamsplitter rails.
+    color([0.95, 0.40, 0.06])
+        translate([0, 0, -inside_half_mm])
+            beamsplitter_mounting_face();
+
+    // Blue side mounting plate and external light-source chamber.
+    color([0.08, 0.35, 0.78])
+        light_face_transform()
+            light_source_mounting_face();
+
+    color([0.05, 0.20, 0.52])
+        light_face_transform()
+            translate([0, 0, chamber_back_z])
+                light_back_cover();
+
+    color([0.10, 0.68, 0.62])
+        light_face_transform()
+            optic_cartridge();
+
+    // Purple camera uFace on +Y for the demo. This is the reflected-beam side
+    // for the shown 45-degree plate orientation.
+    color([0.38, 0.20, 0.62])
+        camera_face_transform()
+            threaded_camera_mounting_face(detailed_thread = false);
+
+    if (show_references) {
+        translate([0, 0, -inside_half_mm])
+            beamsplitter_reference();
+
+        light_face_transform() {
+            led_board_reference();
+            optic_sheet_reference();
+            light_beam_reference();
+        }
+
+        camera_face_transform()
+            camera_lens_reference();
     }
 }
 
-module light_beam_reference() {
-    if (show_light_rays)
-        color([1.0, 0.86, 0.24, 0.12])
-            translate([-wall_inner_plane_mm, 0, 0])
-                rotate([0, 90, 0])
-                    cylinder(h = internal_clearance_mm,
-                             d = light_aperture_mm,
-                             $fn = 64);
+module exploded_assembly() {
+    chamber_back_z = -face_inner_depth_mm - light_body_depth_mm;
+
+    color([0.72, 0.72, 0.72, 0.30])
+        uCube(cubeSize = cube_spec);
+
+    color([0.95, 0.40, 0.06])
+        translate([0, 0, -48])
+            beamsplitter_mounting_face();
+
+    color([0.45, 0.78, 1.0, 0.42])
+        translate([0, 0, -42])
+            beamsplitter_reference();
+
+    color([0.08, 0.35, 0.78])
+        translate([-48, 0, 0])
+            rotate([0, 90, 0])
+                light_source_mounting_face();
+
+    color([0.05, 0.20, 0.52])
+        translate([-58, 0, 0])
+            rotate([0, 90, 0])
+                translate([0, 0, chamber_back_z])
+                    light_back_cover();
+
+    color([0.10, 0.68, 0.62])
+        translate([-38, 0, 0])
+            rotate([0, 90, 0])
+                optic_cartridge();
+
+    color([0.38, 0.20, 0.62])
+        translate([0, 48, 0])
+            rotate([-90, 0, 0])
+                threaded_camera_mounting_face(detailed_thread = false);
+
+    translate([0, 58, 0])
+        rotate([-90, 0, 0])
+            camera_lens_reference();
 }
 
-module assembly_reference(exploded = false) {
-    explode = exploded ? 18 : 0;
+module wire_cube(size, beam = 0.8) {
+    color([0.55, 0.60, 0.62, 0.42]) {
+        for (x = [-size / 2 + beam / 2, size / 2 - beam / 2])
+            for (y = [-size / 2 + beam / 2, size / 2 - beam / 2])
+                translate([x, y, 0]) cube([beam, beam, size], center = true);
 
-    cube_reference();
+        for (x = [-size / 2 + beam / 2, size / 2 - beam / 2])
+            for (z = [-size / 2 + beam / 2, size / 2 - beam / 2])
+                translate([x, 0, z]) cube([beam, size, beam], center = true);
 
-    // Bottom beamsplitter carrier. Its z=0 plane aligns with the inside floor.
-    color([0.95, 0.47, 0.08, 1.0])
-        translate([0, 0, -wall_inner_plane_mm - explode])
-            beamsplitter_carrier();
-    translate([0, 0, -wall_inner_plane_mm - explode])
-        plate_reference();
-
-    // Light enters through the left face and travels along +X.
-    color([0.20, 0.48, 0.82, 1.0])
-        translate([-wall_inner_plane_mm - explode, 0, 0])
-            rotate([0, 90, 0])
-                light_face_body();
-    translate([-wall_inner_plane_mm - explode, 0, 0])
-        rotate([0, 90, 0])
-            light_reference_stack();
-
-    light_beam_reference();
+        for (y = [-size / 2 + beam / 2, size / 2 - beam / 2])
+            for (z = [-size / 2 + beam / 2, size / 2 - beam / 2])
+                translate([0, y, z]) cube([size, beam, beam], center = true);
+    }
 }
 
-module inspection_reference() {
-    // Sparse inner and outer wireframes expose the mirror/support relationship
-    // while preserving both the cube envelope and the 52 mm optical opening.
-    wire_cube_reference(cube_outer_size_mm, 1.8);
-    wire_cube_reference(internal_clearance_mm, 1.2);
-
-    color([0.95, 0.47, 0.08, 1.0])
-        translate([0, 0, -wall_inner_plane_mm])
-            beamsplitter_carrier();
-    translate([0, 0, -wall_inner_plane_mm])
-        plate_reference();
-
-    color([0.20, 0.48, 0.82, 1.0])
-        translate([-wall_inner_plane_mm, 0, 0])
-            rotate([0, 90, 0])
-                light_face_body();
-    translate([-wall_inner_plane_mm, 0, 0])
-        rotate([0, 90, 0])
-            light_reference_stack();
-
-    light_beam_reference();
+module inspection_assembly() {
+    wire_cube(internal_clearance_mm, 0.65);
+    wire_cube(internal_clearance_mm + 4 * frame_feature_mm, 0.8);
+    complete_assembly(show_cube = false, show_references = true);
 }
 
 if (render_mode == 0)
-    beamsplitter_carrier();
+    complete_assembly(show_cube = true,
+                      show_references = show_optical_references);
 else if (render_mode == 1)
-    light_face_body();
+    beamsplitter_mounting_face();
 else if (render_mode == 2)
-    light_back_cover();
+    light_source_mounting_face();
 else if (render_mode == 3)
-    optic_cartridge();
+    light_back_cover();
 else if (render_mode == 4)
-    assembly_reference(exploded = false);
+    optic_cartridge();
 else if (render_mode == 5)
-    assembly_reference(exploded = true);
+    threaded_camera_mounting_face(detailed_thread = true);
 else if (render_mode == 6)
-    inspection_reference();
+    camera_thread_test_stub();
+else if (render_mode == 7)
+    exploded_assembly();
+else if (render_mode == 8)
+    inspection_assembly();

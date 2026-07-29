@@ -1,3 +1,6 @@
 [submodule "vendor/uCube"]
 	path = vendor/uCube
 	url = https://github.com/mdelmans/uCube.git
+[submodule "vendor/BOSL2"]
+	path = vendor/BOSL2
+	url = https://github.com/BelfrySCAD/BOSL2.git
