@@ -64,7 +64,7 @@ Set `render_mode` in `optical_setup.scad`:
 Modes 0, 7, 8, 13, and 14 contain non-printable references. Export the other
 modes separately.
 
-## Required physical QA
+## Measurements to confirm
 
 Print the thread-fit coupon before the full camera face. Confirm the lens is
 female M37 x 0.75, then adjust `camera_thread_clearance_mm` if needed. Also test
