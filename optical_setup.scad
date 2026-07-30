@@ -9,7 +9,7 @@ $fn = 64;
 epsilon = 0.02;
 
 /* [Preview] */
-render_mode = 0; // [0:complete_assembly, 1:beamsplitter_face, 2:legacy_light_face, 3:legacy_back_cover, 4:legacy_optic_cartridge, 5:camera_face, 6:camera_thread_test, 7:exploded_assembly, 8:inspection_assembly, 9:condenser_face_cell, 10:condenser_spacer, 11:condenser_retainer, 12:led_carriage, 13:complete_light_engine, 14:exploded_light_engine]
+render_mode = 0; // [0:complete_assembly, 1:beamsplitter_face, 2:legacy_light_face, 3:legacy_back_cover, 4:legacy_optic_cartridge, 5:camera_face, 6:camera_thread_test, 7:exploded_assembly, 8:inspection_assembly, 9:condenser_face_cell, 10:condenser_spacer, 11:condenser_retainer, 12:led_carriage, 13:complete_light_engine, 14:exploded_light_engine, 15:adjustable_rail_base, 16:rail_collimator_slider, 17:rail_led_mount, 18:complete_adjustable_rail_engine]
 show_optical_references = true;
 camera_preview_detailed_thread = true;
 
@@ -57,6 +57,7 @@ cable_notch_mm = 6; // [4:1:9]
    light-propagation axis. Focal data, clear aperture, and all LED/thermal parts remain
    provisional until the actual hardware can be measured. */
 use_condenser_light_engine = true;
+use_adjustable_collimator_rail = true;
 condenser_diameter_mm = 41; // [35:0.1:45] MEASURED assembly OD
 condenser_assembly_depth_mm = 24.1; // [20:0.1:30] MEASURED axial thickness
 condenser_clear_aperture_mm = 39; // [30:0.5:40] PROVISIONAL after front bevel
@@ -76,6 +77,24 @@ condenser_focus_offset_mm = 0; // [-3:0.25:3]
 condenser_carriage_clearance_mm = 0.2; // [0.1:0.1:0.8] Total XY clearance
 condenser_carriage_thickness_mm = 4; // [3:0.5:6]
 condenser_fastener_radius_mm = 1.5; // Provisional M3 clearance
+
+/* [PROVISIONAL adjustable collimator rail]
+   Transcript-confirmed rail/slider dimensions are fixed below. Rail length,
+   vertical placement, insert envelope, and nominal slider position remain
+   provisional until the missing top/side sketches are available. */
+collimator_rail_size_mm = 10; // Transcript-confirmed square rail
+collimator_rail_slider_clearance_mm = 0.3; // Total width clearance
+collimator_rail_slider_wall_mm = 5; // Transcript-confirmed wall thickness
+collimator_rail_length_mm = 80; // PROVISIONAL
+collimator_rail_face_overlap_mm = 3; // PROVISIONAL face weld
+collimator_rail_slider_length_mm = 20; // PROVISIONAL along rail
+collimator_rail_barrel_depth_mm = 30; // Confirmed complete housing depth
+collimator_rail_barrel_wall_mm = 5; // PROVISIONAL radial wall
+collimator_rail_bridge_overlap_mm = 2; // PROVISIONAL print weld
+collimator_rail_position_mm = 15; // [5:1:30] Face plane to slider center
+collimator_rail_m3_clearance_mm = 3.2;
+collimator_rail_insert_diameter_mm = 4.6; // PROVISIONAL M3 heat-set insert
+collimator_rail_insert_length_mm = 5; // PROVISIONAL M3 heat-set insert
 
 // Selected LED: Amazon ASIN B0CL726PBP, 3 W 3535 emitter on 20 mm star MCPCB.
 selected_led_power_w = 3;
@@ -179,6 +198,40 @@ condenser_carriage_outer_mm = condenser_clear_aperture_mm + 3;
 condenser_carriage_size_mm = condenser_carriage_outer_mm
     - condenser_carriage_clearance_mm;
 
+// Adjustable-rail coordinates share the condenser's local optical Z axis.
+collimator_rail_channel_mm = collimator_rail_size_mm
+    + collimator_rail_slider_clearance_mm;
+collimator_rail_slider_outer_mm = collimator_rail_channel_mm
+    + 2 * collimator_rail_slider_wall_mm;
+collimator_rail_barrel_outer_mm = condenser_diameter_mm
+    + 2 * collimator_rail_barrel_wall_mm;
+collimator_rail_center_y = -(collimator_rail_barrel_outer_mm / 2
+    + collimator_rail_slider_outer_mm / 2
+    - collimator_rail_bridge_overlap_mm);
+collimator_rail_front_z = condenser_face_outer_z
+    + collimator_rail_face_overlap_mm;
+collimator_rail_rear_z = collimator_rail_front_z
+    - collimator_rail_length_mm;
+collimator_slider_center_z = condenser_face_outer_z
+    - collimator_rail_position_mm;
+collimator_barrel_front_z = collimator_slider_center_z
+    + collimator_rail_barrel_depth_mm / 2;
+collimator_barrel_rear_z = collimator_barrel_front_z
+    - collimator_rail_barrel_depth_mm;
+collimator_rail_lens_vertex_z = collimator_barrel_front_z
+    - condenser_front_vertex_setback_mm;
+collimator_rail_lens_rear_z = collimator_rail_lens_vertex_z
+    - condenser_assembly_depth_mm;
+collimator_rail_lens_edge_front_z = collimator_rail_lens_vertex_z
+    - condenser_front_bevel_depth_mm;
+collimator_rail_retainer_back_z = collimator_barrel_rear_z
+    - condenser_retainer_clearance_mm
+    - condenser_retainer_thickness_mm;
+collimator_rail_led_mount_center_z = condenser_led_board_back_z
+    - condenser_carriage_thickness_mm / 2;
+collimator_rail_lens_shift_z = collimator_rail_lens_vertex_z
+    - condenser_lens_vertex_z;
+
 assert(plate_slot_mm >= plate_thickness_mm,
        "The beamsplitter slot must be at least as thick as the plate.");
 assert(plate_width_mm * cos(plate_angle_degrees) <= internal_clearance_mm,
@@ -201,6 +254,18 @@ assert(abs(condenser_focus_offset_mm) <= condenser_focus_travel_mm / 2,
        "The condenser focus offset exceeds the modeled adjustment travel.");
 assert(provisional_heat_spreader_width_mm <= condenser_carriage_size_mm,
        "The provisional heat spreader does not fit the LED carriage.");
+assert(collimator_rail_channel_mm > collimator_rail_size_mm,
+       "The rail slider opening must be larger than the rail.");
+assert(collimator_rail_barrel_depth_mm >= condenser_front_vertex_setback_mm
+           + condenser_assembly_depth_mm,
+       "The rail barrel is too short for the lens and front protrusion.");
+assert(collimator_slider_center_z - collimator_rail_slider_length_mm / 2
+           >= collimator_rail_rear_z,
+       "The collimator slider extends beyond the provisional rail.");
+assert(collimator_rail_led_mount_center_z
+           - collimator_rail_slider_length_mm / 2
+           >= collimator_rail_rear_z,
+       "The fixed LED mount extends beyond the provisional rail.");
 
 echo(str("uCube clear/face/overall: ", internal_clearance_mm, "/",
          internal_clearance_mm + 2 * frame_feature_mm, "/",
@@ -559,6 +624,167 @@ module condenser_lens_retainer() {
             translate([0, 0, -epsilon])
                 cylinder(h = condenser_retainer_thickness_mm + 2 * epsilon,
                          r = condenser_fastener_radius_mm);
+    }
+}
+
+module collimator_rail_channel_cut(center_z) {
+    translate([-collimator_rail_channel_mm / 2,
+               collimator_rail_center_y - collimator_rail_channel_mm / 2,
+               center_z - collimator_rail_slider_length_mm / 2 - epsilon])
+        cube([collimator_rail_channel_mm,
+              collimator_rail_channel_mm,
+              collimator_rail_slider_length_mm + 2 * epsilon]);
+}
+
+module collimator_rail_clamp_cuts(center_z) {
+    // Opposing M3 screws clamp the square slider to the square rail.
+    translate([0, collimator_rail_center_y, center_z])
+        rotate([0, 90, 0])
+            cylinder(h = collimator_rail_slider_outer_mm + 2 * epsilon,
+                     d = collimator_rail_m3_clearance_mm,
+                     center = true);
+
+    for (side = [-1, 1])
+        translate([side * collimator_rail_slider_outer_mm / 2,
+                   collimator_rail_center_y,
+                   center_z])
+            rotate([0, side < 0 ? 90 : -90, 0])
+                cylinder(h = collimator_rail_insert_length_mm + epsilon,
+                         d = collimator_rail_insert_diameter_mm);
+}
+
+// Official uFace plus the provisional 10 mm optical rail and its lower anchor.
+module adjustable_collimator_rail_base() {
+    anchor_bottom_y = collimator_rail_center_y
+        - collimator_rail_slider_outer_mm / 2;
+    anchor_top_y = -face_outline_mm / 2 + 4;
+    anchor_rear_z = condenser_face_outer_z - 6;
+    anchor_front_z = collimator_rail_front_z + 1;
+
+    difference() {
+        union() {
+            official_face_at_inside_plane();
+            condenser_inside_nose();
+
+            translate([-collimator_rail_size_mm / 2,
+                       collimator_rail_center_y - collimator_rail_size_mm / 2,
+                       collimator_rail_rear_z])
+                cube([collimator_rail_size_mm,
+                      collimator_rail_size_mm,
+                      collimator_rail_length_mm]);
+
+            translate([-collimator_rail_slider_outer_mm / 2,
+                       anchor_bottom_y,
+                       anchor_rear_z])
+                cube([collimator_rail_slider_outer_mm,
+                      anchor_top_y - anchor_bottom_y,
+                      anchor_front_z - anchor_rear_z]);
+        }
+
+        translate([0, 0, condenser_face_outer_z - epsilon])
+            cylinder(h = -condenser_face_outer_z + 2 * epsilon,
+                     d = light_output_diameter_mm);
+    }
+}
+
+// One printed part: measured lens barrel plus the square rail slider beneath it.
+module adjustable_collimator_barrel_slider() {
+    lens_pocket_d = condenser_diameter_mm
+        + condenser_pocket_clearance_mm;
+
+    difference() {
+        union() {
+            translate([0, 0, collimator_barrel_rear_z])
+                cylinder(h = collimator_rail_barrel_depth_mm,
+                         d = collimator_rail_barrel_outer_mm);
+
+            translate([-collimator_rail_slider_outer_mm / 2,
+                       collimator_rail_center_y
+                           - collimator_rail_slider_outer_mm / 2,
+                       collimator_slider_center_z
+                           - collimator_rail_slider_length_mm / 2])
+                rounded_xy_prism(collimator_rail_slider_outer_mm,
+                                 collimator_rail_slider_outer_mm,
+                                 collimator_rail_slider_length_mm,
+                                 2);
+        }
+
+        // One millimeter radial stop at the front of the lens barrel.
+        translate([0, 0, collimator_rail_lens_edge_front_z])
+            cylinder(h = collimator_barrel_front_z
+                         - collimator_rail_lens_edge_front_z + epsilon,
+                     d = condenser_clear_aperture_mm + 1);
+
+        // 41.2 mm slip-fit bore for the complete two-lens assembly and spring.
+        translate([0, 0, collimator_barrel_rear_z - epsilon])
+            cylinder(h = collimator_rail_lens_edge_front_z
+                         - collimator_barrel_rear_z + 2 * epsilon,
+                     d = lens_pocket_d);
+
+        condenser_retainer_screw_positions()
+            translate([0, 0, collimator_barrel_rear_z - epsilon])
+                cylinder(h = 8,
+                         r = condenser_fastener_radius_mm);
+
+        collimator_rail_channel_cut(collimator_slider_center_z);
+        collimator_rail_clamp_cuts(collimator_slider_center_z);
+    }
+}
+
+// Fixed LED/heatsink collar. It uses the same rail channel and M3 clamps so its
+// location can be corrected during prototyping, then left fixed for operation.
+module adjustable_collimator_led_mount() {
+    bridge_bottom_y = collimator_rail_center_y
+        + collimator_rail_slider_outer_mm / 2
+        - collimator_rail_bridge_overlap_mm;
+    bridge_top_y = -condenser_carriage_size_mm / 2
+        + collimator_rail_bridge_overlap_mm;
+
+    difference() {
+        union() {
+            translate([-collimator_rail_slider_outer_mm / 2,
+                       collimator_rail_center_y
+                           - collimator_rail_slider_outer_mm / 2,
+                       collimator_rail_led_mount_center_z
+                           - collimator_rail_slider_length_mm / 2])
+                rounded_xy_prism(collimator_rail_slider_outer_mm,
+                                 collimator_rail_slider_outer_mm,
+                                 collimator_rail_slider_length_mm,
+                                 2);
+
+            translate([0, 0, condenser_led_board_back_z])
+                condenser_led_carriage();
+
+            translate([-collimator_rail_slider_outer_mm / 2,
+                       bridge_bottom_y,
+                       condenser_led_board_back_z
+                           - condenser_carriage_thickness_mm])
+                cube([collimator_rail_slider_outer_mm,
+                      bridge_top_y - bridge_bottom_y,
+                      condenser_carriage_thickness_mm]);
+        }
+
+        collimator_rail_channel_cut(collimator_rail_led_mount_center_z);
+        collimator_rail_clamp_cuts(collimator_rail_led_mount_center_z);
+    }
+}
+
+module adjustable_collimator_rail_engine(include_references = true) {
+    color([0.08, 0.35, 0.78])
+        adjustable_collimator_rail_base();
+    color([0.10, 0.50, 0.82])
+        adjustable_collimator_barrel_slider();
+    color([0.10, 0.68, 0.62])
+        translate([0, 0, collimator_rail_retainer_back_z])
+            condenser_lens_retainer();
+    color([0.18, 0.24, 0.34])
+        adjustable_collimator_led_mount();
+
+    if (include_references) {
+        translate([0, 0, collimator_rail_lens_shift_z])
+            condenser_lens_reference();
+        provisional_led_thermal_references();
+        light_beam_reference();
     }
 }
 
@@ -979,7 +1205,11 @@ module complete_assembly(show_cube = true, show_references = true) {
     // the compact legacy chamber remains available in render modes 2-4.
     if (use_condenser_light_engine)
         light_face_transform()
-            condenser_light_engine(include_references = show_references);
+            if (use_adjustable_collimator_rail)
+                adjustable_collimator_rail_engine(
+                    include_references = show_references);
+            else
+                condenser_light_engine(include_references = show_references);
     else {
         color([0.08, 0.35, 0.78])
             light_face_transform()
@@ -1035,7 +1265,11 @@ module exploded_assembly() {
     if (use_condenser_light_engine)
         translate([-48, 0, 0])
             rotate([0, 90, 0])
-                condenser_light_engine(include_references = true);
+                if (use_adjustable_collimator_rail)
+                    adjustable_collimator_rail_engine(
+                        include_references = true);
+                else
+                    condenser_light_engine(include_references = true);
     else {
         color([0.08, 0.35, 0.78])
             translate([-48, 0, 0])
@@ -1118,3 +1352,11 @@ else if (render_mode == 13)
     condenser_light_engine(include_references = true);
 else if (render_mode == 14)
     condenser_light_engine_exploded();
+else if (render_mode == 15)
+    adjustable_collimator_rail_base();
+else if (render_mode == 16)
+    adjustable_collimator_barrel_slider();
+else if (render_mode == 17)
+    adjustable_collimator_led_mount();
+else if (render_mode == 18)
+    adjustable_collimator_rail_engine(include_references = true);

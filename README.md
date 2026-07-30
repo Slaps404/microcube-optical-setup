@@ -27,12 +27,18 @@ The bottom face holds a 50 x 50 x 2.05 mm beamsplitter at 45 degrees. Its two
 rails extend through the face recess and stop flush with the visible cube
 opening, so they remain hidden in a straight side view.
 
-The default light face now uses an external pod for the supplied two-lens
-collimator cartridge. The assembly measures 41 mm in diameter and 24.1 mm thick
-along the light path. The pod keeps the 30 mm cube-side output and provides 6 mm LED focus
-travel, and separates the printed optical shell from the metal heat spreader
-and exposed heatsink. The older compact diffuser chamber remains available in
-legacy render modes.
+The default light face now carries a 10 mm square external rail. A printed
+collimator barrel slides along it, keeping the lens axis centered on the cube
+opening while allowing the lens-to-LED distance to be tuned. The rail channel
+is 10.3 mm square, its surrounding walls are 5 mm thick, and opposing M3 clamp
+locations lock the chosen position. Set `collimator_rail_position_mm` to move
+the collimator before printing.
+
+The supplied two-lens assembly measures 41 mm in diameter and 24.1 mm thick
+along the light path. It drops into a 41.2 mm barrel bore, seats on a 1 mm
+radial front ledge, and is held by the existing spring and removable retaining
+ring. The LED and thermal stack use a separate rail collar. The older external
+pod and compact diffuser chamber remain available in legacy render modes.
 
 The 41 mm diameter and 24.1 mm axial thickness are measured. The selected LED is
 a 3 W, 700 mA 3535 emitter on a 20 mm star MCPCB. Clear aperture, focal data,
@@ -64,9 +70,13 @@ Set `render_mode` in `optical_setup.scad`:
 - `12`: printable focus-adjustable LED/heatsink carriage
 - `13`: assembled condenser light engine reference
 - `14`: exploded condenser light engine reference
+- `15`: printable adjustable-rail uFace and rail base
+- `16`: printable 41 mm collimator barrel and rail slider
+- `17`: printable LED/heatsink rail collar
+- `18`: assembled adjustable rail light engine reference
 
-Modes 0, 7, 8, 13, and 14 contain non-printable references. Export the other
-modes separately.
+Modes 0, 7, 8, 13, 14, and 18 contain non-printable references. Export the
+other modes separately.
 
 ## Measurements to confirm
 
@@ -84,3 +94,10 @@ must preload a flat annular pressure washer rather than contact or center the
 optics directly. Its compressed axial height still needs measurement. Then
 verify the MCPCB, heat-spreader, heatsink, and driver dimensions before printing
 full modes 9, 10, and 12.
+
+For the adjustable version, test modes 15 through 17 before a final print. The
+10.0/10.3 mm rail fit and 5 mm slider walls come from the supplied design
+notes. Rail length, face anchor dimensions, slider length, and M3 heat-set
+insert pockets are marked `PROVISIONAL` because those measurements were not
+visible in the transcripts. Confirm those dimensions and the usable focus
+range on the physical cube, then set `collimator_rail_position_mm`.
