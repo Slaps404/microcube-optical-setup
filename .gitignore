@@ -1,5 +1,7 @@
 /exports/*
 !/exports/.gitkeep
+!/exports/current/
+!/exports/current/**
 
 # OpenSCAD QA renders and compile artifacts are generated locally.
 /previews/**

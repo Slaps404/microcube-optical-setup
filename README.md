@@ -75,9 +75,16 @@ Set `render_mode` in `optical_setup.scad`:
 - `16`: printable 41 mm collimator barrel and rail slider
 - `17`: printable LED/heatsink rail collar
 - `18`: assembled adjustable rail light engine reference
+- `19`: printable official uCube shell, print two
 
 Modes 0, 7, 8, 13, 14, and 18 contain non-printable references. Export the
 other modes separately.
+
+## Current STL pack
+
+The versioned files in `exports/current` are the individual printable parts
+for the default adjustable-rail assembly. See its README for quantities and
+which dimensions still require a physical fit test.
 
 ## Measurements to confirm
 

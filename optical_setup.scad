@@ -9,7 +9,7 @@ $fn = 64;
 epsilon = 0.02;
 
 /* [Preview] */
-render_mode = 0; // [0:complete_assembly, 1:beamsplitter_face, 2:legacy_light_face, 3:legacy_back_cover, 4:legacy_optic_cartridge, 5:camera_face, 6:camera_thread_test, 7:exploded_assembly, 8:inspection_assembly, 9:condenser_face_cell, 10:condenser_spacer, 11:condenser_retainer, 12:led_carriage, 13:complete_light_engine, 14:exploded_light_engine, 15:adjustable_rail_base, 16:rail_collimator_slider, 17:rail_led_mount, 18:complete_adjustable_rail_engine]
+render_mode = 0; // [0:complete_assembly, 1:beamsplitter_face, 2:legacy_light_face, 3:legacy_back_cover, 4:legacy_optic_cartridge, 5:camera_face, 6:camera_thread_test, 7:exploded_assembly, 8:inspection_assembly, 9:condenser_face_cell, 10:condenser_spacer, 11:condenser_retainer, 12:led_carriage, 13:complete_light_engine, 14:exploded_light_engine, 15:adjustable_rail_base, 16:rail_collimator_slider, 17:rail_led_mount, 18:complete_adjustable_rail_engine, 19:official_ucube_shell]
 show_optical_references = true;
 camera_preview_detailed_thread = true;
 show_auxiliary_illumination_cube = true;
@@ -1384,3 +1384,5 @@ else if (render_mode == 17)
 else if (render_mode == 18)
     adjustable_collimator_rail_engine(include_references = true,
                                        include_auxiliary_cube = true);
+else if (render_mode == 19)
+    uCube(cubeSize = cube_spec);
