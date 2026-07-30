@@ -12,6 +12,7 @@ epsilon = 0.02;
 render_mode = 0; // [0:complete_assembly, 1:beamsplitter_face, 2:legacy_light_face, 3:legacy_back_cover, 4:legacy_optic_cartridge, 5:camera_face, 6:camera_thread_test, 7:exploded_assembly, 8:inspection_assembly, 9:condenser_face_cell, 10:condenser_spacer, 11:condenser_retainer, 12:led_carriage, 13:complete_light_engine, 14:exploded_light_engine, 15:adjustable_rail_base, 16:rail_collimator_slider, 17:rail_led_mount, 18:complete_adjustable_rail_engine]
 show_optical_references = true;
 camera_preview_detailed_thread = true;
+show_auxiliary_illumination_cube = true;
 
 /* [Official uCube] */
 internal_clearance_mm = 40; // [40]
@@ -78,15 +79,16 @@ condenser_carriage_clearance_mm = 0.2; // [0.1:0.1:0.8] Total XY clearance
 condenser_carriage_thickness_mm = 4; // [3:0.5:6]
 condenser_fastener_radius_mm = 1.5; // Provisional M3 clearance
 
-/* [PROVISIONAL adjustable collimator rail]
-   Transcript-confirmed rail/slider dimensions are fixed below. Rail length,
-   vertical placement, insert envelope, and nominal slider position remain
-   provisional until the missing top/side sketches are available. */
+/* [Adjustable collimator rail]
+   The supplied video frames clarify that the rail spans one additional uCube
+   cell and sits in its lower frame envelope. Insert dimensions and nominal
+   slider position remain provisional. */
 collimator_rail_size_mm = 10; // Transcript-confirmed square rail
 collimator_rail_slider_clearance_mm = 0.3; // Total width clearance
 collimator_rail_slider_wall_mm = 5; // Transcript-confirmed wall thickness
-collimator_rail_length_mm = 80; // PROVISIONAL
 collimator_rail_face_overlap_mm = 3; // PROVISIONAL face weld
+collimator_rail_length_mm = internal_clearance_mm + 4 * frame_feature_mm
+    + 2 * collimator_rail_face_overlap_mm; // 68 mm cell plus end welds
 collimator_rail_slider_length_mm = 20; // PROVISIONAL along rail
 collimator_rail_barrel_depth_mm = 30; // Confirmed complete housing depth
 collimator_rail_barrel_wall_mm = 5; // PROVISIONAL radial wall
@@ -205,9 +207,10 @@ collimator_rail_slider_outer_mm = collimator_rail_channel_mm
     + 2 * collimator_rail_slider_wall_mm;
 collimator_rail_barrel_outer_mm = condenser_diameter_mm
     + 2 * collimator_rail_barrel_wall_mm;
-collimator_rail_center_y = -(collimator_rail_barrel_outer_mm / 2
-    + collimator_rail_slider_outer_mm / 2
-    - collimator_rail_bridge_overlap_mm);
+// Keep the complete 20.3 mm slider inside the 68 mm auxiliary cube envelope.
+collimator_rail_center_y = -(internal_clearance_mm / 2
+    + 2 * frame_feature_mm
+    - collimator_rail_slider_outer_mm / 2);
 collimator_rail_front_z = condenser_face_outer_z
     + collimator_rail_face_overlap_mm;
 collimator_rail_rear_z = collimator_rail_front_z
@@ -231,6 +234,8 @@ collimator_rail_led_mount_center_z = condenser_led_board_back_z
     - condenser_carriage_thickness_mm / 2;
 collimator_rail_lens_shift_z = collimator_rail_lens_vertex_z
     - condenser_lens_vertex_z;
+auxiliary_cube_center_local_z = -(internal_clearance_mm
+    + 4 * frame_feature_mm - inside_half_mm);
 
 assert(plate_slot_mm >= plate_thickness_mm,
        "The beamsplitter slot must be at least as thick as the plate.");
@@ -755,13 +760,16 @@ module adjustable_collimator_led_mount() {
             translate([0, 0, condenser_led_board_back_z])
                 condenser_led_carriage();
 
-            translate([-collimator_rail_slider_outer_mm / 2,
-                       bridge_bottom_y,
-                       condenser_led_board_back_z
-                           - condenser_carriage_thickness_mm])
-                cube([collimator_rail_slider_outer_mm,
-                      bridge_top_y - bridge_bottom_y,
-                      condenser_carriage_thickness_mm]);
+            // At the lower in-cube rail position the sleeve overlaps the
+            // carriage directly. Keep the bridge only for more distant rails.
+            if (bridge_top_y > bridge_bottom_y)
+                translate([-collimator_rail_slider_outer_mm / 2,
+                           bridge_bottom_y,
+                           condenser_led_board_back_z
+                               - condenser_carriage_thickness_mm])
+                    cube([collimator_rail_slider_outer_mm,
+                          bridge_top_y - bridge_bottom_y,
+                          condenser_carriage_thickness_mm]);
         }
 
         collimator_rail_channel_cut(collimator_rail_led_mount_center_z);
@@ -769,7 +777,13 @@ module adjustable_collimator_led_mount() {
     }
 }
 
-module adjustable_collimator_rail_engine(include_references = true) {
+module adjustable_collimator_rail_engine(include_references = true,
+                                          include_auxiliary_cube = false) {
+    if (include_auxiliary_cube)
+        color([0.72, 0.72, 0.72, 0.20])
+            translate([0, 0, auxiliary_cube_center_local_z])
+                uCube(cubeSize = cube_spec);
+
     color([0.08, 0.35, 0.78])
         adjustable_collimator_rail_base();
     color([0.10, 0.50, 0.82])
@@ -1196,6 +1210,15 @@ module complete_assembly(show_cube = true, show_references = true) {
         color([0.72, 0.72, 0.72, 0.24])
             uCube(cubeSize = cube_spec);
 
+    // The clearer video frames show the adjustable rail inside a second
+    // uCube-sized illumination cell attached to the -X side.
+    if (show_cube && use_condenser_light_engine
+                  && use_adjustable_collimator_rail
+                  && show_auxiliary_illumination_cube)
+        color([0.72, 0.72, 0.72, 0.20])
+            translate([-(internal_clearance_mm + 4 * frame_feature_mm), 0, 0])
+                uCube(cubeSize = cube_spec);
+
     // Orange bottom mounting plate and its recessed beamsplitter rails.
     color([0.95, 0.40, 0.06])
         translate([0, 0, -inside_half_mm])
@@ -1359,4 +1382,5 @@ else if (render_mode == 16)
 else if (render_mode == 17)
     adjustable_collimator_led_mount();
 else if (render_mode == 18)
-    adjustable_collimator_rail_engine(include_references = true);
+    adjustable_collimator_rail_engine(include_references = true,
+                                       include_auxiliary_cube = true);
