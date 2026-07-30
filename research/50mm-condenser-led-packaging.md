@@ -1,5 +1,21 @@
 # 50 mm condenser, LED, driver, and heatsink packaging
 
+## Supplied collimator update, 2026-07-29
+
+The selected hardware is now a two-lens collimator cartridge with a spacer
+ring, not the provisional bare 50 mm asphere studied below. Measurements
+supplied from the physical assembly are:
+
+- 41 mm outside diameter;
+- 24.1 mm assembly thickness along the light-propagation path;
+- slight bevel on the front lens;
+- a small spring is available to preload the assembly in its holder.
+
+These two measured envelope dimensions supersede the old 50 mm mechanical CAD
+defaults. Clear aperture, focal length, lens-element spacing, and spring
+compression remain unknown and provisional. The older research below is kept
+as design history for the LED, driver, and thermal packaging decisions.
+
 Scope: mechanical packaging guidance for the existing official 40 mm uCube
 light face. This does not change `optical_setup.scad`.
 
@@ -145,11 +161,10 @@ separable parts: uFace adapter, lens barrel/retainer, and sliding
 LED-heatsink carriage. Print only a lens-diameter fit ring first, then verify the
 real lens and MCPCB before printing the full pod.
 
-## Required CAD parameters
+## Superseded 50 mm reference parameters
 
-Do not derive the mechanical LED location from nominal focal length alone. A
-thick asphere's back focal length and center thickness are separate catalog
-values. The OpenSCAD model should expose at least:
+These were the earlier ACL5040U-A-based reference values. They no longer define
+the collimator pocket:
 
 - `condenser_diameter_mm = 50`;
 - `condenser_clear_aperture_mm = 45`;

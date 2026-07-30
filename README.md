@@ -27,17 +27,17 @@ The bottom face holds a 50 x 50 x 2.05 mm beamsplitter at 45 degrees. Its two
 rails extend through the face recess and stop flush with the visible cube
 opening, so they remain hidden in a straight side view.
 
-The default light face now uses a provisional external condenser pod for a
-Thorlabs ACL5040U-A-style 50 mm asphere. It keeps the 30 mm cube-side output,
-holds the lens by its edge, provides 6 mm LED focus travel, and separates the
-printed optical shell from the metal heat spreader and exposed heatsink. The
-older compact diffuser chamber remains available in legacy render modes.
+The default light face now uses an external pod for the supplied two-lens
+collimator cartridge. The assembly measures 41 mm in diameter and 24.1 mm thick
+along the light path. The pod keeps the 30 mm cube-side output and provides 6 mm LED focus
+travel, and separates the printed optical shell from the metal heat spreader
+and exposed heatsink. The older compact diffuser chamber remains available in
+legacy render modes.
 
-All LED board, driver, heat-spreader, heatsink, and fan dimensions are marked
-`PROVISIONAL` in `optical_setup.scad`. Replace them with measured hardware
-before printing the complete pod. Nominal EFL, BFL, center thickness, and edge
-thickness are separate parameters because focal length alone does not locate a
-thick aspheric lens mechanically.
+The 41 mm diameter and 24.1 mm axial thickness are measured. Clear aperture, focal
+data, LED board, driver, heat-spreader, heatsink, and fan dimensions are marked
+`PROVISIONAL` in `optical_setup.scad`. Replace those guesses with measurements
+before printing the complete pod.
 
 The camera face carries a male M37 x 0.75 thread for the lens's female M37
 front/filter thread. The configured lens reference is 16 mm focal length with
@@ -58,7 +58,7 @@ Set `render_mode` in `optical_setup.scad`:
 - `6`: printable M37 thread-fit coupon
 - `7`: exploded assembly reference
 - `8`: wireframe inspection reference
-- `9`: printable 50 mm condenser uFace and front lens cell
+- `9`: printable 41 mm collimator uFace and cartridge cell
 - `10`: printable condenser spacer and provisional driver rails
 - `11`: printable condenser lens retaining ring
 - `12`: printable focus-adjustable LED/heatsink carriage
@@ -75,6 +75,7 @@ female M37 x 0.75, then adjust `camera_thread_clearance_mm` if needed. Also test
 the 2.1 mm beamsplitter slot, optic-cartridge fit, and official face screw
 alignment before printing complete parts.
 
-For the provisional condenser pod, first print only mode 11 and verify the
-real lens diameter and edge retention. Then verify the MCPCB, heat-spreader,
-heatsink, and driver dimensions before printing modes 9, 10, and 12.
+For the collimator pod, first print mode 11 and a shallow section of mode 9.
+Verify the cartridge slip fit and spring preload with the real 41 x 24.1 mm
+assembly. Then verify the MCPCB, heat-spreader, heatsink, and driver dimensions
+before printing full modes 9, 10, and 12.

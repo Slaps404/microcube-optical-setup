@@ -51,20 +51,21 @@ cover_screw_offset_mm = 20.5; // [19:0.5:21]
 cover_screw_radius_mm = 1.2; // [1:0.1:1.6]
 cable_notch_mm = 6; // [4:1:9]
 
-/* [PROVISIONAL condenser light engine]
-   These defaults are best guesses for an ACL5040U-A, a 20 mm LED MCPCB,
-   a compact LDD-style driver, and low-duty capture lighting. Replace them
-   with measured hardware dimensions before printing the complete pod. */
+/* [Collimator light engine]
+   The cartridge envelope below comes from measurements supplied 2026-07-29:
+   a two-lens collimator assembly, 41 mm diameter and 24.1 mm thick along the
+   light-propagation axis. Focal data, clear aperture, and all LED/thermal parts remain
+   provisional until the actual hardware can be measured. */
 use_condenser_light_engine = true;
-condenser_diameter_mm = 50; // [25:0.5:60]
-condenser_clear_aperture_mm = 45; // [20:0.5:55]
-condenser_efl_mm = 40; // Optical reference only
-condenser_bfl_mm = 26; // LED die to plano surface, controls mechanics
-condenser_center_thickness_mm = 21; // [5:0.5:30]
-condenser_edge_thickness_mm = 2.6; // [1:0.1:8]
+condenser_diameter_mm = 41; // [35:0.1:45] MEASURED assembly OD
+condenser_assembly_depth_mm = 24.1; // [20:0.1:30] MEASURED axial thickness
+condenser_clear_aperture_mm = 39; // [30:0.5:40] PROVISIONAL after front bevel
+condenser_efl_mm = 40; // PROVISIONAL optical reference only
+condenser_bfl_mm = 26; // PROVISIONAL LED die to rear lens face
+condenser_front_bevel_depth_mm = 1; // PROVISIONAL visual/clearance envelope
 condenser_pocket_clearance_mm = 0.4; // [0.2:0.1:0.8]
 condenser_front_vertex_setback_mm = 2; // Outside official face plane
-condenser_pod_outer_mm = 60; // [56:1:68]
+condenser_pod_outer_mm = 52; // [48:1:60]
 condenser_retainer_thickness_mm = 3; // [2:0.5:5]
 condenser_retainer_clearance_mm = 0.3; // [0.2:0.1:0.6]
 condenser_retainer_overlap_mm = 2.5; // [1.5:0.5:4]
@@ -133,16 +134,16 @@ face_center_from_origin_mm =
 condenser_face_outer_z = -face_outer_depth_mm;
 condenser_lens_vertex_z = condenser_face_outer_z
     - condenser_front_vertex_setback_mm;
-condenser_lens_plano_z = condenser_lens_vertex_z
-    - condenser_center_thickness_mm;
-condenser_lens_edge_front_z = condenser_lens_plano_z
-    + condenser_edge_thickness_mm;
-condenser_retainer_front_z = condenser_lens_plano_z
+condenser_lens_rear_z = condenser_lens_vertex_z
+    - condenser_assembly_depth_mm;
+condenser_lens_edge_front_z = condenser_lens_vertex_z
+    - condenser_front_bevel_depth_mm;
+condenser_retainer_front_z = condenser_lens_rear_z
     - condenser_retainer_clearance_mm;
 condenser_retainer_back_z = condenser_retainer_front_z
     - condenser_retainer_thickness_mm;
 condenser_cell_rear_z = condenser_retainer_back_z - 0.6;
-condenser_nominal_led_die_z = condenser_lens_plano_z - condenser_bfl_mm;
+condenser_nominal_led_die_z = condenser_lens_rear_z - condenser_bfl_mm;
 condenser_led_die_z = condenser_nominal_led_die_z
     - condenser_focus_offset_mm;
 condenser_led_board_front_z = condenser_led_die_z
@@ -151,7 +152,7 @@ condenser_led_board_back_z = condenser_led_board_front_z
     - provisional_led_board_thickness_mm;
 condenser_carriage_back_z = condenser_led_board_back_z
     - condenser_carriage_thickness_mm;
-condenser_nominal_carriage_back_z = condenser_lens_plano_z
+condenser_nominal_carriage_back_z = condenser_lens_rear_z
     - condenser_bfl_mm
     - provisional_led_emitter_height_mm
     - provisional_led_board_thickness_mm
@@ -182,6 +183,8 @@ assert(condenser_diameter_mm + 2 * 2.5 <= condenser_pod_outer_mm,
        "The condenser pod leaves less than 2.5 mm wall around the lens.");
 assert(condenser_clear_aperture_mm <= condenser_diameter_mm,
        "The condenser clear aperture cannot exceed its diameter.");
+assert(condenser_assembly_depth_mm > condenser_front_bevel_depth_mm,
+       "The collimator slot must be deeper than its front bevel allowance.");
 assert(abs(condenser_focus_offset_mm) <= condenser_focus_travel_mm / 2,
        "The condenser focus offset exceeds the modeled adjustment travel.");
 assert(provisional_heat_spreader_width_mm <= condenser_carriage_size_mm,
@@ -427,7 +430,7 @@ module optic_cartridge() {
     }
 }
 
-// PROVISIONAL 50 mm condenser light engine. The printed shell locates parts;
+// Measured 41 x 24.1 mm collimator envelope. The printed shell locates parts;
 // the aluminum heat spreader and heatsink carry LED heat, not the plastic.
 module condenser_pod_corner_positions(include_cable_corner = false) {
     offset = condenser_pod_outer_mm / 2 - 5;
@@ -461,7 +464,7 @@ module condenser_inside_nose() {
     }
 }
 
-// uFace plus the front cell. The 50 mm lens loads from the rear.
+// uFace plus the front cell. The complete two-lens cartridge loads from rear.
 module condenser_face_cell() {
     lens_pocket_d = condenser_diameter_mm
         + condenser_pocket_clearance_mm;
@@ -489,14 +492,14 @@ module condenser_face_cell() {
                          + 2 * epsilon,
                      d = light_output_diameter_mm);
 
-        // Clear optical cavity around the curved face.
+        // Clear optical cavity around the front bevel/curved face.
         translate([0, 0, condenser_lens_edge_front_z])
             cylinder(h = condenser_lens_vertex_z
                          - condenser_lens_edge_front_z
                          + epsilon,
                      d = condenser_clear_aperture_mm + 1);
 
-        // Close radial fit around the physical lens edge.
+        // Close radial fit along the complete 24.1 mm cartridge envelope.
         translate([0, 0, condenser_retainer_front_z])
             cylinder(h = condenser_lens_edge_front_z
                          - condenser_retainer_front_z
@@ -524,8 +527,8 @@ module condenser_face_cell() {
     }
 }
 
-// Rear ring lightly preloads an edge O-ring. It must not touch the optical
-// clear aperture or the strongly curved surface.
+// Rear ring traps the supplied light spring behind the cartridge. It must not
+// touch the clear aperture or apply hard point loads to either lens element.
 module condenser_lens_retainer() {
     retainer_outer_d = condenser_pod_outer_mm - 4;
     retainer_inner_d = condenser_diameter_mm
@@ -662,24 +665,27 @@ module condenser_led_carriage() {
     }
 }
 
-// Approximate optical envelope only. The printed cell uses catalog diameter,
-// center thickness, and edge thickness rather than this visual surface shape.
+// Approximate two-lens cartridge envelope only. Internal lens/spacer lengths
+// are visual guesses; only the 41 mm OD and 24.1 mm overall depth are measured.
 module condenser_lens_reference() {
-    radius = condenser_diameter_mm / 2;
-    sag = condenser_center_thickness_mm - condenser_edge_thickness_mm;
-    profile = concat(
-        [[0, 0]],
-        [for (index = [1:12])
-            let(r = radius * index / 12)
-                [r, -sag * pow(r / radius, 2)]],
-        [[radius, -condenser_center_thickness_mm],
-         [0, -condenser_center_thickness_mm]]
-    );
+    element_depth = 8;
+    spacer_depth = condenser_assembly_depth_mm - 2 * element_depth;
 
-    color([0.52, 0.86, 1.0, 0.48])
-        translate([0, 0, condenser_lens_vertex_z])
-            rotate_extrude($fn = 120)
-                polygon(points = profile);
+    color([0.52, 0.86, 1.0, 0.48]) {
+        translate([0, 0, condenser_lens_rear_z])
+            cylinder(h = element_depth, d = condenser_diameter_mm);
+        translate([0, 0, condenser_lens_vertex_z - element_depth])
+            cylinder(h = element_depth, d = condenser_diameter_mm);
+    }
+
+    color([0.08, 0.08, 0.09, 0.90])
+        translate([0, 0, condenser_lens_rear_z + element_depth])
+            difference() {
+                cylinder(h = spacer_depth, d = condenser_diameter_mm);
+                translate([0, 0, -epsilon])
+                    cylinder(h = spacer_depth + 2 * epsilon,
+                             d = condenser_clear_aperture_mm - 2);
+            }
 }
 
 module provisional_led_thermal_references() {
@@ -776,8 +782,8 @@ module condenser_light_engine(include_references = true) {
 module condenser_light_engine_exploded() {
     gap = 8;
     lens_shift = condenser_cell_rear_z - gap - condenser_lens_vertex_z;
-    exploded_lens_plano_z = condenser_lens_plano_z + lens_shift;
-    retainer_shift = exploded_lens_plano_z - gap
+    exploded_lens_rear_z = condenser_lens_rear_z + lens_shift;
+    retainer_shift = exploded_lens_rear_z - gap
         - condenser_retainer_front_z;
     exploded_retainer_back_z = condenser_retainer_back_z + retainer_shift;
     spacer_shift = exploded_retainer_back_z - gap - condenser_cell_rear_z;
@@ -954,7 +960,7 @@ module complete_assembly(show_cube = true, show_references = true) {
         translate([0, 0, -inside_half_mm])
             beamsplitter_mounting_face();
 
-    // Blue -X light face. The new 50 mm condenser engine is the default;
+    // Blue -X light face. The measured 41 mm collimator engine is the default;
     // the compact legacy chamber remains available in render modes 2-4.
     if (use_condenser_light_engine)
         light_face_transform()
