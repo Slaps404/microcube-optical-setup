@@ -64,22 +64,34 @@ condenser_efl_mm = 40; // PROVISIONAL optical reference only
 condenser_bfl_mm = 26; // PROVISIONAL LED die to rear lens face
 condenser_front_bevel_depth_mm = 1; // PROVISIONAL visual/clearance envelope
 condenser_pocket_clearance_mm = 0.2; // [0.1:0.1:0.8] Total diametral clearance
-condenser_front_vertex_setback_mm = 2; // Outside official face plane
+condenser_front_vertex_setback_mm = 5; // Housing protrusion above lens
 condenser_pod_outer_mm = 52; // [48:1:60]
 condenser_retainer_thickness_mm = 3; // [2:0.5:5]
 condenser_retainer_clearance_mm = 0.2; // [0.1:0.1:0.6] Total axial/pocket clearance
 condenser_retainer_overlap_mm = 2.5; // [1.5:0.5:4]
+condenser_flat_spring_compressed_diameter_mm = 37.44; // MEASURED, reference only
+condenser_flat_spring_wire_diameter_mm = 1.04; // MEASURED, reference only
 condenser_focus_travel_mm = 6; // Total axial adjustment
 condenser_focus_offset_mm = 0; // [-3:0.25:3]
 condenser_carriage_clearance_mm = 0.2; // [0.1:0.1:0.8] Total XY clearance
 condenser_carriage_thickness_mm = 4; // [3:0.5:6]
 condenser_fastener_radius_mm = 1.5; // Provisional M3 clearance
 
-// PROVISIONAL hardware envelopes. Replace after choosing actual parts.
-provisional_led_board_width_mm = 20;
-provisional_led_board_height_mm = 20;
+// Selected LED: Amazon ASIN B0CL726PBP, 3 W 3535 emitter on 20 mm star MCPCB.
+selected_led_power_w = 3;
+selected_led_forward_voltage_min_v = 3.0;
+selected_led_forward_voltage_max_v = 3.4;
+selected_led_drive_current_ma = 700;
+selected_led_beam_angle_degrees = 120;
+selected_led_cct_min_k = 8000;
+selected_led_cct_max_k = 10000;
+selected_led_package_mm = 3.5;
+provisional_led_board_width_mm = 20; // Selected circular/star board envelope
+provisional_led_board_height_mm = 20; // Selected circular/star board envelope
 provisional_led_board_thickness_mm = 1.6;
 provisional_led_emitter_height_mm = 1.4;
+
+// PROVISIONAL thermal, driver, and fan envelopes.
 provisional_heat_spreader_width_mm = 40;
 provisional_heat_spreader_height_mm = 40;
 provisional_heat_spreader_thickness_mm = 3;
@@ -527,9 +539,11 @@ module condenser_face_cell() {
     }
 }
 
-// Screw-on fallback retainer. The supplied hardware appears to be a split wire
-// retaining clip, but its groove dimensions must be confirmed before modeling.
-// Neither retainer may apply hard point loads to the lens elements.
+// Removable rear retainer. The original holder's 37.44 mm compressed-diameter
+// flat spring uses 1.04 mm wire and shares the bore behind the lens stack. It is
+// intentionally formed, so a flat annular pressure washer distributes its load and
+// the pocket, not the spring, must center the optics. Spring axial dimensions
+// remain unmodeled. No part may point-load a lens element.
 module condenser_lens_retainer() {
     retainer_outer_d = condenser_pod_outer_mm - 4;
     retainer_inner_d = condenser_diameter_mm

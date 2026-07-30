@@ -9,9 +9,17 @@ supplied from the physical assembly are:
 - 41 mm outside diameter;
 - 24.1 mm assembly thickness along the light-propagation path;
 - slight bevel on the front lens;
-- a later sketch shows a split wire retaining clip with an approximately 15 mm
-  opening; the meanings of its `a = 1 mm`, `b = 3 mm`, and `30 mm` annotations
-  still need confirmation before modeling the clip groove.
+- a later rough sketch confirms `a = 1 mm` groove inset, `b = 3 mm` end-lip
+  thickness, and 30 mm complete housing depth;
+- its separate C-shaped feature is a flat retaining spring with an approximately
+  15 mm opening and a measured compressed diameter of about 37.44 mm;
+- a physical reference photo shows the spring sharing the same cylindrical bore
+  behind the lens stack rather than occupying a separate snap-ring groove;
+- the spring wire diameter is 1.04 mm and its bent form is intentional, so it must
+  not be used as the radial locator or press directly against a lens surface;
+- the rear ring compresses the spring axially to preload the lens against the
+  front stop through a flat annular pressure washer. The spring's compressed
+  axial height remains unknown.
 
 These two measured envelope dimensions supersede the old 50 mm mechanical CAD
 defaults. Clear aperture, focal length, lens-element spacing, and spring
@@ -87,6 +95,17 @@ system uses retaining rings, including a rubber O-ring version for
 stress-reduced mounting: [SM2 lens tubes and retaining rings](https://www.thorlabs.com/newgrouppage9.cfm?objectgroup_ID=3383).
 
 ## LED and thermal stack
+
+The selected first-test source is the [LEDGUHON Amazon ASIN B0CL726PBP](https://www.amazon.com/dp/B0CL726PBP):
+
+- 3 W 3535 white LED package;
+- 20 mm aluminum star MCPCB;
+- 3.0 to 3.4 V forward voltage at 700 mA;
+- 120-degree nominal beam;
+- selected listing variant labeled 8000 to 10000 K.
+
+The 20 mm board envelope is now fixed in CAD. Board thickness, emitter height,
+mounting-hole locations, and delivered color still require physical measurement.
 
 A single small emitter is the cleanest first optical test. A representative
 choice is Cree's XP-G4 or XP-G4 HI family. The package is 3.45 x 3.45 mm, the HI

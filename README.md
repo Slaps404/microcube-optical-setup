@@ -34,10 +34,10 @@ travel, and separates the printed optical shell from the metal heat spreader
 and exposed heatsink. The older compact diffuser chamber remains available in
 legacy render modes.
 
-The 41 mm diameter and 24.1 mm axial thickness are measured. Clear aperture, focal
-data, LED board, driver, heat-spreader, heatsink, and fan dimensions are marked
-`PROVISIONAL` in `optical_setup.scad`. Replace those guesses with measurements
-before printing the complete pod.
+The 41 mm diameter and 24.1 mm axial thickness are measured. The selected LED is
+a 3 W, 700 mA 3535 emitter on a 20 mm star MCPCB. Clear aperture, focal data,
+board thickness, driver, heat-spreader, heatsink, and fan dimensions remain
+`PROVISIONAL` in `optical_setup.scad` until the physical parts are measured.
 
 The camera face carries a male M37 x 0.75 thread for the lens's female M37
 front/filter thread. The configured lens reference is 16 mm focal length with
@@ -76,7 +76,11 @@ the 2.1 mm beamsplitter slot, optic-cartridge fit, and official face screw
 alignment before printing complete parts.
 
 For the collimator pod, first print mode 11 and a shallow section of mode 9.
-Verify the cartridge slip fit with the real 41 x 24.1 mm assembly. The supplied
-hardware appears to be a split wire retaining clip, but its groove dimensions
-still need confirmation. Then verify the MCPCB, heat-spreader, heatsink, and
-driver dimensions before printing full modes 9, 10, and 12.
+Verify the cartridge slip fit with the real 41 x 24.1 mm assembly. The original
+holder uses a flat spring with an approximately 37.44 mm compressed diameter.
+It shares the cylindrical bore behind the lens and is compressed axially by the
+modeled screw-on rear ring. Its wire measures 1.04 mm and is intentionally formed, so it
+must preload a flat annular pressure washer rather than contact or center the
+optics directly. Its compressed axial height still needs measurement. Then
+verify the MCPCB, heat-spreader, heatsink, and driver dimensions before printing
+full modes 9, 10, and 12.
