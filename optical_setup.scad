@@ -63,15 +63,15 @@ condenser_clear_aperture_mm = 39; // [30:0.5:40] PROVISIONAL after front bevel
 condenser_efl_mm = 40; // PROVISIONAL optical reference only
 condenser_bfl_mm = 26; // PROVISIONAL LED die to rear lens face
 condenser_front_bevel_depth_mm = 1; // PROVISIONAL visual/clearance envelope
-condenser_pocket_clearance_mm = 0.4; // [0.2:0.1:0.8]
+condenser_pocket_clearance_mm = 0.2; // [0.1:0.1:0.8] Total diametral clearance
 condenser_front_vertex_setback_mm = 2; // Outside official face plane
 condenser_pod_outer_mm = 52; // [48:1:60]
 condenser_retainer_thickness_mm = 3; // [2:0.5:5]
-condenser_retainer_clearance_mm = 0.3; // [0.2:0.1:0.6]
+condenser_retainer_clearance_mm = 0.2; // [0.1:0.1:0.6] Total axial/pocket clearance
 condenser_retainer_overlap_mm = 2.5; // [1.5:0.5:4]
 condenser_focus_travel_mm = 6; // Total axial adjustment
 condenser_focus_offset_mm = 0; // [-3:0.25:3]
-condenser_carriage_clearance_mm = 0.4; // [0.2:0.1:0.8]
+condenser_carriage_clearance_mm = 0.2; // [0.1:0.1:0.8] Total XY clearance
 condenser_carriage_thickness_mm = 4; // [3:0.5:6]
 condenser_fastener_radius_mm = 1.5; // Provisional M3 clearance
 
@@ -527,8 +527,9 @@ module condenser_face_cell() {
     }
 }
 
-// Rear ring traps the supplied light spring behind the cartridge. It must not
-// touch the clear aperture or apply hard point loads to either lens element.
+// Screw-on fallback retainer. The supplied hardware appears to be a split wire
+// retaining clip, but its groove dimensions must be confirmed before modeling.
+// Neither retainer may apply hard point loads to the lens elements.
 module condenser_lens_retainer() {
     retainer_outer_d = condenser_pod_outer_mm - 4;
     retainer_inner_d = condenser_diameter_mm

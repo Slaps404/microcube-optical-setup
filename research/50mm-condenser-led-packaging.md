@@ -9,7 +9,9 @@ supplied from the physical assembly are:
 - 41 mm outside diameter;
 - 24.1 mm assembly thickness along the light-propagation path;
 - slight bevel on the front lens;
-- a small spring is available to preload the assembly in its holder.
+- a later sketch shows a split wire retaining clip with an approximately 15 mm
+  opening; the meanings of its `a = 1 mm`, `b = 3 mm`, and `30 mm` annotations
+  still need confirmation before modeling the clip groove.
 
 These two measured envelope dimensions supersede the old 50 mm mechanical CAD
 defaults. Clear aperture, focal length, lens-element spacing, and spring

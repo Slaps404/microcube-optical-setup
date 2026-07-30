@@ -76,6 +76,7 @@ the 2.1 mm beamsplitter slot, optic-cartridge fit, and official face screw
 alignment before printing complete parts.
 
 For the collimator pod, first print mode 11 and a shallow section of mode 9.
-Verify the cartridge slip fit and spring preload with the real 41 x 24.1 mm
-assembly. Then verify the MCPCB, heat-spreader, heatsink, and driver dimensions
-before printing full modes 9, 10, and 12.
+Verify the cartridge slip fit with the real 41 x 24.1 mm assembly. The supplied
+hardware appears to be a split wire retaining clip, but its groove dimensions
+still need confirmation. Then verify the MCPCB, heat-spreader, heatsink, and
+driver dimensions before printing full modes 9, 10, and 12.
