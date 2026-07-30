@@ -1344,45 +1344,53 @@ module inspection_assembly() {
     complete_assembly(show_cube = false, show_references = true);
 }
 
-if (render_mode == 0)
-    complete_assembly(show_cube = true,
-                      show_references = show_optical_references);
-else if (render_mode == 1)
-    beamsplitter_mounting_face();
-else if (render_mode == 2)
-    light_source_mounting_face();
-else if (render_mode == 3)
-    light_back_cover();
-else if (render_mode == 4)
-    optic_cartridge();
-else if (render_mode == 5)
-    threaded_camera_mounting_face(detailed_thread = true);
-else if (render_mode == 6)
-    camera_thread_test_stub();
-else if (render_mode == 7)
-    exploded_assembly();
-else if (render_mode == 8)
-    inspection_assembly();
-else if (render_mode == 9)
-    condenser_face_cell();
-else if (render_mode == 10)
-    condenser_spacer_body();
-else if (render_mode == 11)
-    condenser_lens_retainer();
-else if (render_mode == 12)
-    condenser_led_carriage();
-else if (render_mode == 13)
-    condenser_light_engine(include_references = true);
-else if (render_mode == 14)
-    condenser_light_engine_exploded();
-else if (render_mode == 15)
-    adjustable_collimator_rail_base();
-else if (render_mode == 16)
-    adjustable_collimator_barrel_slider();
-else if (render_mode == 17)
-    adjustable_collimator_led_mount();
-else if (render_mode == 18)
-    adjustable_collimator_rail_engine(include_references = true,
-                                       include_auxiliary_cube = true);
-else if (render_mode == 19)
-    uCube(cubeSize = cube_spec);
+module render_selected_part() {
+    if (render_mode == 0)
+        complete_assembly(show_cube = true,
+                          show_references = show_optical_references);
+    else if (render_mode == 1)
+        beamsplitter_mounting_face();
+    else if (render_mode == 2)
+        light_source_mounting_face();
+    else if (render_mode == 3)
+        light_back_cover();
+    else if (render_mode == 4)
+        optic_cartridge();
+    else if (render_mode == 5)
+        threaded_camera_mounting_face(detailed_thread = true);
+    else if (render_mode == 6)
+        camera_thread_test_stub();
+    else if (render_mode == 7)
+        exploded_assembly();
+    else if (render_mode == 8)
+        inspection_assembly();
+    else if (render_mode == 9)
+        condenser_face_cell();
+    else if (render_mode == 10)
+        condenser_spacer_body();
+    else if (render_mode == 11)
+        condenser_lens_retainer();
+    else if (render_mode == 12)
+        condenser_led_carriage();
+    else if (render_mode == 13)
+        condenser_light_engine(include_references = true);
+    else if (render_mode == 14)
+        condenser_light_engine_exploded();
+    else if (render_mode == 15)
+        adjustable_collimator_rail_base();
+    else if (render_mode == 16)
+        adjustable_collimator_barrel_slider();
+    else if (render_mode == 17)
+        adjustable_collimator_led_mount();
+    else if (render_mode == 18)
+        adjustable_collimator_rail_engine(include_references = true,
+                                           include_auxiliary_cube = true);
+    else if (render_mode == 19)
+        uCube(cubeSize = cube_spec);
+}
+
+// Part-specific SCAD entry files set this before including the shared source.
+if (is_undef(skip_main_render))
+    render_selected_part();
+else if (!skip_main_render)
+    render_selected_part();

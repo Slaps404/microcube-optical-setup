@@ -83,8 +83,9 @@ other modes separately.
 ## Current STL pack
 
 The versioned files in `exports/current` are the individual printable parts
-for the default adjustable-rail assembly. See its README for quantities and
-which dimensions still require a physical fit test.
+for the default adjustable-rail assembly. Each geometry-checked STL has a
+matching part-specific SCAD entry file. See the folder README for quantities
+and which dimensions still require a physical fit test.
 
 ## Measurements to confirm
 

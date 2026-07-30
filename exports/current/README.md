@@ -1,7 +1,9 @@
 # Current printable STL pack
 
 Generated from `optical_setup.scad` at the repository commit containing these
-files. Dimensions are millimeters.
+files. Dimensions are millimeters. Each STL has a matching SCAD entry file in
+this folder. The SCAD entry files load the shared parametric source from the
+repository, so keep the repository folder structure intact.
 
 | File | Quantity | Render mode | Purpose |
 | --- | ---: | ---: | --- |
