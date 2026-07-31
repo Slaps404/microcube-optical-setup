@@ -9,7 +9,7 @@ $fn = 64;
 epsilon = 0.02;
 
 /* [Preview] */
-render_mode = 7; // [0:complete_assembly, 1:beamsplitter_face, 2:legacy_light_face, 3:legacy_back_cover, 4:legacy_optic_cartridge, 5:camera_face, 6:camera_thread_test, 7:exploded_assembly, 8:inspection_assembly, 9:official_ucube_shell, 10:cell_bottom_u, 11:cell_top_u, 12:lens_sleeve_slider, 13:led_post_slider]
+render_mode = 7; // [0:complete_assembly, 1:beamsplitter_face, 2:legacy_light_face, 3:legacy_back_cover, 4:legacy_optic_cartridge, 5:camera_face, 6:camera_thread_test, 7:exploded_assembly, 8:inspection_assembly, 9:official_ucube_shell, 10:cell_bottom_u, 11:cell_top_u, 12:lens_sleeve_slider, 13:led_post_slider, 14:cell_assembly, 15:cell_assembly_open]
 show_optical_references = true;
 camera_preview_detailed_thread = true;
 show_auxiliary_illumination_cube = true;
@@ -836,6 +836,46 @@ module led_post_slider() {
     }
 }
 
+// The purchased 40.0 mm lens tube, shown for reference only. The two lenses
+// ride inside it on spring clips; we do not model or machine that tube.
+module lens_tube_reference() {
+    color([0.55, 0.60, 0.65, 0.45])
+        translate([sleeve_rear_x + 0.5, 0, 0])
+            rotate([0, 90, 0])
+                difference() {
+                    cylinder(h = sleeve_depth_mm + 6, d = tube_outer_mm);
+                    translate([0, 0, -epsilon])
+                        cylinder(h = sleeve_depth_mm + 6 + 2 * epsilon,
+                                 d = tube_outer_mm - 4);
+                }
+}
+
+// The cell frame shares global X, so it drops into place with a translation
+// only. Cell X=0 is the visible inner edge of the cube opening.
+module illumination_cell_transform() {
+    translate([-inside_half_mm, 0, 0])
+        children();
+}
+
+module illumination_cell_assembly(include_lid = true,
+                                  include_references = true) {
+    color([0.08, 0.35, 0.78])
+        illumination_cell_bottom_u();
+
+    if (include_lid)
+        color([0.10, 0.50, 0.82, 0.35])
+            illumination_cell_top_u();
+
+    color([0.10, 0.68, 0.62])
+        lens_sleeve_slider();
+
+    color([0.18, 0.24, 0.34])
+        led_post_slider();
+
+    if (include_references)
+        lens_tube_reference();
+}
+
 module light_face_transform() {
     translate([-inside_half_mm, 0, 0])
         rotate([0, 90, 0])
@@ -858,13 +898,13 @@ module complete_assembly(show_cube = true, show_references = true) {
         color([0.72, 0.72, 0.72, 0.24])
             uCube(cubeSize = cube_spec);
 
-    // A second 73 mm cell on -X carries the illumination optics. Its interior
-    // is being rebuilt as the Path B two-U-shell design, so only the envelope
-    // is drawn here for now.
-    if (show_cube && show_auxiliary_illumination_cube)
-        color([0.72, 0.72, 0.72, 0.20])
-            translate([-(internal_clearance_mm + 4 * frame_feature_mm), 0, 0])
-                uCube(cubeSize = cube_spec);
+    // The Path B illumination cell bolts to the -X uFace pocket and carries
+    // both sliders on its integral rail.
+    if (show_auxiliary_illumination_cube)
+        illumination_cell_transform()
+            illumination_cell_assembly(
+                include_lid = show_cube,
+                include_references = show_references);
 
     // Orange bottom mounting plate and its recessed beamsplitter rails.
     color([0.95, 0.40, 0.06])
@@ -1006,6 +1046,12 @@ module render_selected_part() {
         lens_sleeve_slider();
     else if (render_mode == 13)
         led_post_slider();
+    else if (render_mode == 14)
+        illumination_cell_assembly(include_lid = true,
+                                   include_references = true);
+    else if (render_mode == 15)
+        illumination_cell_assembly(include_lid = false,
+                                   include_references = true);
 }
 
 // Part-specific SCAD entry files set this before including the shared source.
