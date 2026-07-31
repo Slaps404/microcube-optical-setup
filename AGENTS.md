@@ -1,7 +1,7 @@
 # Project context
 
-Before changing this project, read `README.md` and `proposed_plan.md`.
-`proposed_plan.md` is the durable record of design decisions, measured versus
+Before changing this project, read `README.md` and `DESIGN.md`.
+`DESIGN.md` is the durable record of design decisions, measured versus
 provisional dimensions, scope, validation requirements, current exports, and
 known risks from the original design conversation.
 
