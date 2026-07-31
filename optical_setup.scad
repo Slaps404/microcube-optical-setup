@@ -293,10 +293,17 @@ module rounded_xy_prism(width, depth, height, radius) {
 
 // Local Z=0 is the visible inner edge of the official 45 mm cube opening.
 // The uFace itself is flush with the outer cube surface at Z=-14 mm.
+// The vendor uFace puts its screw-head counterbores on the plate's local +Z.
+// Every custom face here builds features toward the cube interior on +Z, so an
+// unmirrored uFace opens the counterbores inward and the cap screws cannot
+// seat. The Z mirror flips them to the outer cube surface. The plate is
+// symmetric in XY, so this changes nothing but the counterbore direction.
+// vendor/uCube/Parts/uHolder.scad does the same flip via rotate([180, 0, 0]).
 module official_face_at_inside_plane() {
     translate([0, 0,
                -face_outer_depth_mm + face_plate_thickness_mm / 2])
-        uFace(cubeSize = cube_spec);
+        mirror([0, 0, 1])
+            uFace(cubeSize = cube_spec);
 }
 
 module square_locator(solid = true, aperture_mm = 0) {
