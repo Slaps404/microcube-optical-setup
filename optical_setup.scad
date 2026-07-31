@@ -9,7 +9,7 @@ $fn = 64;
 epsilon = 0.02;
 
 /* [Preview] */
-render_mode = 7; // [0:complete_assembly, 1:beamsplitter_face, 2:legacy_light_face, 3:legacy_back_cover, 4:legacy_optic_cartridge, 5:camera_face, 6:camera_thread_test, 7:exploded_assembly, 8:inspection_assembly, 9:official_ucube_shell]
+render_mode = 7; // [0:complete_assembly, 1:beamsplitter_face, 2:legacy_light_face, 3:legacy_back_cover, 4:legacy_optic_cartridge, 5:camera_face, 6:camera_thread_test, 7:exploded_assembly, 8:inspection_assembly, 9:official_ucube_shell, 10:cell_bottom_u, 11:cell_top_u]
 show_optical_references = true;
 camera_preview_detailed_thread = true;
 show_auxiliary_illumination_cube = true;
@@ -71,6 +71,50 @@ provisional_led_board_thickness_mm = 1.6;
 provisional_led_emitter_height_mm = 1.4;
 
 
+/* [Illumination cell]
+   Path B: the illumination optics live in their own light-tight box that bolts
+   to one uFace pocket of the optical cube, instead of inside a second official
+   cube. An official 73 mm cube has 14 mm end walls, leaving only 45 mm of
+   interior along the light axis, which cannot hold the 25 mm sleeve plus focus
+   travel plus the LED post. Bolting through a uFace keeps official mounting
+   compatibility while letting the box be as long as the optics need.
+
+   The box prints as two U shells: a bottom U (mating plate, floor, far wall,
+   integral rail) and a top U (both side walls plus the roof) that drops on as
+   a lid. Lifting the lid is how the optics are installed and focused, so no
+   access slot or cover strip is needed. */
+cell_body_length_mm = 80; // [60:1:120] Outward from the cube face
+cell_outer_span_mm = 60; // [56:1:73] Square cross-section, matches the 59 mm plate
+cell_wall_mm = 4; // [3:0.5:6]
+cell_end_wall_mm = 6; // [4:0.5:10]
+cell_aperture_mm = 40; // [30:1:44] Light port through the mating plate
+cell_seam_clearance_mm = 0.25; // [0.1:0.05:0.5] Lid slip fit
+cell_tongue_mm = 2; // [1.5:0.5:3] Light-baffle tongue width
+cell_tongue_height_mm = 2; // [1.5:0.5:4]
+
+/* [Lens sleeve, rail, and sliders]
+   The two lenses are held on spring clips inside a purchased 40.0 mm lens tube.
+   Our sleeve holds that tube: a 1 mm internal lip at the far end stops it, and
+   a spring clip retains it. No groove is cut in the sleeve. */
+tube_outer_mm = 40; // [40] MEASURED purchased lens tube OD
+sleeve_clearance_mm = 1.0; // [0.4:0.1:1.6] Total diametral slip fit
+sleeve_wall_mm = 2; // [1.5:0.5:3]
+sleeve_depth_mm = 25; // [20:1:32] PROVISIONAL, confirm on the bench
+sleeve_lip_mm = 1; // [0.8:0.1:2] Internal tube stop
+rail_width_mm = 10.5; // [10.5] MEASURED cube screw-pad width
+rail_height_mm = 9; // [7:0.5:12]
+harness_slot_clearance_mm = 0.6; // [0.4:0.1:1.0] Total width clearance on the rail
+harness_seat_clearance_mm = 1.5; // Rail top to sleeve underside, keeps the bore centered
+// The side walls host M3 heat-set inserts end-on, so they must be deeper than
+// the insert plus a backing wall. This is why they are not simply 3 mm.
+harness_wall_mm = 6; // [6:0.5:9]
+harness_length_mm = 16; // [12:1:24] Along the rail
+m3_insert_diameter_mm = 4.6; // PROVISIONAL heat-set insert
+m3_insert_depth_mm = 5; // PROVISIONAL heat-set insert
+led_star_diameter_mm = 20; // MEASURED star MCPCB envelope
+led_post_thickness_mm = 3; // [2.5:0.5:5]
+led_cable_notch_mm = 5; // [3:1:8]
+
 /* [Camera face] */
 camera_lens_focal_length_mm = 16; // [16]
 camera_lens_body_diameter_mm = 39; // [39]
@@ -104,6 +148,72 @@ face_inner_depth_mm = 1.5 * frame_feature_mm;
 face_center_from_origin_mm =
     (internal_clearance_mm + 4 * frame_feature_mm) / 2
         - face_plate_thickness_mm / 2;
+
+// Illumination-cell coordinates. X is the light axis and matches the uFace
+// local Z convention: X=0 is the visible inner edge of the cube opening, +X
+// runs into the cube, and -X runs outward into the cell. Z=0 is the beam axis
+// and +Z is up, so the rail sits at negative Z beneath the sleeve.
+sleeve_bore_mm = tube_outer_mm + sleeve_clearance_mm;
+sleeve_outer_mm = sleeve_bore_mm + 2 * sleeve_wall_mm;
+
+// The rail top sits a fixed clearance below the sleeve underside. This keeps
+// the bore exactly on the beam axis, which matters more than rail height.
+rail_top_z = -(sleeve_outer_mm / 2) - harness_seat_clearance_mm;
+rail_bottom_z = rail_top_z - rail_height_mm;
+cell_seam_z = rail_top_z;
+
+cell_floor_top_z = rail_bottom_z;
+cell_outer_bottom_z = cell_floor_top_z - cell_wall_mm;
+cell_outer_top_z = cell_outer_span_mm / 2;
+cell_interior_top_z = cell_outer_top_z - cell_wall_mm;
+cell_interior_half_y = cell_outer_span_mm / 2 - cell_wall_mm;
+
+cell_mate_x = -face_outer_depth_mm;
+cell_far_outer_x = cell_mate_x - cell_body_length_mm;
+cell_interior_far_x = cell_far_outer_x + cell_end_wall_mm;
+
+// The interior stops short of the mating face and gets its own end wall. The
+// 59 mm uFace plate only spans Z = +/-29.5, so it cannot close an interior that
+// reaches down to the rail floor at Z=-33; relying on it left an open slot.
+cell_interior_near_x = cell_mate_x - cell_wall_mm;
+cell_interior_length_mm = cell_interior_near_x - cell_interior_far_x;
+
+// The harness foot straddles the rail. Its slot roof sits at the sleeve
+// underside, so the rail top clearance above is harness_seat_clearance_mm.
+harness_slot_width_mm = rail_width_mm + harness_slot_clearance_mm;
+harness_slot_top_z = -(sleeve_outer_mm / 2);
+harness_foot_bottom_z = rail_bottom_z + 2;
+harness_outer_width_mm = harness_slot_width_mm + 2 * harness_wall_mm;
+rail_insert_center_z = (rail_top_z + rail_bottom_z) / 2;
+
+// LED post: a flat plate on its own harness, pad centered on the beam axis.
+led_post_height_z = harness_foot_bottom_z;
+
+assert(sleeve_outer_mm <= 2 * cell_interior_half_y,
+       "The lens sleeve is wider than the illumination cell interior.");
+assert(sleeve_outer_mm / 2 <= cell_interior_top_z,
+       "The lens sleeve hits the illumination cell roof.");
+assert(rail_bottom_z > cell_outer_bottom_z,
+       "The rail extends below the illumination cell floor.");
+assert(harness_slot_top_z > rail_top_z,
+       "The harness slot roof must clear the rail top.");
+assert(cell_interior_length_mm
+           >= sleeve_depth_mm + harness_wall_mm + led_post_thickness_mm + 10,
+       "The illumination cell is too short for the sleeve, post, and travel.");
+assert(cell_aperture_mm <= sleeve_bore_mm,
+       "The mating-plate light port is wider than the sleeve bore.");
+assert(harness_wall_mm >= m3_insert_depth_mm + 1,
+       "The harness side walls are too thin to host the M3 heat-set inserts.");
+
+echo(str("Cell interior: ", cell_interior_length_mm, " long, ",
+         2 * cell_interior_half_y, " wide, ",
+         cell_interior_top_z - cell_floor_top_z, " tall"));
+echo(str("Sleeve bore/OD: ", sleeve_bore_mm, "/", sleeve_outer_mm,
+         " mm; rail ", rail_width_mm, " x ", rail_height_mm,
+         " with top at Z=", rail_top_z));
+echo(str("Sleeve focus travel: ",
+         cell_interior_length_mm - sleeve_depth_mm
+             - led_post_thickness_mm - harness_wall_mm, " mm maximum"));
 
 assert(plate_slot_mm >= plate_thickness_mm,
        "The beamsplitter slot must be at least as thick as the plate.");
@@ -485,6 +595,120 @@ module light_beam_reference() {
                  d = light_output_diameter_mm);
 }
 
+// ---------------------------------------------------------------------------
+// Illumination cell. All modules below use the cell frame described with the
+// derived coordinates above: X is the light axis, Z=0 is the beam axis.
+// ---------------------------------------------------------------------------
+
+// Outer envelope of the complete box, before the interior is hollowed out.
+module cell_outer_box() {
+    translate([cell_far_outer_x, -cell_outer_span_mm / 2, cell_outer_bottom_z])
+        cube([cell_body_length_mm,
+              cell_outer_span_mm,
+              cell_outer_top_z - cell_outer_bottom_z]);
+}
+
+// Clear interior. Open toward the cube on +X, where the mating plate closes it.
+module cell_interior_void() {
+    translate([cell_interior_far_x,
+               -cell_interior_half_y,
+               cell_floor_top_z])
+        cube([cell_interior_length_mm,
+              2 * cell_interior_half_y,
+              cell_interior_top_z - cell_floor_top_z]);
+}
+
+// One centered ridge running the full interior length along the light axis.
+// Both sliders straddle it and clamp to its flanks with M3 set screws.
+module cell_rail() {
+    translate([cell_interior_far_x,
+               -rail_width_mm / 2,
+               rail_bottom_z])
+        cube([cell_interior_length_mm,
+              rail_width_mm,
+              rail_height_mm]);
+}
+
+// The official uFace, rotated so its plate normal lies along the light axis.
+// This is what bolts the cell into one pocket of the optical cube.
+module cell_mating_plate() {
+    rotate([0, 90, 0])
+        official_face_at_inside_plane();
+}
+
+// Complete box as a single solid, before the lid split.
+module illumination_cell_solid() {
+    difference() {
+        union() {
+            difference() {
+                cell_outer_box();
+                cell_interior_void();
+            }
+            cell_rail();
+            cell_mating_plate();
+        }
+
+        // Light port through the near end wall and the mating plate.
+        translate([cell_interior_near_x - epsilon, 0, 0])
+            rotate([0, 90, 0])
+                cylinder(h = cell_wall_mm + face_plate_thickness_mm
+                             + 2 * epsilon,
+                         d = cell_aperture_mm);
+    }
+}
+
+// Region occupied by the lid: above the seam and between the two end features.
+module cell_lid_region(inset = 0) {
+    translate([cell_interior_far_x + inset,
+               -cell_outer_span_mm,
+               cell_seam_z + inset])
+        cube([cell_interior_length_mm - 2 * inset,
+              2 * cell_outer_span_mm,
+              cell_outer_span_mm]);
+}
+
+// Tongue centered in each side wall. It rises across the seam so light cannot
+// travel straight through the joint. The lid carries the matching groove.
+module cell_seam_tongue(clearance = 0) {
+    for (side = [-1, 1])
+        translate([cell_interior_far_x - clearance,
+                   side * (cell_interior_half_y
+                           + cell_wall_mm / 2
+                           - cell_tongue_mm / 2)
+                       - cell_tongue_mm / 2 - clearance,
+                   cell_seam_z - epsilon])
+            cube([cell_interior_length_mm + 2 * clearance,
+                  cell_tongue_mm + 2 * clearance,
+                  cell_tongue_height_mm + clearance + epsilon]);
+}
+
+// Bottom U: mating plate, floor, far end wall, integral rail, and the lower
+// part of both side walls. This is the piece the optics sit in.
+module illumination_cell_bottom_u() {
+    union() {
+        difference() {
+            illumination_cell_solid();
+            cell_lid_region(inset = 0);
+        }
+        intersection() {
+            cell_seam_tongue();
+            illumination_cell_solid();
+        }
+    }
+}
+
+// Top U: both upper side walls plus the roof, dropping on between the mating
+// plate and the far wall. The groove receives the bottom U's tongue.
+module illumination_cell_top_u() {
+    difference() {
+        intersection() {
+            illumination_cell_solid();
+            cell_lid_region(inset = cell_seam_clearance_mm);
+        }
+        cell_seam_tongue(clearance = cell_seam_clearance_mm);
+    }
+}
+
 module light_face_transform() {
     translate([-inside_half_mm, 0, 0])
         rotate([0, 90, 0])
@@ -647,6 +871,10 @@ module render_selected_part() {
         inspection_assembly();
     else if (render_mode == 9)
         uCube(cubeSize = cube_spec);
+    else if (render_mode == 10)
+        illumination_cell_bottom_u();
+    else if (render_mode == 11)
+        illumination_cell_top_u();
 }
 
 // Part-specific SCAD entry files set this before including the shared source.
