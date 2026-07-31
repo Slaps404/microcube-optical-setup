@@ -9,13 +9,16 @@ $fn = 64;
 epsilon = 0.02;
 
 /* [Preview] */
-render_mode = 0; // [0:complete_assembly, 1:beamsplitter_face, 2:legacy_light_face, 3:legacy_back_cover, 4:legacy_optic_cartridge, 5:camera_face, 6:camera_thread_test, 7:exploded_assembly, 8:inspection_assembly, 9:condenser_face_cell, 10:condenser_spacer, 11:condenser_retainer, 12:led_carriage, 13:complete_light_engine, 14:exploded_light_engine, 15:adjustable_rail_base, 16:rail_collimator_slider, 17:rail_led_mount, 18:complete_adjustable_rail_engine, 19:official_ucube_shell]
+render_mode = 7; // [0:complete_assembly, 1:beamsplitter_face, 2:legacy_light_face, 3:legacy_back_cover, 4:legacy_optic_cartridge, 5:camera_face, 6:camera_thread_test, 7:exploded_assembly, 8:inspection_assembly, 9:condenser_face_cell, 10:condenser_spacer, 11:condenser_retainer, 12:led_carriage, 13:complete_light_engine, 14:exploded_light_engine, 15:adjustable_rail_base, 16:rail_collimator_slider, 17:rail_led_mount, 18:complete_adjustable_rail_engine, 19:official_ucube_shell]
 show_optical_references = true;
 camera_preview_detailed_thread = true;
 show_auxiliary_illumination_cube = true;
 
 /* [Official uCube] */
-internal_clearance_mm = 40; // [40]
+// MEASURED on the physical scaled cube: the square through-hole is 45 mm and
+// the wider inside-face inset is 59 mm (= size + 2d), which measures ~60 mm by
+// hand. Both of those numbers describe the same cube at size=45, d=7.
+internal_clearance_mm = 45; // [40:5:45]
 frame_feature_mm = 7; // [7]
 face_gap_mm = 0.4; // [0.4]
 locator_clearance_mm = 0.2; // [0.1:0.1:0.6]
@@ -288,7 +291,7 @@ module rounded_xy_prism(width, depth, height, radius) {
                     cylinder(h = height, r = radius);
 }
 
-// Local Z=0 is the visible inner edge of the official 40 mm cube opening.
+// Local Z=0 is the visible inner edge of the official 45 mm cube opening.
 // The uFace itself is flush with the outer cube surface at Z=-14 mm.
 module official_face_at_inside_plane() {
     translate([0, 0,
