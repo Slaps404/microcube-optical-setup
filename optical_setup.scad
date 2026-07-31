@@ -9,10 +9,11 @@ $fn = 64;
 epsilon = 0.02;
 
 /* [Preview] */
-render_mode = 7; // [0:complete_assembly, 1:beamsplitter_face, 2:legacy_light_face, 3:legacy_back_cover, 4:legacy_optic_cartridge, 5:camera_face, 6:camera_thread_test, 7:exploded_assembly, 8:inspection_assembly, 9:condenser_face_cell, 10:condenser_spacer, 11:condenser_retainer, 12:led_carriage, 13:complete_light_engine, 14:exploded_light_engine, 15:adjustable_rail_base, 16:rail_collimator_slider, 17:rail_led_mount, 18:complete_adjustable_rail_engine, 19:official_ucube_shell]
+render_mode = 7; // [0:complete_assembly, 1:beamsplitter_face, 2:legacy_light_face, 3:legacy_back_cover, 4:legacy_optic_cartridge, 5:camera_face, 6:camera_thread_test, 7:exploded_assembly, 8:inspection_assembly, 9:official_ucube_shell]
 show_optical_references = true;
 camera_preview_detailed_thread = true;
 show_auxiliary_illumination_cube = true;
+show_legacy_light_chamber = true;
 
 /* [Official uCube] */
 // MEASURED on the physical scaled cube: the square through-hole is 45 mm and
@@ -55,52 +56,6 @@ cover_screw_offset_mm = 20.5; // [19:0.5:21]
 cover_screw_radius_mm = 1.2; // [1:0.1:1.6]
 cable_notch_mm = 6; // [4:1:9]
 
-/* [Collimator light engine]
-   The cartridge envelope below comes from measurements supplied 2026-07-29:
-   a two-lens collimator assembly, 41 mm diameter and 24.1 mm thick along the
-   light-propagation axis. Focal data, clear aperture, and all LED/thermal parts remain
-   provisional until the actual hardware can be measured. */
-use_condenser_light_engine = true;
-use_adjustable_collimator_rail = true;
-condenser_diameter_mm = 41; // [35:0.1:45] MEASURED assembly OD
-condenser_assembly_depth_mm = 24.1; // [20:0.1:30] MEASURED axial thickness
-condenser_clear_aperture_mm = 39; // [30:0.5:40] PROVISIONAL after front bevel
-condenser_efl_mm = 40; // PROVISIONAL optical reference only
-condenser_bfl_mm = 26; // PROVISIONAL LED die to rear lens face
-condenser_front_bevel_depth_mm = 1; // PROVISIONAL visual/clearance envelope
-condenser_pocket_clearance_mm = 0.2; // [0.1:0.1:0.8] Total diametral clearance
-condenser_front_vertex_setback_mm = 5; // Housing protrusion above lens
-condenser_pod_outer_mm = 52; // [48:1:60]
-condenser_retainer_thickness_mm = 3; // [2:0.5:5]
-condenser_retainer_clearance_mm = 0.2; // [0.1:0.1:0.6] Total axial/pocket clearance
-condenser_retainer_overlap_mm = 2.5; // [1.5:0.5:4]
-condenser_flat_spring_compressed_diameter_mm = 37.44; // MEASURED, reference only
-condenser_flat_spring_wire_diameter_mm = 1.04; // MEASURED, reference only
-condenser_focus_travel_mm = 6; // Total axial adjustment
-condenser_focus_offset_mm = 0; // [-3:0.25:3]
-condenser_carriage_clearance_mm = 0.2; // [0.1:0.1:0.8] Total XY clearance
-condenser_carriage_thickness_mm = 4; // [3:0.5:6]
-condenser_fastener_radius_mm = 1.5; // Provisional M3 clearance
-
-/* [Adjustable collimator rail]
-   The supplied video frames clarify that the rail spans one additional uCube
-   cell and sits in its lower frame envelope. Insert dimensions and nominal
-   slider position remain provisional. */
-collimator_rail_size_mm = 10; // Transcript-confirmed square rail
-collimator_rail_slider_clearance_mm = 0.3; // Total width clearance
-collimator_rail_slider_wall_mm = 5; // Transcript-confirmed wall thickness
-collimator_rail_face_overlap_mm = 3; // PROVISIONAL face weld
-collimator_rail_length_mm = internal_clearance_mm + 4 * frame_feature_mm
-    + 2 * collimator_rail_face_overlap_mm; // 68 mm cell plus end welds
-collimator_rail_slider_length_mm = 20; // PROVISIONAL along rail
-collimator_rail_barrel_depth_mm = 30; // Confirmed complete housing depth
-collimator_rail_barrel_wall_mm = 5; // PROVISIONAL radial wall
-collimator_rail_bridge_overlap_mm = 2; // PROVISIONAL print weld
-collimator_rail_position_mm = 15; // [5:1:30] Face plane to slider center
-collimator_rail_m3_clearance_mm = 3.2;
-collimator_rail_insert_diameter_mm = 4.6; // PROVISIONAL M3 heat-set insert
-collimator_rail_insert_length_mm = 5; // PROVISIONAL M3 heat-set insert
-
 // Selected LED: Amazon ASIN B0CL726PBP, 3 W 3535 emitter on 20 mm star MCPCB.
 selected_led_power_w = 3;
 selected_led_forward_voltage_min_v = 3.0;
@@ -115,21 +70,6 @@ provisional_led_board_height_mm = 20; // Selected circular/star board envelope
 provisional_led_board_thickness_mm = 1.6;
 provisional_led_emitter_height_mm = 1.4;
 
-// PROVISIONAL thermal, driver, and fan envelopes.
-provisional_heat_spreader_width_mm = 40;
-provisional_heat_spreader_height_mm = 40;
-provisional_heat_spreader_thickness_mm = 3;
-provisional_heatsink_width_mm = 36;
-provisional_heatsink_height_mm = 36;
-provisional_heatsink_depth_mm = 20;
-provisional_driver_length_mm = 22.6;
-provisional_driver_width_mm = 9.9;
-provisional_driver_height_mm = 8.9;
-provisional_driver_clearance_mm = 0.8;
-include_provisional_driver_rails = true;
-provisional_fan_size_mm = 30;
-provisional_fan_thickness_mm = 10;
-show_provisional_fan = false;
 
 /* [Camera face] */
 camera_lens_focal_length_mm = 16; // [16]
@@ -165,81 +105,6 @@ face_center_from_origin_mm =
     (internal_clearance_mm + 4 * frame_feature_mm) / 2
         - face_plate_thickness_mm / 2;
 
-// Condenser coordinates use local Z=0 at the visible inside cube opening.
-// Negative Z points outward through the light face.
-condenser_face_outer_z = -face_outer_depth_mm;
-condenser_lens_vertex_z = condenser_face_outer_z
-    - condenser_front_vertex_setback_mm;
-condenser_lens_rear_z = condenser_lens_vertex_z
-    - condenser_assembly_depth_mm;
-condenser_lens_edge_front_z = condenser_lens_vertex_z
-    - condenser_front_bevel_depth_mm;
-condenser_retainer_front_z = condenser_lens_rear_z
-    - condenser_retainer_clearance_mm;
-condenser_retainer_back_z = condenser_retainer_front_z
-    - condenser_retainer_thickness_mm;
-condenser_cell_rear_z = condenser_retainer_back_z - 0.6;
-condenser_nominal_led_die_z = condenser_lens_rear_z - condenser_bfl_mm;
-condenser_led_die_z = condenser_nominal_led_die_z
-    - condenser_focus_offset_mm;
-condenser_led_board_front_z = condenser_led_die_z
-    - provisional_led_emitter_height_mm;
-condenser_led_board_back_z = condenser_led_board_front_z
-    - provisional_led_board_thickness_mm;
-condenser_carriage_back_z = condenser_led_board_back_z
-    - condenser_carriage_thickness_mm;
-condenser_nominal_carriage_back_z = condenser_lens_rear_z
-    - condenser_bfl_mm
-    - provisional_led_emitter_height_mm
-    - provisional_led_board_thickness_mm
-    - condenser_carriage_thickness_mm;
-condenser_spacer_rear_z = condenser_nominal_carriage_back_z
-    - condenser_focus_travel_mm / 2;
-condenser_heat_spreader_back_z = condenser_led_board_back_z
-    - provisional_heat_spreader_thickness_mm;
-condenser_heatsink_back_z = condenser_heat_spreader_back_z
-    - provisional_heatsink_depth_mm;
-condenser_carriage_outer_mm = condenser_clear_aperture_mm + 3;
-condenser_carriage_size_mm = condenser_carriage_outer_mm
-    - condenser_carriage_clearance_mm;
-
-// Adjustable-rail coordinates share the condenser's local optical Z axis.
-collimator_rail_channel_mm = collimator_rail_size_mm
-    + collimator_rail_slider_clearance_mm;
-collimator_rail_slider_outer_mm = collimator_rail_channel_mm
-    + 2 * collimator_rail_slider_wall_mm;
-collimator_rail_barrel_outer_mm = condenser_diameter_mm
-    + 2 * collimator_rail_barrel_wall_mm;
-// Keep the complete 20.3 mm slider inside the 68 mm auxiliary cube envelope.
-collimator_rail_center_y = -(internal_clearance_mm / 2
-    + 2 * frame_feature_mm
-    - collimator_rail_slider_outer_mm / 2);
-collimator_rail_front_z = condenser_face_outer_z
-    + collimator_rail_face_overlap_mm;
-collimator_rail_rear_z = collimator_rail_front_z
-    - collimator_rail_length_mm;
-collimator_slider_center_z = condenser_face_outer_z
-    - collimator_rail_position_mm;
-collimator_barrel_front_z = collimator_slider_center_z
-    + collimator_rail_barrel_depth_mm / 2;
-collimator_barrel_rear_z = collimator_barrel_front_z
-    - collimator_rail_barrel_depth_mm;
-collimator_rail_lens_vertex_z = collimator_barrel_front_z
-    - condenser_front_vertex_setback_mm;
-collimator_rail_lens_rear_z = collimator_rail_lens_vertex_z
-    - condenser_assembly_depth_mm;
-collimator_rail_lens_edge_front_z = collimator_rail_lens_vertex_z
-    - condenser_front_bevel_depth_mm;
-collimator_rail_retainer_back_z = collimator_barrel_rear_z
-    - condenser_retainer_clearance_mm
-    - condenser_retainer_thickness_mm;
-collimator_rail_led_mount_center_z = condenser_led_board_back_z
-    - condenser_carriage_thickness_mm / 2;
-collimator_rail_lens_shift_z = collimator_rail_lens_vertex_z
-    - condenser_lens_vertex_z;
-auxiliary_cube_center_local_z = -(internal_clearance_mm
-    + 4 * frame_feature_mm - inside_half_mm);
-
 assert(plate_slot_mm >= plate_thickness_mm,
        "The beamsplitter slot must be at least as thick as the plate.");
 assert(plate_width_mm * cos(plate_angle_degrees) <= internal_clearance_mm,
@@ -252,28 +117,6 @@ assert(camera_lens_body_diameter_mm >= camera_thread_diameter_mm,
        "The lens body must be at least as wide as its M37 thread.");
 assert(camera_optical_bore_mm < camera_thread_diameter_mm - 2,
        "The camera bore leaves too little wall beneath the thread.");
-assert(condenser_diameter_mm + 2 * 2.5 <= condenser_pod_outer_mm,
-       "The condenser pod leaves less than 2.5 mm wall around the lens.");
-assert(condenser_clear_aperture_mm <= condenser_diameter_mm,
-       "The condenser clear aperture cannot exceed its diameter.");
-assert(condenser_assembly_depth_mm > condenser_front_bevel_depth_mm,
-       "The collimator slot must be deeper than its front bevel allowance.");
-assert(abs(condenser_focus_offset_mm) <= condenser_focus_travel_mm / 2,
-       "The condenser focus offset exceeds the modeled adjustment travel.");
-assert(provisional_heat_spreader_width_mm <= condenser_carriage_size_mm,
-       "The provisional heat spreader does not fit the LED carriage.");
-assert(collimator_rail_channel_mm > collimator_rail_size_mm,
-       "The rail slider opening must be larger than the rail.");
-assert(collimator_rail_barrel_depth_mm >= condenser_front_vertex_setback_mm
-           + condenser_assembly_depth_mm,
-       "The rail barrel is too short for the lens and front protrusion.");
-assert(collimator_slider_center_z - collimator_rail_slider_length_mm / 2
-           >= collimator_rail_rear_z,
-       "The collimator slider extends beyond the provisional rail.");
-assert(collimator_rail_led_mount_center_z
-           - collimator_rail_slider_length_mm / 2
-           >= collimator_rail_rear_z,
-       "The fixed LED mount extends beyond the provisional rail.");
 
 echo(str("uCube clear/face/overall: ", internal_clearance_mm, "/",
          internal_clearance_mm + 2 * frame_feature_mm, "/",
@@ -522,562 +365,6 @@ module optic_cartridge() {
     }
 }
 
-// Measured 41 x 24.1 mm collimator envelope. The printed shell locates parts;
-// the aluminum heat spreader and heatsink carry LED heat, not the plastic.
-module condenser_pod_corner_positions(include_cable_corner = false) {
-    offset = condenser_pod_outer_mm / 2 - 5;
-    for (x = [-offset, offset])
-        for (y = [-offset, offset])
-            if (include_cable_corner || x < 0 || y < 0)
-                translate([x, y, 0]) children();
-}
-
-module condenser_retainer_screw_positions() {
-    bolt_radius = (condenser_diameter_mm
-                   - 2 * condenser_retainer_overlap_mm
-                   + condenser_pod_outer_mm - 4) / 4;
-    for (angle = [90, 210, 330])
-        rotate([0, 0, angle])
-            translate([bolt_radius, 0, 0]) children();
-}
-
-module condenser_inside_nose() {
-    difference() {
-        translate([-locator_size_mm / 2,
-                   -locator_size_mm / 2,
-                   -face_inner_depth_mm - epsilon])
-            cube([locator_size_mm,
-                  locator_size_mm,
-                  face_inner_depth_mm + epsilon]);
-
-        translate([0, 0, -face_inner_depth_mm - epsilon])
-            cylinder(h = face_inner_depth_mm + 2 * epsilon,
-                     d = light_output_diameter_mm);
-    }
-}
-
-// uFace plus the front cell. The complete two-lens cartridge loads from rear.
-module condenser_face_cell() {
-    lens_pocket_d = condenser_diameter_mm
-        + condenser_pocket_clearance_mm;
-    retainer_outer_d = condenser_pod_outer_mm - 4;
-    retainer_pocket_d = retainer_outer_d
-        + condenser_retainer_clearance_mm;
-
-    difference() {
-        union() {
-            official_face_at_inside_plane();
-            condenser_inside_nose();
-
-            translate([0, 0, condenser_cell_rear_z])
-                rounded_xy_prism(condenser_pod_outer_mm,
-                                 condenser_pod_outer_mm,
-                                 condenser_face_outer_z
-                                     - condenser_cell_rear_z
-                                     + epsilon,
-                                 3);
-        }
-
-        // Thirty millimeter port through the official uFace and front lip.
-        translate([0, 0, condenser_face_outer_z - epsilon])
-            cylinder(h = -condenser_face_outer_z
-                         + 2 * epsilon,
-                     d = light_output_diameter_mm);
-
-        // Clear optical cavity around the front bevel/curved face.
-        translate([0, 0, condenser_lens_edge_front_z])
-            cylinder(h = condenser_lens_vertex_z
-                         - condenser_lens_edge_front_z
-                         + epsilon,
-                     d = condenser_clear_aperture_mm + 1);
-
-        // Close radial fit along the complete 24.1 mm cartridge envelope.
-        translate([0, 0, condenser_retainer_front_z])
-            cylinder(h = condenser_lens_edge_front_z
-                         - condenser_retainer_front_z
-                         + epsilon,
-                     d = lens_pocket_d);
-
-        // Wider rear pocket accepts the removable retaining ring.
-        translate([0, 0, condenser_cell_rear_z - epsilon])
-            cylinder(h = condenser_retainer_front_z
-                         - condenser_cell_rear_z
-                         + 2 * epsilon,
-                     d = retainer_pocket_d);
-
-        condenser_retainer_screw_positions()
-            translate([0, 0, condenser_cell_rear_z - epsilon])
-                cylinder(h = condenser_lens_edge_front_z
-                             - condenser_cell_rear_z,
-                         r = condenser_fastener_radius_mm);
-
-        // Three pod screws leave the +X/+Y corner free for the cable route.
-        condenser_pod_corner_positions()
-            translate([0, 0, condenser_cell_rear_z - epsilon])
-                cylinder(h = 10,
-                         r = condenser_fastener_radius_mm);
-    }
-}
-
-// Removable rear retainer. The original holder's 37.44 mm compressed-diameter
-// flat spring uses 1.04 mm wire and shares the bore behind the lens stack. It is
-// intentionally formed, so a flat annular pressure washer distributes its load and
-// the pocket, not the spring, must center the optics. Spring axial dimensions
-// remain unmodeled. No part may point-load a lens element.
-module condenser_lens_retainer() {
-    retainer_outer_d = condenser_pod_outer_mm - 4;
-    retainer_inner_d = condenser_diameter_mm
-        - 2 * condenser_retainer_overlap_mm;
-
-    difference() {
-        cylinder(h = condenser_retainer_thickness_mm,
-                 d = retainer_outer_d);
-        translate([0, 0, -epsilon])
-            cylinder(h = condenser_retainer_thickness_mm + 2 * epsilon,
-                     d = retainer_inner_d);
-        condenser_retainer_screw_positions()
-            translate([0, 0, -epsilon])
-                cylinder(h = condenser_retainer_thickness_mm + 2 * epsilon,
-                         r = condenser_fastener_radius_mm);
-    }
-}
-
-module collimator_rail_channel_cut(center_z) {
-    translate([-collimator_rail_channel_mm / 2,
-               collimator_rail_center_y - collimator_rail_channel_mm / 2,
-               center_z - collimator_rail_slider_length_mm / 2 - epsilon])
-        cube([collimator_rail_channel_mm,
-              collimator_rail_channel_mm,
-              collimator_rail_slider_length_mm + 2 * epsilon]);
-}
-
-module collimator_rail_clamp_cuts(center_z) {
-    // Opposing M3 screws clamp the square slider to the square rail.
-    translate([0, collimator_rail_center_y, center_z])
-        rotate([0, 90, 0])
-            cylinder(h = collimator_rail_slider_outer_mm + 2 * epsilon,
-                     d = collimator_rail_m3_clearance_mm,
-                     center = true);
-
-    for (side = [-1, 1])
-        translate([side * collimator_rail_slider_outer_mm / 2,
-                   collimator_rail_center_y,
-                   center_z])
-            rotate([0, side < 0 ? 90 : -90, 0])
-                cylinder(h = collimator_rail_insert_length_mm + epsilon,
-                         d = collimator_rail_insert_diameter_mm);
-}
-
-// Official uFace plus the provisional 10 mm optical rail and its lower anchor.
-module adjustable_collimator_rail_base() {
-    anchor_bottom_y = collimator_rail_center_y
-        - collimator_rail_slider_outer_mm / 2;
-    anchor_top_y = -face_outline_mm / 2 + 4;
-    anchor_rear_z = condenser_face_outer_z - 6;
-    anchor_front_z = collimator_rail_front_z + 1;
-
-    difference() {
-        union() {
-            official_face_at_inside_plane();
-            condenser_inside_nose();
-
-            translate([-collimator_rail_size_mm / 2,
-                       collimator_rail_center_y - collimator_rail_size_mm / 2,
-                       collimator_rail_rear_z])
-                cube([collimator_rail_size_mm,
-                      collimator_rail_size_mm,
-                      collimator_rail_length_mm]);
-
-            translate([-collimator_rail_slider_outer_mm / 2,
-                       anchor_bottom_y,
-                       anchor_rear_z])
-                cube([collimator_rail_slider_outer_mm,
-                      anchor_top_y - anchor_bottom_y,
-                      anchor_front_z - anchor_rear_z]);
-        }
-
-        translate([0, 0, condenser_face_outer_z - epsilon])
-            cylinder(h = -condenser_face_outer_z + 2 * epsilon,
-                     d = light_output_diameter_mm);
-    }
-}
-
-// One printed part: measured lens barrel plus the square rail slider beneath it.
-module adjustable_collimator_barrel_slider() {
-    lens_pocket_d = condenser_diameter_mm
-        + condenser_pocket_clearance_mm;
-
-    difference() {
-        union() {
-            translate([0, 0, collimator_barrel_rear_z])
-                cylinder(h = collimator_rail_barrel_depth_mm,
-                         d = collimator_rail_barrel_outer_mm);
-
-            translate([-collimator_rail_slider_outer_mm / 2,
-                       collimator_rail_center_y
-                           - collimator_rail_slider_outer_mm / 2,
-                       collimator_slider_center_z
-                           - collimator_rail_slider_length_mm / 2])
-                rounded_xy_prism(collimator_rail_slider_outer_mm,
-                                 collimator_rail_slider_outer_mm,
-                                 collimator_rail_slider_length_mm,
-                                 2);
-        }
-
-        // One millimeter radial stop at the front of the lens barrel.
-        translate([0, 0, collimator_rail_lens_edge_front_z])
-            cylinder(h = collimator_barrel_front_z
-                         - collimator_rail_lens_edge_front_z + epsilon,
-                     d = condenser_clear_aperture_mm + 1);
-
-        // 41.2 mm slip-fit bore for the complete two-lens assembly and spring.
-        translate([0, 0, collimator_barrel_rear_z - epsilon])
-            cylinder(h = collimator_rail_lens_edge_front_z
-                         - collimator_barrel_rear_z + 2 * epsilon,
-                     d = lens_pocket_d);
-
-        condenser_retainer_screw_positions()
-            translate([0, 0, collimator_barrel_rear_z - epsilon])
-                cylinder(h = 8,
-                         r = condenser_fastener_radius_mm);
-
-        collimator_rail_channel_cut(collimator_slider_center_z);
-        collimator_rail_clamp_cuts(collimator_slider_center_z);
-    }
-}
-
-// Fixed LED/heatsink collar. It uses the same rail channel and M3 clamps so its
-// location can be corrected during prototyping, then left fixed for operation.
-module adjustable_collimator_led_mount() {
-    bridge_bottom_y = collimator_rail_center_y
-        + collimator_rail_slider_outer_mm / 2
-        - collimator_rail_bridge_overlap_mm;
-    bridge_top_y = -condenser_carriage_size_mm / 2
-        + collimator_rail_bridge_overlap_mm;
-
-    difference() {
-        union() {
-            translate([-collimator_rail_slider_outer_mm / 2,
-                       collimator_rail_center_y
-                           - collimator_rail_slider_outer_mm / 2,
-                       collimator_rail_led_mount_center_z
-                           - collimator_rail_slider_length_mm / 2])
-                rounded_xy_prism(collimator_rail_slider_outer_mm,
-                                 collimator_rail_slider_outer_mm,
-                                 collimator_rail_slider_length_mm,
-                                 2);
-
-            translate([0, 0, condenser_led_board_back_z])
-                condenser_led_carriage();
-
-            // At the lower in-cube rail position the sleeve overlaps the
-            // carriage directly. Keep the bridge only for more distant rails.
-            if (bridge_top_y > bridge_bottom_y)
-                translate([-collimator_rail_slider_outer_mm / 2,
-                           bridge_bottom_y,
-                           condenser_led_board_back_z
-                               - condenser_carriage_thickness_mm])
-                    cube([collimator_rail_slider_outer_mm,
-                          bridge_top_y - bridge_bottom_y,
-                          condenser_carriage_thickness_mm]);
-        }
-
-        collimator_rail_channel_cut(collimator_rail_led_mount_center_z);
-        collimator_rail_clamp_cuts(collimator_rail_led_mount_center_z);
-    }
-}
-
-module adjustable_collimator_rail_engine(include_references = true,
-                                          include_auxiliary_cube = false) {
-    if (include_auxiliary_cube)
-        color([0.72, 0.72, 0.72, 0.20])
-            translate([0, 0, auxiliary_cube_center_local_z])
-                uCube(cubeSize = cube_spec);
-
-    color([0.08, 0.35, 0.78])
-        adjustable_collimator_rail_base();
-    color([0.10, 0.50, 0.82])
-        adjustable_collimator_barrel_slider();
-    color([0.10, 0.68, 0.62])
-        translate([0, 0, collimator_rail_retainer_back_z])
-            condenser_lens_retainer();
-    color([0.18, 0.24, 0.34])
-        adjustable_collimator_led_mount();
-
-    if (include_references) {
-        translate([0, 0, collimator_rail_lens_shift_z])
-            condenser_lens_reference();
-        provisional_led_thermal_references();
-        light_beam_reference();
-    }
-}
-
-module condenser_focus_slot_x(x_position) {
-    slot_center_z = condenser_nominal_carriage_back_z
-        + condenser_carriage_thickness_mm / 2;
-    hull()
-        for (z = [slot_center_z - condenser_focus_travel_mm / 2,
-                  slot_center_z + condenser_focus_travel_mm / 2])
-            translate([x_position, 0, z])
-                rotate([0, 90, 0])
-                    cylinder(h = 16,
-                             r = condenser_fastener_radius_mm,
-                             center = true);
-}
-
-module provisional_driver_mount_rails() {
-    rail_length = provisional_driver_length_mm
-        + 2 * provisional_driver_clearance_mm + 4;
-    rail_depth = provisional_driver_height_mm
-        + provisional_driver_clearance_mm + 2;
-    rail_height = provisional_driver_width_mm
-        + 2 * provisional_driver_clearance_mm;
-    rail_z = condenser_spacer_rear_z + 2;
-
-    // External side rails keep driver heat and wiring out of the optical path.
-    translate([-rail_length / 2,
-               condenser_pod_outer_mm / 2 - 0.5,
-               rail_z])
-        cube([rail_length, 2, rail_height]);
-
-    for (x = [-rail_length / 2, rail_length / 2 - 2])
-        translate([x,
-                   condenser_pod_outer_mm / 2 - 0.5,
-                   rail_z])
-            cube([2, rail_depth, rail_height]);
-}
-
-module condenser_spacer_body() {
-    body_height = condenser_cell_rear_z - condenser_spacer_rear_z;
-
-    difference() {
-        union() {
-            translate([0, 0, condenser_spacer_rear_z])
-                rounded_xy_prism(condenser_pod_outer_mm,
-                                 condenser_pod_outer_mm,
-                                 body_height,
-                                 3);
-            if (include_provisional_driver_rails)
-                provisional_driver_mount_rails();
-        }
-
-        // Square cavity accepts the focus-adjustable LED carriage.
-        translate([-condenser_carriage_outer_mm / 2,
-                   -condenser_carriage_outer_mm / 2,
-                   condenser_spacer_rear_z - epsilon])
-            cube([condenser_carriage_outer_mm,
-                  condenser_carriage_outer_mm,
-                  body_height + 2 * epsilon]);
-
-        // Two opposite M3 slots provide the provisional +/-3 mm focus range.
-        condenser_focus_slot_x(-condenser_pod_outer_mm / 2);
-        condenser_focus_slot_x(condenser_pod_outer_mm / 2);
-
-        condenser_pod_corner_positions()
-            translate([0, 0, condenser_spacer_rear_z - epsilon])
-                cylinder(h = body_height + 2 * epsilon,
-                         r = condenser_fastener_radius_mm);
-
-        // Cable path toward the Raspberry Pi and external driver.
-        translate([condenser_carriage_outer_mm / 2 - 0.5,
-                   condenser_carriage_outer_mm / 2 - 0.5,
-                   condenser_spacer_rear_z - epsilon])
-            cube([condenser_pod_outer_mm / 2
-                      - condenser_carriage_outer_mm / 2 + 1,
-                  condenser_pod_outer_mm / 2
-                      - condenser_carriage_outer_mm / 2
-                      + provisional_driver_height_mm + 5,
-                  body_height + 2 * epsilon]);
-    }
-}
-
-// Sliding frame clamps a metal heat spreader around its edge. The LED MCPCB
-// screws to that metal plate, never directly to the printed carriage.
-module condenser_led_carriage() {
-    heatsink_passage_mm = provisional_heatsink_width_mm + 0.5;
-    spreader_screw_offset = (heatsink_passage_mm
-                             + provisional_heat_spreader_width_mm) / 4;
-
-    difference() {
-        translate([0, 0, -condenser_carriage_thickness_mm])
-            rounded_xy_prism(condenser_carriage_size_mm,
-                             condenser_carriage_size_mm,
-                             condenser_carriage_thickness_mm,
-                             2);
-
-        translate([-heatsink_passage_mm / 2,
-                   -heatsink_passage_mm / 2,
-                   -condenser_carriage_thickness_mm - epsilon])
-            cube([heatsink_passage_mm,
-                  heatsink_passage_mm,
-                  condenser_carriage_thickness_mm + 2 * epsilon]);
-
-        for (x = [-spreader_screw_offset, spreader_screw_offset])
-            for (y = [-spreader_screw_offset, spreader_screw_offset])
-                translate([x, y,
-                           -condenser_carriage_thickness_mm - epsilon])
-                    cylinder(h = condenser_carriage_thickness_mm
-                                 + 2 * epsilon,
-                             r = 1.1);
-
-        for (x = [-condenser_carriage_size_mm / 2,
-                  condenser_carriage_size_mm / 2])
-            translate([x, 0, -condenser_carriage_thickness_mm / 2])
-                rotate([0, 90, 0])
-                    cylinder(h = 6,
-                             r = condenser_fastener_radius_mm - 0.15,
-                             center = true);
-    }
-}
-
-// Approximate two-lens cartridge envelope only. Internal lens/spacer lengths
-// are visual guesses; only the 41 mm OD and 24.1 mm overall depth are measured.
-module condenser_lens_reference() {
-    element_depth = 8;
-    spacer_depth = condenser_assembly_depth_mm - 2 * element_depth;
-
-    color([0.52, 0.86, 1.0, 0.48]) {
-        translate([0, 0, condenser_lens_rear_z])
-            cylinder(h = element_depth, d = condenser_diameter_mm);
-        translate([0, 0, condenser_lens_vertex_z - element_depth])
-            cylinder(h = element_depth, d = condenser_diameter_mm);
-    }
-
-    color([0.08, 0.08, 0.09, 0.90])
-        translate([0, 0, condenser_lens_rear_z + element_depth])
-            difference() {
-                cylinder(h = spacer_depth, d = condenser_diameter_mm);
-                translate([0, 0, -epsilon])
-                    cylinder(h = spacer_depth + 2 * epsilon,
-                             d = condenser_clear_aperture_mm - 2);
-            }
-}
-
-module provisional_led_thermal_references() {
-    // Metal-core LED board and emitter.
-    color([0.95, 0.72, 0.12, 0.82])
-        translate([-provisional_led_board_width_mm / 2,
-                   -provisional_led_board_height_mm / 2,
-                   condenser_led_board_back_z])
-            cube([provisional_led_board_width_mm,
-                  provisional_led_board_height_mm,
-                  provisional_led_board_thickness_mm]);
-
-    color([1.0, 0.96, 0.65, 0.95])
-        translate([-1.75, -1.75, condenser_led_board_front_z])
-            cube([3.5, 3.5, provisional_led_emitter_height_mm]);
-
-    // Aluminum heat spreader is the required thermal bridge.
-    color([0.65, 0.67, 0.70, 0.88])
-        translate([-provisional_heat_spreader_width_mm / 2,
-                   -provisional_heat_spreader_height_mm / 2,
-                   condenser_heat_spreader_back_z])
-            cube([provisional_heat_spreader_width_mm,
-                  provisional_heat_spreader_height_mm,
-                  provisional_heat_spreader_thickness_mm]);
-
-    // Provisional finned sink, kept exposed to room air.
-    color([0.32, 0.34, 0.37, 0.92]) {
-        translate([-provisional_heatsink_width_mm / 2,
-                   -provisional_heatsink_height_mm / 2,
-                   condenser_heat_spreader_back_z - 2])
-            cube([provisional_heatsink_width_mm,
-                  provisional_heatsink_height_mm,
-                  2]);
-        for (x = [-provisional_heatsink_width_mm / 2:4.5:
-                   provisional_heatsink_width_mm / 2 - 1.5])
-            translate([x,
-                       -provisional_heatsink_height_mm / 2,
-                       condenser_heatsink_back_z])
-                cube([1.5,
-                      provisional_heatsink_height_mm,
-                      provisional_heatsink_depth_mm - 2]);
-    }
-
-    // Compact LDD-style driver reference in the external side rails.
-    color([0.18, 0.55, 0.28, 0.85])
-        translate([-provisional_driver_length_mm / 2,
-                   condenser_pod_outer_mm / 2 + 2.2,
-                   condenser_spacer_rear_z
-                       + 2 + provisional_driver_clearance_mm])
-            cube([provisional_driver_length_mm,
-                  provisional_driver_height_mm,
-                  provisional_driver_width_mm]);
-
-    if (show_provisional_fan)
-        color([0.10, 0.10, 0.12, 0.76])
-            translate([-provisional_fan_size_mm / 2,
-                       -provisional_fan_size_mm / 2,
-                       condenser_heatsink_back_z
-                           - provisional_fan_thickness_mm])
-                difference() {
-                    cube([provisional_fan_size_mm,
-                          provisional_fan_size_mm,
-                          provisional_fan_thickness_mm]);
-                    translate([provisional_fan_size_mm / 2,
-                               provisional_fan_size_mm / 2,
-                               -epsilon])
-                        cylinder(h = provisional_fan_thickness_mm
-                                     + 2 * epsilon,
-                                 d = provisional_fan_size_mm - 5);
-                }
-}
-
-module condenser_light_engine(include_references = true) {
-    color([0.08, 0.35, 0.78])
-        condenser_face_cell();
-    color([0.05, 0.20, 0.52])
-        condenser_spacer_body();
-    color([0.10, 0.68, 0.62])
-        translate([0, 0, condenser_retainer_back_z])
-            condenser_lens_retainer();
-    color([0.18, 0.24, 0.34])
-        translate([0, 0, condenser_led_board_back_z])
-            condenser_led_carriage();
-
-    if (include_references) {
-        condenser_lens_reference();
-        provisional_led_thermal_references();
-        light_beam_reference();
-    }
-}
-
-// Visualization only. Separates the optical, printed, and thermal layers so
-// the assembly order can be checked without hiding them inside the shell.
-module condenser_light_engine_exploded() {
-    gap = 8;
-    lens_shift = condenser_cell_rear_z - gap - condenser_lens_vertex_z;
-    exploded_lens_rear_z = condenser_lens_rear_z + lens_shift;
-    retainer_shift = exploded_lens_rear_z - gap
-        - condenser_retainer_front_z;
-    exploded_retainer_back_z = condenser_retainer_back_z + retainer_shift;
-    spacer_shift = exploded_retainer_back_z - gap - condenser_cell_rear_z;
-    exploded_spacer_rear_z = condenser_spacer_rear_z + spacer_shift;
-    carriage_shift = exploded_spacer_rear_z - gap
-        - condenser_led_board_back_z;
-
-    color([0.08, 0.35, 0.78])
-        condenser_face_cell();
-
-    translate([0, 0, lens_shift])
-        condenser_lens_reference();
-
-    color([0.10, 0.68, 0.62])
-        translate([0, 0, condenser_retainer_back_z + retainer_shift])
-            condenser_lens_retainer();
-
-    color([0.05, 0.20, 0.52])
-        translate([0, 0, spacer_shift])
-            condenser_spacer_body();
-
-    color([0.18, 0.24, 0.34])
-        translate([0, 0, condenser_led_board_back_z + carriage_shift])
-            condenser_led_carriage();
-
-    translate([0, 0, carriage_shift])
-        provisional_led_thermal_references();
-}
-
 // Male M37 x 0.75 column used by the supplied Arducam lens face. The lens may
 // be C-mount at its camera end, but this printed interface uses its female M37
 // front/filter thread.
@@ -1220,11 +507,10 @@ module complete_assembly(show_cube = true, show_references = true) {
         color([0.72, 0.72, 0.72, 0.24])
             uCube(cubeSize = cube_spec);
 
-    // The clearer video frames show the adjustable rail inside a second
-    // uCube-sized illumination cell attached to the -X side.
-    if (show_cube && use_condenser_light_engine
-                  && use_adjustable_collimator_rail
-                  && show_auxiliary_illumination_cube)
+    // A second 73 mm cell on -X carries the illumination optics. Its interior
+    // is being rebuilt as the Path B two-U-shell design, so only the envelope
+    // is drawn here for now.
+    if (show_cube && show_auxiliary_illumination_cube)
         color([0.72, 0.72, 0.72, 0.20])
             translate([-(internal_clearance_mm + 4 * frame_feature_mm), 0, 0])
                 uCube(cubeSize = cube_spec);
@@ -1234,16 +520,9 @@ module complete_assembly(show_cube = true, show_references = true) {
         translate([0, 0, -inside_half_mm])
             beamsplitter_mounting_face();
 
-    // Blue -X light face. The measured 41 mm collimator engine is the default;
-    // the compact legacy chamber remains available in render modes 2-4.
-    if (use_condenser_light_engine)
-        light_face_transform()
-            if (use_adjustable_collimator_rail)
-                adjustable_collimator_rail_engine(
-                    include_references = show_references);
-            else
-                condenser_light_engine(include_references = show_references);
-    else {
+    // Blue -X light face. The compact legacy chamber is the only illumination
+    // geometry currently modeled; render modes 2-4 print its parts.
+    if (show_legacy_light_chamber) {
         color([0.08, 0.35, 0.78])
             light_face_transform()
                 light_source_mounting_face();
@@ -1269,7 +548,7 @@ module complete_assembly(show_cube = true, show_references = true) {
         translate([0, 0, -inside_half_mm])
             beamsplitter_reference();
 
-        if (!use_condenser_light_engine)
+        if (show_legacy_light_chamber)
             light_face_transform() {
                 led_board_reference();
                 optic_sheet_reference();
@@ -1295,15 +574,7 @@ module exploded_assembly() {
         translate([0, 0, -42])
             beamsplitter_reference();
 
-    if (use_condenser_light_engine)
-        translate([-48, 0, 0])
-            rotate([0, 90, 0])
-                if (use_adjustable_collimator_rail)
-                    adjustable_collimator_rail_engine(
-                        include_references = true);
-                else
-                    condenser_light_engine(include_references = true);
-    else {
+    if (show_legacy_light_chamber) {
         color([0.08, 0.35, 0.78])
             translate([-48, 0, 0])
                 rotate([0, 90, 0])
@@ -1375,27 +646,6 @@ module render_selected_part() {
     else if (render_mode == 8)
         inspection_assembly();
     else if (render_mode == 9)
-        condenser_face_cell();
-    else if (render_mode == 10)
-        condenser_spacer_body();
-    else if (render_mode == 11)
-        condenser_lens_retainer();
-    else if (render_mode == 12)
-        condenser_led_carriage();
-    else if (render_mode == 13)
-        condenser_light_engine(include_references = true);
-    else if (render_mode == 14)
-        condenser_light_engine_exploded();
-    else if (render_mode == 15)
-        adjustable_collimator_rail_base();
-    else if (render_mode == 16)
-        adjustable_collimator_barrel_slider();
-    else if (render_mode == 17)
-        adjustable_collimator_led_mount();
-    else if (render_mode == 18)
-        adjustable_collimator_rail_engine(include_references = true,
-                                           include_auxiliary_cube = true);
-    else if (render_mode == 19)
         uCube(cubeSize = cube_spec);
 }
 
