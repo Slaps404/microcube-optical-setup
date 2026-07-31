@@ -9,7 +9,7 @@ $fn = 64;
 epsilon = 0.02;
 
 /* [Preview] */
-render_mode = 7; // [0:complete_assembly, 1:beamsplitter_face, 2:legacy_light_face, 3:legacy_back_cover, 4:legacy_optic_cartridge, 5:camera_face, 6:camera_thread_test, 7:exploded_assembly, 8:inspection_assembly, 9:official_ucube_shell, 10:cell_bottom_u, 11:cell_top_u]
+render_mode = 7; // [0:complete_assembly, 1:beamsplitter_face, 2:legacy_light_face, 3:legacy_back_cover, 4:legacy_optic_cartridge, 5:camera_face, 6:camera_thread_test, 7:exploded_assembly, 8:inspection_assembly, 9:official_ucube_shell, 10:cell_bottom_u, 11:cell_top_u, 12:lens_sleeve_slider, 13:led_post_slider]
 show_optical_references = true;
 camera_preview_detailed_thread = true;
 show_auxiliary_illumination_cube = true;
@@ -111,6 +111,9 @@ harness_wall_mm = 6; // [6:0.5:9]
 harness_length_mm = 16; // [12:1:24] Along the rail
 m3_insert_diameter_mm = 4.6; // PROVISIONAL heat-set insert
 m3_insert_depth_mm = 5; // PROVISIONAL heat-set insert
+m3_clamp_clearance_mm = 3.2; // Set-screw tip path from insert to rail flank
+sleeve_setback_mm = 0; // [0:1:30] Preview only, sleeve front from the port
+led_gap_mm = 20; // [4:1:34] Preview only, sleeve rear to LED pad
 led_star_diameter_mm = 20; // MEASURED star MCPCB envelope
 led_post_thickness_mm = 3; // [2.5:0.5:5]
 led_cable_notch_mm = 5; // [3:1:8]
@@ -184,10 +187,22 @@ harness_slot_width_mm = rail_width_mm + harness_slot_clearance_mm;
 harness_slot_top_z = -(sleeve_outer_mm / 2);
 harness_foot_bottom_z = rail_bottom_z + 2;
 harness_outer_width_mm = harness_slot_width_mm + 2 * harness_wall_mm;
+
+// The foot must rise just far enough to fuse into the sleeve across its whole
+// width. The sleeve is round, so at the foot's outer edge the sleeve underside
+// sits higher than at the centerline; solve for that height instead of guessing,
+// otherwise the foot floats free at its corners or becomes a tall solid slab.
+harness_foot_top_z = -sqrt(pow(sleeve_outer_mm / 2, 2)
+                           - pow(harness_outer_width_mm / 2, 2)) + 0.5;
 rail_insert_center_z = (rail_top_z + rail_bottom_z) / 2;
 
-// LED post: a flat plate on its own harness, pad centered on the beam axis.
-led_post_height_z = harness_foot_bottom_z;
+// Slider placement. Both sliders clamp anywhere along the rail; these are the
+// preview positions only. The LED gap is the adjustable quantity the bench test
+// has to settle, so nothing downstream depends on its exact value.
+sleeve_front_x = cell_interior_near_x - sleeve_setback_mm;
+sleeve_rear_x = sleeve_front_x - sleeve_depth_mm;
+led_pad_x = sleeve_rear_x - led_gap_mm;
+led_plate_rear_x = led_pad_x - led_post_thickness_mm;
 
 assert(sleeve_outer_mm <= 2 * cell_interior_half_y,
        "The lens sleeve is wider than the illumination cell interior.");
@@ -204,6 +219,19 @@ assert(cell_aperture_mm <= sleeve_bore_mm,
        "The mating-plate light port is wider than the sleeve bore.");
 assert(harness_wall_mm >= m3_insert_depth_mm + 1,
        "The harness side walls are too thin to host the M3 heat-set inserts.");
+
+assert(sleeve_front_x <= cell_interior_near_x,
+       "The lens sleeve passes through the illumination cell end wall.");
+assert(led_plate_rear_x - harness_length_mm / 2 >= cell_interior_far_x,
+       "The LED post overruns the far end of the illumination cell.");
+assert((sleeve_rear_x + sleeve_depth_mm / 2)
+           - (led_plate_rear_x + led_post_thickness_mm / 2)
+           >= harness_length_mm,
+       "The sleeve and LED post feet collide on the rail at this LED gap.");
+assert(sleeve_bore_mm - 2 * sleeve_lip_mm < tube_outer_mm,
+       "The retaining lip does not overlap the tube it is meant to stop.");
+assert(harness_outer_width_mm <= 2 * cell_interior_half_y,
+       "The harness foot is wider than the illumination cell interior.");
 
 echo(str("Cell interior: ", cell_interior_length_mm, " long, ",
          2 * cell_interior_half_y, " wide, ",
@@ -709,6 +737,105 @@ module illumination_cell_top_u() {
     }
 }
 
+// Shared U-foot. Both sliders use it, so they grip the rail identically. It
+// straddles the rail with a slip fit and clamps to the rail flanks with two
+// opposing M3 set screws in heat-set inserts.
+module harness_foot(length, center_x) {
+    difference() {
+        translate([center_x - length / 2,
+                   -harness_outer_width_mm / 2,
+                   harness_foot_bottom_z])
+            cube([length,
+                  harness_outer_width_mm,
+                  harness_foot_top_z - harness_foot_bottom_z]);
+
+        // Rail slot. Its roof sits at the sleeve underside, leaving
+        // harness_seat_clearance_mm above the rail so the bore stays centered.
+        translate([center_x - length / 2 - epsilon,
+                   -harness_slot_width_mm / 2,
+                   harness_foot_bottom_z - epsilon])
+            cube([length + 2 * epsilon,
+                  harness_slot_width_mm,
+                  harness_slot_top_z - harness_foot_bottom_z + epsilon]);
+
+        for (side = [-1, 1]) {
+            // Heat-set insert pocket, entered from the outside. It starts
+            // slightly proud of the face so the opening renders cleanly.
+            translate([center_x,
+                       side * (harness_outer_width_mm / 2 + epsilon),
+                       rail_insert_center_z])
+                rotate([side * 90, 0, 0])
+                    cylinder(h = m3_insert_depth_mm + epsilon,
+                             d = m3_insert_diameter_mm);
+
+            // The screw tip must reach past the insert to press the rail.
+            translate([center_x, side * harness_slot_width_mm / 2,
+                       rail_insert_center_z])
+                rotate([side * 90, 0, 0])
+                    cylinder(h = harness_wall_mm + 2 * epsilon,
+                             d = m3_clamp_clearance_mm);
+        }
+    }
+}
+
+// Slider 1, one printed part: the sleeve that holds the purchased 40.0 mm lens
+// tube, plus its rail foot. The tube seats against a 1 mm internal lip at the
+// cube-facing end and is retained by a spring clip loaded from the open rear.
+// No groove is cut in the sleeve.
+module lens_sleeve_slider() {
+    difference() {
+        union() {
+            translate([sleeve_rear_x, 0, 0])
+                rotate([0, 90, 0])
+                    cylinder(h = sleeve_depth_mm, d = sleeve_outer_mm);
+
+            harness_foot(length = harness_length_mm,
+                         center_x = sleeve_rear_x + sleeve_depth_mm / 2);
+        }
+
+        // Tube bore, open at the rear, stopping at the lip.
+        translate([sleeve_rear_x - epsilon, 0, 0])
+            rotate([0, 90, 0])
+                cylinder(h = sleeve_depth_mm - sleeve_lip_mm + epsilon,
+                         d = sleeve_bore_mm);
+
+        // Clear aperture through the lip itself.
+        translate([sleeve_rear_x - epsilon, 0, 0])
+            rotate([0, 90, 0])
+                cylinder(h = sleeve_depth_mm + 2 * epsilon,
+                         d = sleeve_bore_mm - 2 * sleeve_lip_mm);
+    }
+}
+
+// Slider 2: a flat post carrying the 20 mm star LED on the beam axis. For the
+// first prototype the star is taped or glued to the pad. Capturing the star's
+// edges and adding a glued-on heatsink are deliberate v2 changes to this one
+// small part, since v1 strobes the LED and needs no secondary heatsink.
+module led_post_slider() {
+    plate_half = led_star_diameter_mm / 2 + 3;
+
+    difference() {
+        union() {
+            translate([led_plate_rear_x, -plate_half, harness_foot_bottom_z])
+                cube([led_post_thickness_mm,
+                      2 * plate_half,
+                      plate_half - harness_foot_bottom_z]);
+
+            harness_foot(length = harness_length_mm,
+                         center_x = led_plate_rear_x
+                                    + led_post_thickness_mm / 2);
+        }
+
+        // Cable pass-through, clear of the star footprint above it.
+        translate([led_plate_rear_x - epsilon,
+                   -led_cable_notch_mm / 2,
+                   -led_star_diameter_mm / 2 - 5])
+            cube([led_post_thickness_mm + 2 * epsilon,
+                  led_cable_notch_mm,
+                  4]);
+    }
+}
+
 module light_face_transform() {
     translate([-inside_half_mm, 0, 0])
         rotate([0, 90, 0])
@@ -875,6 +1002,10 @@ module render_selected_part() {
         illumination_cell_bottom_u();
     else if (render_mode == 11)
         illumination_cell_top_u();
+    else if (render_mode == 12)
+        lens_sleeve_slider();
+    else if (render_mode == 13)
+        led_post_slider();
 }
 
 // Part-specific SCAD entry files set this before including the shared source.
