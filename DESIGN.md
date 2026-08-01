@@ -62,10 +62,12 @@ Prints as **two U shells**:
 - **Top U:** both side walls plus the roof, dropping on as a lid.
 
 Assembly and focus adjustment happen by lifting the lid, so there is no access
-slot and no cover strip. A tongue centered in each side wall crosses the seam so
-light cannot pass straight through the joint.
+slot or cover strip. The top U is intentionally only the roof and upper side
+walls, with no end-wall tabs or cross-pieces.
 
-Interior is 70 x 52 x 59 mm with 36 mm of sleeve focus travel.
+The enclosure is 73 mm wide at the body but retains the standard 59 mm uFace
+mounting plate and its unchanged screw pattern. The interior is 70 mm long
+with 34 mm of sleeve focus travel.
 
 ### Rail and sliders
 **One** centered rail runs the full interior length along the light axis,
@@ -137,8 +139,8 @@ The lens's camera-side C-mount is a separate interface.
   matched to the purchased insert.
 - **Seam clearances are untested.** The 0.25 mm lid slip fit and the
   tongue-and-groove both need a printed coupon.
-- **Light-tightness is unproven.** The tongue blocks the straight path, but
-  printed PLA walls glow, so plan on 3 perimeters or a matte black interior.
+- **Light-tightness is unproven.** There is no tongue baffle at the removable
+  lid seam, so plan on 3 perimeters or a matte black interior.
 - **The LED post is a thin tall cantilever.** It carries only a 2 g board, but
   check stiffness and print quality on the first article.
 - **Optical data is provisional:** clear aperture, EFL 40 mm, and BFL 26 mm are
@@ -148,8 +150,9 @@ The lens's camera-side C-mount is a separate interface.
 - **Cable path needs physical definition** beyond the pass-through notch.
 - **Focus distances must be set empirically.** The ~2 cm LED-to-lens figure is a
   guess, not a measurement. Both sliders adjust, so nothing depends on it.
-- **Exports under `exports/current` are stale.** They predate the 45 mm
-  migration, the counterbore fix, and the new cell.
+- The active Path B cell has individual export entry points for its bottom U,
+  top U, lens slider, and LED slider. The older adjustable-collimator files in
+  `exports/current` are historical and must not be mixed into this assembly.
 
 ## 7. Testing considerations
 
@@ -159,7 +162,7 @@ The lens's camera-side C-mount is a separate interface.
 | Rail and harness | Print a short rail section and one foot | Foot slides by hand and clamps without rocking | Fit coupon |
 | Sleeve bore | Print a shallow sleeve ring | The 40.0 mm tube inserts without force, minimal play | Fit coupon |
 | M37 thread | Print `m37_thread_fit_coupon.stl` | Lens engages smoothly without splitting | Fit coupon |
-| Lid seam | Print short sections of both U shells | Lid drops on, tongue seats, no daylight through the joint | Fit coupon |
+| Lid seam | Print short sections of both U shells | Lid drops on and the seam has no objectionable light leak | Fit coupon |
 | Beamsplitter slot | Test the 2.1 mm slot | Plate seats securely, supports hidden in side view | Bench assembly |
 | Light-tightness | Assemble, light the LED, darken the room | No visible leak at seams or through the walls | Bench assembly |
 | Illumination | Sweep both sliders with the real LED | Even field on the cube face without imaging the emitter | Optical prototype |

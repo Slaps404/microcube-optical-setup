@@ -84,13 +84,13 @@ provisional_led_emitter_height_mm = 1.4;
    a lid. Lifting the lid is how the optics are installed and focused, so no
    access slot or cover strip is needed. */
 cell_body_length_mm = 80; // [60:1:120] Outward from the cube face
-cell_outer_span_mm = 60; // [56:1:73] Square cross-section, matches the 59 mm plate
+// The enclosure is wider than its standard 59 mm uFace mounting plate. This
+// creates clearance around both slider harnesses without moving cube screws.
+cell_outer_span_mm = 73; // [60:1:90] Outside width across the cell
 cell_wall_mm = 4; // [3:0.5:6]
 cell_end_wall_mm = 6; // [4:0.5:10]
 cell_aperture_mm = 40; // [30:1:44] Light port through the mating plate
 cell_seam_clearance_mm = 0.25; // [0.1:0.05:0.5] Lid slip fit
-cell_tongue_mm = 2; // [1.5:0.5:3] Light-baffle tongue width
-cell_tongue_height_mm = 2; // [1.5:0.5:4]
 
 /* [Lens sleeve, rail, and sliders]
    The two lenses are held on spring clips inside a purchased 40.0 mm lens tube.
@@ -99,7 +99,7 @@ cell_tongue_height_mm = 2; // [1.5:0.5:4]
 tube_outer_mm = 40; // [40] MEASURED purchased lens tube OD
 sleeve_clearance_mm = 1.0; // [0.4:0.1:1.6] Total diametral slip fit
 sleeve_wall_mm = 2; // [1.5:0.5:3]
-sleeve_depth_mm = 25; // [20:1:32] PROVISIONAL, confirm on the bench
+sleeve_depth_mm = 27; // [20:1:32] PROVISIONAL, confirm on the bench
 sleeve_lip_mm = 1; // [0.8:0.1:2] Internal tube stop
 rail_width_mm = 10.5; // [10.5] MEASURED cube screw-pad width
 rail_height_mm = 9; // [7:0.5:12]
@@ -160,6 +160,10 @@ face_center_from_origin_mm =
 // and +Z is up, so the rail sits at negative Z beneath the sleeve.
 sleeve_bore_mm = tube_outer_mm + sleeve_clearance_mm;
 sleeve_outer_mm = sleeve_bore_mm + 2 * sleeve_wall_mm;
+lens_axis_y = 0;
+lens_axis_z = 0;
+led_axis_y = 0;
+led_axis_z = 0;
 
 // The rail top sits a fixed clearance below the sleeve underside. This keeps
 // the bore exactly on the beam axis, which matters more than rail height.
@@ -208,6 +212,11 @@ sleeve_front_x = cell_interior_near_x - sleeve_setback_mm;
 sleeve_rear_x = sleeve_front_x - sleeve_depth_mm;
 led_pad_x = sleeve_rear_x - led_gap_mm;
 led_plate_rear_x = led_pad_x - led_post_thickness_mm;
+// Stop at the forward edge of the lens harness rather than running toward the
+// cube-facing plate. The exposed rail end looked like a perpendicular bridge
+// beside the attachment face and serves no purpose there.
+rail_near_x = sleeve_rear_x + sleeve_depth_mm / 2 + harness_length_mm / 2;
+rail_length_mm = rail_near_x - cell_interior_far_x;
 
 assert(sleeve_outer_mm <= 2 * cell_interior_half_y,
        "The lens sleeve is wider than the illumination cell interior.");
@@ -237,8 +246,15 @@ assert(sleeve_bore_mm - 2 * sleeve_lip_mm < tube_outer_mm,
        "The retaining lip does not overlap the tube it is meant to stop.");
 assert(harness_outer_width_mm <= 2 * cell_interior_half_y,
        "The harness foot is wider than the illumination cell interior.");
+assert(cell_outer_span_mm >= face_outline_mm,
+       "The cell must not be narrower than its standard uFace mount.");
 assert(rail_insert_center_z - m3_clamp_clearance_mm / 2 >= rail_bottom_z,
        "The harness clamp passage falls below the rail.");
+assert(rail_length_mm > harness_length_mm,
+       "The rail is too short to support both slider harnesses.");
+assert(lens_axis_y == 0 && lens_axis_z == 0
+           && led_axis_y == 0 && led_axis_z == 0,
+       "The lens and LED axes must remain on the cube centerline.");
 
 echo(str("Cell interior: ", cell_interior_length_mm, " long, ",
          2 * cell_interior_half_y, " wide, ",
@@ -659,7 +675,7 @@ module cell_rail() {
     translate([cell_interior_far_x,
                -rail_width_mm / 2,
                rail_bottom_z])
-        cube([cell_interior_length_mm,
+        cube([rail_length_mm,
               rail_width_mm,
               rail_height_mm]);
 }
@@ -723,45 +739,21 @@ module cell_lid_region(inset = 0) {
               cell_outer_span_mm]);
 }
 
-// Tongue centered in each side wall. It rises across the seam so light cannot
-// travel straight through the joint. The lid carries the matching groove.
-module cell_seam_tongue(clearance = 0) {
-    for (side = [-1, 1])
-        translate([cell_interior_far_x - clearance,
-                   side * (cell_interior_half_y
-                           + cell_wall_mm / 2
-                           - cell_tongue_mm / 2)
-                       - cell_tongue_mm / 2 - clearance,
-                   cell_seam_z - epsilon])
-            cube([cell_interior_length_mm + 2 * clearance,
-                  cell_tongue_mm + 2 * clearance,
-                  cell_tongue_height_mm + clearance + epsilon]);
-}
-
 // Bottom U: mating plate, floor, far end wall, integral rail, and the lower
 // part of both side walls. This is the piece the optics sit in.
 module illumination_cell_bottom_u() {
-    union() {
-        difference() {
-            illumination_cell_solid();
-            cell_lid_region(inset = 0);
-        }
-        intersection() {
-            cell_seam_tongue();
-            illumination_cell_solid();
-        }
+    difference() {
+        illumination_cell_solid();
+        cell_lid_region(inset = 0);
     }
 }
 
-// Top U: both upper side walls plus the roof, dropping on between the mating
-// plate and the far wall. The groove receives the bottom U's tongue.
+// Top U: only both upper side walls and the roof, dropping on between the
+// mating plate and the far wall. There are no end-wall tabs or cross-pieces.
 module illumination_cell_top_u() {
-    difference() {
-        intersection() {
-            illumination_cell_solid();
-            cell_lid_region(inset = cell_seam_clearance_mm);
-        }
-        cell_seam_tongue(clearance = cell_seam_clearance_mm);
+    intersection() {
+        illumination_cell_solid();
+        cell_lid_region(inset = cell_seam_clearance_mm);
     }
 }
 
@@ -796,8 +788,11 @@ module harness_foot(length, center_x) {
                     cylinder(h = m3_insert_depth_mm + epsilon,
                              d = m3_insert_diameter_mm);
 
-            // The screw tip must reach past the insert to press the rail.
-            translate([center_x, side * harness_slot_width_mm / 2,
+            // Open the passage from the outside face through its full harness
+            // wall, into the rail slot. This keeps each clamp hole reachable
+            // after the holder is assembled around the rail.
+            translate([center_x,
+                       side * (harness_outer_width_mm / 2 + epsilon),
                        rail_insert_center_z])
                 rotate([side * 90, 0, 0])
                     cylinder(h = harness_wall_mm + 2 * epsilon,
@@ -848,10 +843,11 @@ module led_post_slider() {
         union() {
             // The post starts at the top of the harness. This leaves the two
             // clamp screws visible and reachable from either side.
-            translate([led_plate_rear_x, -plate_half, harness_foot_top_z])
+            translate([led_plate_rear_x, -plate_half,
+                       harness_foot_top_z - epsilon])
                 cube([led_post_thickness_mm,
                       2 * plate_half,
-                      plate_half - harness_foot_top_z]);
+                      plate_half - harness_foot_top_z + epsilon]);
 
             harness_foot(length = harness_length_mm,
                          center_x = led_plate_rear_x
