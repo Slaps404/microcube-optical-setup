@@ -105,14 +105,15 @@ sleeve_lip_mm = 1; // [0.8:0.1:2] Internal tube stop
 rail_width_mm = 10.5; // [10.5] MEASURED cube screw-pad width
 rail_height_mm = 9; // [7:0.5:12]
 rail_floor_weld_mm = 0.5; // Rail overlap into the floor for one printable solid
-harness_slot_clearance_mm = 0.6; // [0.4:0.1:1.0] Total width clearance on the rail
-harness_seat_clearance_mm = 1.5; // Rail top to sleeve underside, keeps the bore centered
+harness_slot_clearance_mm = 1.0; // [0.4:0.1:1.4] Total width clearance, 0.5 mm per side
+harness_roof_thickness_mm = 1.5; // [1:0.25:3] Solid material above the seated rail
 // The side walls host M3 heat-set inserts end-on. Reuse the official uCube
 // screw specification so the cell takes the same inserts as the main cube.
 harness_wall_mm = 6; // [6:0.5:9]
 harness_length_mm = 16; // [12:1:24] Along the rail
-m3_insert_diameter_mm = 2 * getattr(defaultScrew, "insertR"); // 4 mm
-m3_insert_depth_mm = getattr(defaultScrew, "insertH"); // 5 mm
+// Shared by both opposing pockets on both the lens and LED slider harnesses.
+m3_insert_diameter_mm = 4; // [3.5:0.1:5] Default matches official uCube insert diameter
+m3_insert_length_mm = 5; // [3:0.5:8] Default matches official uCube insertH
 m3_clamp_clearance_mm = 3.2; // Close M3 clearance leaves a 0.4 mm radial shoulder
 m3_clamp_top_margin_mm = 0.5; // Material above clamp passage at rail top
 face_mount_clearance_mm = 3.6; // Through-clearance behind each uFace screw
@@ -167,9 +168,10 @@ lens_axis_z = 0;
 led_axis_y = 0;
 led_axis_z = 0;
 
-// The rail top sits a fixed clearance below the sleeve underside. This keeps
-// the bore exactly on the beam axis, which matters more than rail height.
-rail_top_z = -(sleeve_outer_mm / 2) - harness_seat_clearance_mm;
+// The rail top sits below the sleeve underside by a solid roof thickness. The
+// harness slot roof shares this exact datum, so the slider seats with no
+// vertical play while the sleeve bore remains on the beam axis.
+rail_top_z = -(sleeve_outer_mm / 2) - harness_roof_thickness_mm;
 rail_bottom_z = rail_top_z - rail_height_mm;
 cell_seam_z = rail_top_z;
 
@@ -189,10 +191,10 @@ cell_interior_far_x = cell_far_outer_x + cell_end_wall_mm;
 cell_interior_near_x = cell_mate_x - cell_wall_mm;
 cell_interior_length_mm = cell_interior_near_x - cell_interior_far_x;
 
-// The harness foot straddles the rail. Its slot roof sits at the sleeve
-// underside, so the rail top clearance above is harness_seat_clearance_mm.
+// The harness foot straddles the rail. Its slot roof rests directly on the
+// rail top; harness_roof_thickness_mm is solid material, not empty clearance.
 harness_slot_width_mm = rail_width_mm + harness_slot_clearance_mm;
-harness_slot_top_z = -(sleeve_outer_mm / 2);
+harness_slot_top_z = rail_top_z;
 harness_foot_bottom_z = rail_bottom_z + 2;
 harness_outer_width_mm = harness_slot_width_mm + 2 * harness_wall_mm;
 
@@ -226,8 +228,10 @@ assert(sleeve_outer_mm / 2 <= cell_interior_top_z,
        "The lens sleeve hits the illumination cell roof.");
 assert(rail_bottom_z - rail_floor_weld_mm > cell_outer_bottom_z,
        "The rail extends below the illumination cell floor.");
-assert(harness_slot_top_z > rail_top_z,
-       "The harness slot roof must clear the rail top.");
+assert(harness_slot_top_z == rail_top_z,
+       "The harness slot roof must seat directly on the rail top.");
+assert(harness_slot_width_mm >= rail_width_mm,
+       "The harness slot cannot be narrower than the rail.");
 assert(cell_interior_length_mm
            >= sleeve_depth_mm + harness_wall_mm + led_post_thickness_mm + 10,
        "The illumination cell is too short for the sleeve, post, and travel.");
@@ -236,7 +240,7 @@ assert(cell_aperture_mm <= sleeve_bore_mm,
 assert(cell_mount_bridge_depth_mm > 0
            && locator_size_mm <= internal_clearance_mm,
        "The cell mounting bridge must fit inside the cube opening.");
-assert(harness_wall_mm >= m3_insert_depth_mm + 1,
+assert(harness_wall_mm >= m3_insert_length_mm + 1,
        "The harness side walls are too thin to host the M3 heat-set inserts.");
 
 assert(sleeve_front_x <= cell_interior_near_x,
@@ -269,6 +273,9 @@ echo(str("Cell interior: ", cell_interior_length_mm, " long, ",
 echo(str("Sleeve bore/OD: ", sleeve_bore_mm, "/", sleeve_outer_mm,
          " mm; rail ", rail_width_mm, " x ", rail_height_mm,
          " with top at Z=", rail_top_z));
+echo(str("Harness rail fit: ", harness_slot_clearance_mm,
+         " mm total lateral clearance, ",
+         harness_slot_top_z - rail_top_z, " mm vertical clearance"));
 echo(str("Sleeve focus travel: ",
          cell_interior_length_mm - sleeve_depth_mm
              - led_post_thickness_mm - harness_wall_mm, " mm maximum"));
@@ -792,8 +799,8 @@ module harness_foot(length, center_x) {
                   harness_outer_width_mm,
                   harness_foot_top_z - harness_foot_bottom_z]);
 
-        // Rail slot. Its roof sits at the sleeve underside, leaving
-        // harness_seat_clearance_mm above the rail so the bore stays centered.
+        // Rail slot. Its roof sits directly on the rail top. The material above
+        // it is the solid harness roof that connects the foot to the slider.
         translate([center_x - length / 2 - epsilon,
                    -harness_slot_width_mm / 2,
                    harness_foot_bottom_z - epsilon])
@@ -808,7 +815,7 @@ module harness_foot(length, center_x) {
                        side * (harness_outer_width_mm / 2 + epsilon),
                        rail_insert_center_z])
                 rotate([side * 90, 0, 0])
-                    cylinder(h = m3_insert_depth_mm + epsilon,
+                    cylinder(h = m3_insert_length_mm + epsilon,
                              d = m3_insert_diameter_mm);
 
             // Open the passage from the outside face through its full harness

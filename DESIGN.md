@@ -77,18 +77,21 @@ cube opening.
 
 ### Rail and sliders
 **One** centered rail runs the full interior length along the light axis,
-10.5 x 9 mm. Its top is *derived*, not chosen: it sits `harness_seat_clearance_mm`
-below the sleeve underside so the bore stays exactly on the beam axis, which was
-the stated priority over rail height.
+10.5 x 9 mm. Its top is *derived*, not chosen: it sits 1.5 mm below the sleeve
+underside to leave a solid harness roof while the bore stays exactly on the beam
+axis. The slot roof rests directly on the rail top, with no vertical clearance.
 
 Two sliders share one `harness_foot` module, so they grip identically: a
 slip-fit U straddling the rail with two opposing M3 set screws in heat-set
-inserts pressing the rail flanks.
+inserts pressing the rail flanks. The 11.5 mm slot gives the 10.5 mm rail 1.0 mm
+total lateral clearance, or 0.5 mm per side.
 
 Each insert bore is intentionally stepped. The 4.0 mm by 5 mm insert pocket
 ends at a 1 mm backing shoulder, followed by a 3.2 mm screw passage to the rail.
 The 0.4 mm radial shoulder stops the insert and keeps it out of the sliding
-slot. Final fit still requires a coupon with the purchased insert.
+slot. Both slider types use the shared `m3_insert_diameter_mm` and
+`m3_insert_length_mm` parameters. Final fit still requires a coupon with the
+purchased insert.
 
 - **Slider 1, lens sleeve** (one printed part): bore 41, wall 2, OD 45, depth 25.
   A 1 mm internal lip at the cube-facing end stops the purchased tube; the tube
@@ -126,6 +129,7 @@ The lens's camera-side C-mount is a separate interface.
 | Cube rescaling | Rejected | Print time and setup time are the binding constraints. Prefer local geometry changes. |
 | Rail count | One centered rail | It bridges the center of one end to the center of the other, which also dissolves any collision with the corner inserts. |
 | Rail height | Derived from the sleeve | Centering the bore on the beam axis outranks rail height. |
+| Rail sliding fit | 1.0 mm total lateral, 0 mm vertical | The extra lateral clearance favors reliable first-print sliding; direct top seating prevents optical-axis drop before clamping. |
 | Lens retention | Purchased tube, spring clip, 1 mm lip | Tube-in-tube beats machining our own bore for manufactured lenses. A groove was considered and explicitly rejected. |
 | Sleeve wall | 2 mm | Path B frees the interior size, so the earlier 1 mm workaround is unnecessary and would print weak. |
 | Focus adjustment | Two independently clamped sliders | Both LED and lens positions must be tuned empirically. |
