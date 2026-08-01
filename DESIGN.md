@@ -93,8 +93,9 @@ slot. Final fit still requires a coupon with the purchased insert.
 - **Slider 1, lens sleeve** (one printed part): bore 41, wall 2, OD 45, depth 25.
   A 1 mm internal lip at the cube-facing end stops the purchased tube; the tube
   loads from the open rear and a spring clip retains it. **No groove is cut.**
-- **Slider 2, LED post:** a flat plate with its pad on the beam axis and a cable
-  pass-through below the star footprint.
+- **Slider 2, LED post:** a 23.1 mm-wide flat plate, flush with the harness
+  sides, with its pad on the beam axis and a cable pass-through below the star
+  footprint. The 20 mm star retains 1.55 mm of support per side.
 
 ### Optics
 The two lenses ride on spring clips inside a **purchased 40.0 mm lens tube**

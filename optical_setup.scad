@@ -251,6 +251,8 @@ assert(sleeve_bore_mm - 2 * sleeve_lip_mm < tube_outer_mm,
        "The retaining lip does not overlap the tube it is meant to stop.");
 assert(harness_outer_width_mm <= 2 * cell_interior_half_y,
        "The harness foot is wider than the illumination cell interior.");
+assert(led_star_diameter_mm <= harness_outer_width_mm,
+       "The LED star is wider than its flush harness-width post.");
 assert(cell_outer_span_mm >= face_outline_mm,
        "The cell must not be narrower than its standard uFace mount.");
 assert(rail_insert_center_z - m3_clamp_clearance_mm / 2 >= rail_bottom_z,
@@ -856,7 +858,9 @@ module lens_sleeve_slider() {
 // edges and adding a glued-on heatsink are deliberate v2 changes to this one
 // small part, since v1 strobes the LED and needs no secondary heatsink.
 module led_post_slider() {
-    plate_half = led_star_diameter_mm / 2 + 3;
+    // Match the harness width so the post has no unsupported side overhang.
+    // The 20 mm star retains 1.55 mm of support per side.
+    plate_half = harness_outer_width_mm / 2;
     cable_notch_bottom_z = harness_foot_top_z - epsilon;
     cable_notch_top_z = -led_star_diameter_mm / 2 - 1;
 
