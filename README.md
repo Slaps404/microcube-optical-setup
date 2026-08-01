@@ -1,113 +1,129 @@
 # uCube optical setup
 
-Parametric OpenSCAD parts for a 50 mm plate beamsplitter, compact 30 mm
-illumination source, and M37 lens mounting face.
+Parametric OpenSCAD parts for a 50 mm plate beamsplitter, M37 camera interface,
+and a focus-adjustable illumination cell. The design is built around the
+official uCube library and the measured 45 mm clear opening cube.
+
+## Source of truth
+
+- `optical_setup.scad` is the editable geometry source of truth.
+- `DESIGN.md` records the active architecture, measured dimensions, provisional
+  dimensions, and required physical tests.
+- `exports/current` is **stale**. It predates the 45 mm cube migration,
+  counterbore correction, and custom illumination cell. Do not print it as the
+  current design.
 
 ## Layout
 
-- `optical_setup.scad`: editable parts and complete assembly demo.
-- `vendor/uCube`: official uCube library with the fixes documented in
-  `PATCHES.md`.
-- `vendor/BOSL2`: pinned thread-geometry dependency.
+- `optical_setup.scad`: all printable parts and assembly previews.
+- `vendor/uCube`: official uCube library, with local fixes in `PATCHES.md`.
+- `vendor/BOSL2`: pinned M37 thread-geometry dependency.
 - `research`: sourced illumination research.
-- `exports`: printable STL outputs.
-- `previews/current`: curated screenshots for GitHub documentation.
+- `exports`: local STL outputs. Attach validated outputs to a release.
+- `previews/current`: curated images for documentation. Other QA renders under
+  `previews/` are ignored by Git.
 
-Additional multi-angle QA renders are generated locally under `previews/` and
-ignored by Git. Printable STL files are also generated locally under
-`exports/` and should be attached to a release when sharing a print version.
+Initialize dependencies after cloning:
 
-## Baseline geometry
+```sh
+git submodule update --init --recursive
+```
 
-The design uses the official 40 mm clear opening, 54 mm face size, 68 mm
-overall cube, and standard screw positions. All mounting plates sit on the
-official exterior face plane.
+OpenSCAD is required for previews, validation, and STL export. On macOS with
+Homebrew:
 
-The bottom face holds a 50 x 50 x 2.05 mm beamsplitter at 45 degrees. Its two
-rails extend through the face recess and stop flush with the visible cube
-opening, so they remain hidden in a straight side view.
+```sh
+brew install openscad
+```
 
-The default light face now connects to a second 68 mm official-uCube cell that
-contains a 10 mm square rail. A printed collimator barrel slides along it,
-keeping the lens axis centered on the optical cube while allowing the
-lens-to-LED distance to be tuned. The rail channel is 10.3 mm square, its
-surrounding walls are 5 mm thick, and opposing M3 clamp locations lock the
-chosen position. Set `collimator_rail_position_mm` to move the collimator before
-printing.
+## Active design
 
-The supplied two-lens assembly measures 41 mm in diameter and 24.1 mm thick
-along the light path. It drops into a 41.2 mm barrel bore, seats on a 1 mm
-radial front ledge, and is held by the existing spring and removable retaining
-ring. The LED and thermal stack use a separate rail collar. The older external
-pod and compact diffuser chamber remain available in legacy render modes.
+The optical cube uses the measured uCube geometry:
 
-The 41 mm diameter and 24.1 mm axial thickness are measured. The selected LED is
-a 3 W, 700 mA 3535 emitter on a 20 mm star MCPCB. Clear aperture, focal data,
-board thickness, driver, heat-spreader, heatsink, and fan dimensions remain
-`PROVISIONAL` in `optical_setup.scad` until the physical parts are measured.
+| Feature | Value |
+| --- | --- |
+| Clear through-hole | 45 mm |
+| Frame feature | 7 mm |
+| Overall cube | 73 mm |
+| uFace plate | 59 x 59 x 3.5 mm |
+| uFace corner screw centers | +/-26 mm |
+| Mid-edge cube-to-cube screw centers | +/-29.5 mm |
 
-The camera face carries a male M37 x 0.75 thread for the lens's female M37
-front/filter thread. The configured lens reference is 16 mm focal length with
-a 39 mm body. This M37 connection is separate from the lens's standard C-mount
-camera-side interface. Demo placement is +Y, but any uFace can be moved to a
-different cube side.
+The bottom uFace holds a 50 x 50 x 2.05 mm plate beamsplitter at 45 degrees.
+The camera uFace provides a male M37 x 0.75 thread for the lens's female
+front/filter thread. This is separate from the lens's camera-side C-mount.
+
+Illumination uses a custom, light-tight cell bolted to one side uFace, not a
+second official cube. The cell is 80 mm long and prints as two U shells: a
+bottom shell with the mating plate, floor, far wall, and integral rail; and a
+top shell that acts as the removable lid. A tongue-and-groove seam blocks a
+straight light path.
+
+One centered 10.5 x 9 mm rail carries two independently clamped sliders:
+
+- A 25 mm-deep lens sleeve for a purchased 40.0 mm lens tube. Its 1 mm inner
+  lip stops the tube, and a spring clip retains it.
+- An LED post for the 20 mm star MCPCB, with a cable pass-through below it.
+
+Both sliders use opposing M3 heat-set-insert clamp screws. Their positions are
+set on the bench to tune focus and illumination, rather than assumed from
+optical estimates.
+
+Modes 2 through 4 are legacy compact-light parts. They remain in the source,
+but are not part of the active design.
 
 ## Render modes
 
-Set `render_mode` in `optical_setup.scad`:
+Set `render_mode` near the top of `optical_setup.scad`.
 
-- `0`: complete official uCube assembly, normal F5 demo
-- `1`: printable beamsplitter bottom face
-- `2`: legacy compact light-source face/body
-- `3`: legacy compact light-source back cover
-- `4`: legacy compact optic cartridge
-- `5`: printable M37 camera face
-- `6`: printable M37 thread-fit coupon
-- `7`: exploded assembly reference
-- `8`: wireframe inspection reference
-- `9`: printable 41 mm collimator uFace and cartridge cell
-- `10`: printable condenser spacer and provisional driver rails
-- `11`: printable condenser lens retaining ring
-- `12`: printable focus-adjustable LED/heatsink carriage
-- `13`: assembled condenser light engine reference
-- `14`: exploded condenser light engine reference
-- `15`: printable adjustable-rail uFace and rail base
-- `16`: printable 41 mm collimator barrel and rail slider
-- `17`: printable LED/heatsink rail collar
-- `18`: assembled adjustable rail light engine reference
-- `19`: printable official uCube shell, print two
+| Mode | Output |
+| --- | --- |
+| 0 | Complete optical assembly |
+| 1 | Beamsplitter mounting face |
+| 2-4 | Legacy compact light chamber parts |
+| 5 | M37 camera mounting face |
+| 6 | M37 thread-fit coupon |
+| 7 | Exploded assembly reference |
+| 8 | Inspection assembly reference |
+| 9 | Official uCube shell |
+| 10 | Illumination cell bottom U shell |
+| 11 | Illumination cell top U shell, lid |
+| 12 | Lens sleeve slider |
+| 13 | LED post slider |
+| 14 | Illumination cell assembly, lid on |
+| 15 | Illumination cell assembly, lid off |
 
-Modes 0, 7, 8, 13, 14, and 18 contain non-printable references. Export the
-other modes separately.
+Modes 0, 7, 8, 14, and 15 are assembly or inspection views, not standalone
+print parts. Export the other modes individually.
 
-## Current STL pack
+## Validate before exporting
 
-The versioned files in `exports/current` are the individual printable parts
-for the default adjustable-rail assembly. Each geometry-checked STL has a
-matching part-specific SCAD entry file. See the folder README for quantities
-and which dimensions still require a physical fit test.
+Run a hard-warning validation before exporting an STL:
 
-## Measurements to confirm
+```sh
+openscad --hardwarnings -o /tmp/optical_setup.csg optical_setup.scad
+```
 
-Print the thread-fit coupon before the full camera face. Confirm the lens is
-female M37 x 0.75, then adjust `camera_thread_clearance_mm` if needed. Also test
-the 2.1 mm beamsplitter slot, optic-cartridge fit, and official face screw
-alignment before printing complete parts.
+After changing geometry, render and inspect front, back, left, right, top, and
+isometric previews. OpenSCAD validity confirms the model can render, not that
+printed parts will fit.
 
-For the collimator pod, first print mode 11 and a shallow section of mode 9.
-Verify the cartridge slip fit with the real 41 x 24.1 mm assembly. The original
-holder uses a flat spring with an approximately 37.44 mm compressed diameter.
-It shares the cylindrical bore behind the lens and is compressed axially by the
-modeled screw-on rear ring. Its wire measures 1.04 mm and is intentionally formed, so it
-must preload a flat annular pressure washer rather than contact or center the
-optics directly. Its compressed axial height still needs measurement. Then
-verify the MCPCB, heat-spreader, heatsink, and driver dimensions before printing
-full modes 9, 10, and 12.
+## Physical tests required
 
-For the adjustable version, test modes 15 through 17 before a final print. The
-10.0/10.3 mm rail fit and 5 mm slider walls come from the supplied design
-notes. The newer video frames show the rail spanning one additional 68 mm
-uCube cell and the 41 mm collimator barely clearing the opened frame. Face
-anchor dimensions, slider length, and M3 heat-set insert pockets remain marked
-`PROVISIONAL`. Confirm those dimensions and the usable focus range on the
-physical cube, then set `collimator_rail_position_mm`.
+Nothing has been printed yet. Test these coupons or fit-critical features before
+a full print:
+
+- One custom uFace on the physical cube, confirming outward-facing
+  counterbores and fully seated screw heads.
+- A rail segment and slider foot, confirming hand-sliding motion and secure
+  clamp without rocking.
+- A shallow lens sleeve, confirming the 40.0 mm tube slips in with minimal
+  play.
+- The M37 thread coupon, before the full camera face.
+- Short bottom and lid seam sections, confirming the lid seats and blocks
+  daylight.
+- The 2.1 mm beamsplitter slot.
+
+Several values remain provisional, including the sleeve depth, heat-set insert
+dimensions, optical clear aperture and focal data, cable routing, and the final
+focus distances. See `DESIGN.md` for the full risk and test record.

@@ -112,6 +112,8 @@ harness_length_mm = 16; // [12:1:24] Along the rail
 m3_insert_diameter_mm = 4.6; // PROVISIONAL heat-set insert
 m3_insert_depth_mm = 5; // PROVISIONAL heat-set insert
 m3_clamp_clearance_mm = 3.2; // Set-screw tip path from insert to rail flank
+m3_clamp_top_margin_mm = 0.5; // Material above clamp passage at rail top
+face_mount_clearance_mm = 3.6; // Through-clearance behind each uFace screw
 sleeve_setback_mm = 0; // [0:1:30] Preview only, sleeve front from the port
 led_gap_mm = 20; // [4:1:34] Preview only, sleeve rear to LED pad
 led_star_diameter_mm = 20; // MEASURED star MCPCB envelope
@@ -194,7 +196,10 @@ harness_outer_width_mm = harness_slot_width_mm + 2 * harness_wall_mm;
 // otherwise the foot floats free at its corners or becomes a tall solid slab.
 harness_foot_top_z = -sqrt(pow(sleeve_outer_mm / 2, 2)
                            - pow(harness_outer_width_mm / 2, 2)) + 0.5;
-rail_insert_center_z = (rail_top_z + rail_bottom_z) / 2;
+// Keep the insert and screw passage in the upper half of the rail. Centering
+// them on the rail made the harness bottom edge thin and brittle.
+rail_insert_center_z = rail_top_z - m3_clamp_clearance_mm / 2
+                       - m3_clamp_top_margin_mm;
 
 // Slider placement. Both sliders clamp anywhere along the rail; these are the
 // preview positions only. The LED gap is the adjustable quantity the bench test
@@ -232,6 +237,8 @@ assert(sleeve_bore_mm - 2 * sleeve_lip_mm < tube_outer_mm,
        "The retaining lip does not overlap the tube it is meant to stop.");
 assert(harness_outer_width_mm <= 2 * cell_interior_half_y,
        "The harness foot is wider than the illumination cell interior.");
+assert(rail_insert_center_z - m3_clamp_clearance_mm / 2 >= rail_bottom_z,
+       "The harness clamp passage falls below the rail.");
 
 echo(str("Cell interior: ", cell_interior_length_mm, " long, ",
          2 * cell_interior_half_y, " wide, ",
@@ -660,8 +667,27 @@ module cell_rail() {
 // The official uFace, rotated so its plate normal lies along the light axis.
 // This is what bolts the cell into one pocket of the optical cube.
 module cell_mating_plate() {
-    rotate([0, 90, 0])
-        official_face_at_inside_plane();
+    // The uFace is fused into the cell's near end wall, not left as a
+    // separate plate. Its outside thickness and 59 mm outline remain the
+    // standard uFace geometry.
+    translate([cell_mate_x, 0, 0])
+        rotate([0, 90, 0])
+            official_face_at_inside_plane();
+}
+
+// uFace provides the outer counterbores. These continuations carry the screw
+// bores through the attached near wall so every screw remains accessible from
+// the cube side after the plate is fused to the cell.
+module cell_mating_screw_passages() {
+    for (y = [-1, 1])
+        for (z = [-1, 1])
+            translate([cell_mate_x - cell_wall_mm - epsilon,
+                       y * (face_outline_mm - frame_feature_mm) / 2,
+                       z * (face_outline_mm - frame_feature_mm) / 2])
+                rotate([0, 90, 0])
+                    cylinder(h = cell_wall_mm + face_plate_thickness_mm
+                                 + 2 * epsilon,
+                             d = face_mount_clearance_mm);
 }
 
 // Complete box as a single solid, before the lid split.
@@ -682,6 +708,8 @@ module illumination_cell_solid() {
                 cylinder(h = cell_wall_mm + face_plate_thickness_mm
                              + 2 * epsilon,
                          d = cell_aperture_mm);
+
+        cell_mating_screw_passages();
     }
 }
 
@@ -813,26 +841,31 @@ module lens_sleeve_slider() {
 // small part, since v1 strobes the LED and needs no secondary heatsink.
 module led_post_slider() {
     plate_half = led_star_diameter_mm / 2 + 3;
+    cable_notch_bottom_z = harness_foot_top_z - epsilon;
+    cable_notch_top_z = -led_star_diameter_mm / 2 - 1;
 
     difference() {
         union() {
-            translate([led_plate_rear_x, -plate_half, harness_foot_bottom_z])
+            // The post starts at the top of the harness. This leaves the two
+            // clamp screws visible and reachable from either side.
+            translate([led_plate_rear_x, -plate_half, harness_foot_top_z])
                 cube([led_post_thickness_mm,
                       2 * plate_half,
-                      plate_half - harness_foot_bottom_z]);
+                      plate_half - harness_foot_top_z]);
 
             harness_foot(length = harness_length_mm,
                          center_x = led_plate_rear_x
                                     + led_post_thickness_mm / 2);
         }
 
-        // Cable pass-through, clear of the star footprint above it.
+        // Bottom-open cable notch, clear of the star footprint above it. This
+        // preserves wire routing without leaving a weak enclosed hole.
         translate([led_plate_rear_x - epsilon,
                    -led_cable_notch_mm / 2,
-                   -led_star_diameter_mm / 2 - 5])
+                   cable_notch_bottom_z])
             cube([led_post_thickness_mm + 2 * epsilon,
                   led_cable_notch_mm,
-                  4]);
+                  cable_notch_top_z - cable_notch_bottom_z]);
     }
 }
 
