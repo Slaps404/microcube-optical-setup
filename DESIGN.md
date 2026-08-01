@@ -1,7 +1,7 @@
 # Microcube Optical Setup: Design Record
 
 > **Status:** Active design context, pending physical prototype review
-> **Updated:** 2026-07-31
+> **Updated:** 2026-08-01
 > **Note:** Renamed from `proposed_plan.md`; the design is no longer a proposal.
 
 ---
@@ -69,6 +69,12 @@ The enclosure is 73 mm wide at the body but retains the standard 59 mm uFace
 mounting plate and its unchanged screw pattern. The interior is 70 mm long
 with 34 mm of sleeve focus travel.
 
+The cell uFace uses the same cube-opening datum as the other custom faces. A
+44.2 mm square, 1 mm-deep bridge crosses the cell-wall/uFace interface and
+overlaps each solid by 0.5 mm. This makes the mount and bottom shell one
+printable part while retaining 0.4 mm clearance per side in the measured 45 mm
+cube opening.
+
 ### Rail and sliders
 **One** centered rail runs the full interior length along the light axis,
 10.5 x 9 mm. Its top is *derived*, not chosen: it sits `harness_seat_clearance_mm`
@@ -78,6 +84,11 @@ the stated priority over rail height.
 Two sliders share one `harness_foot` module, so they grip identically: a
 slip-fit U straddling the rail with two opposing M3 set screws in heat-set
 inserts pressing the rail flanks.
+
+Each insert bore is intentionally stepped. The 4.0 mm by 5 mm insert pocket
+ends at a 1 mm backing shoulder, followed by a 3.2 mm screw passage to the rail.
+The 0.4 mm radial shoulder stops the insert and keeps it out of the sliding
+slot. Final fit still requires a coupon with the purchased insert.
 
 - **Slider 1, lens sleeve** (one printed part): bore 41, wall 2, OD 45, depth 25.
   A 1 mm internal lip at the cube-facing end stops the purchased tube; the tube
@@ -119,6 +130,8 @@ The lens's camera-side C-mount is a separate interface.
 | Focus adjustment | Two independently clamped sliders | Both LED and lens positions must be tuned empirically. |
 | Thermal design | None in v1 | Strobing removes the need, and the heatsink is unpurchased and unmeasured. Building a 100 mm enclosure around guessed dimensions is the expensive kind of guess. |
 | Harness wall | 6 mm | A 5 mm heat-set insert cannot live in a 3 mm wall. Enforced by assert. |
+| Harness insert shoulder | Retained | The insert pocket needs a depth stop; the smaller continuation gives the clamp screw access to the rail. |
+| Cell-to-cube interface | Standard uFace plus 44.2 mm bridge | The uFace enters the standard cube slot, while the bridge overlaps the cell wall and face so they slice as one connected part. |
 | Which cube face | Any of the four side faces | The light axis must be horizontal so the sliders sit on a floor. The cube is 4-fold symmetric, so the printed part is identical whichever side is chosen. Picked at assembly time, not design time. |
 
 ## 5. Dependencies and repository state
@@ -135,8 +148,10 @@ The lens's camera-side C-mount is a separate interface.
 - **Nothing has been printed.** OpenSCAD validity does not prove printer
   tolerance, insert fit, screw alignment, or assembly access.
 - **Sleeve depth 25 mm is provisional.** Confirm against the real tube.
-- **M3 insert geometry is provisional:** 4.6 mm diameter by 5 mm, and must be
-  matched to the purchased insert.
+- **M3 insert fit is unprinted:** the current cell harness pocket is 4.0 mm
+  diameter by 5.0 mm deep, followed by a 3.2 mm screw passage. This leaves a
+  0.4 mm radial shoulder and 1 mm axial backing wall. The complete fit still
+  needs a printer/material coupon with the purchased insert.
 - **Seam clearances are untested.** The 0.25 mm lid slip fit and the
   tongue-and-groove both need a printed coupon.
 - **Light-tightness is unproven.** There is no tongue baffle at the removable

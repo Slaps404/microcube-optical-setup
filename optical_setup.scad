@@ -91,6 +91,7 @@ cell_wall_mm = 4; // [3:0.5:6]
 cell_end_wall_mm = 6; // [4:0.5:10]
 cell_aperture_mm = 40; // [30:1:44] Light port through the mating plate
 cell_seam_clearance_mm = 0.25; // [0.1:0.05:0.5] Lid slip fit
+cell_mount_bridge_depth_mm = 1; // Overlaps the cell wall and uFace by 0.5 mm each
 
 /* [Lens sleeve, rail, and sliders]
    The two lenses are held on spring clips inside a purchased 40.0 mm lens tube.
@@ -103,15 +104,16 @@ sleeve_depth_mm = 27; // [20:1:32] PROVISIONAL, confirm on the bench
 sleeve_lip_mm = 1; // [0.8:0.1:2] Internal tube stop
 rail_width_mm = 10.5; // [10.5] MEASURED cube screw-pad width
 rail_height_mm = 9; // [7:0.5:12]
+rail_floor_weld_mm = 0.5; // Rail overlap into the floor for one printable solid
 harness_slot_clearance_mm = 0.6; // [0.4:0.1:1.0] Total width clearance on the rail
 harness_seat_clearance_mm = 1.5; // Rail top to sleeve underside, keeps the bore centered
-// The side walls host M3 heat-set inserts end-on, so they must be deeper than
-// the insert plus a backing wall. This is why they are not simply 3 mm.
+// The side walls host M3 heat-set inserts end-on. Reuse the official uCube
+// screw specification so the cell takes the same inserts as the main cube.
 harness_wall_mm = 6; // [6:0.5:9]
 harness_length_mm = 16; // [12:1:24] Along the rail
-m3_insert_diameter_mm = 4.6; // PROVISIONAL heat-set insert
-m3_insert_depth_mm = 5; // PROVISIONAL heat-set insert
-m3_clamp_clearance_mm = 3.2; // Set-screw tip path from insert to rail flank
+m3_insert_diameter_mm = 2 * getattr(defaultScrew, "insertR"); // 4 mm
+m3_insert_depth_mm = getattr(defaultScrew, "insertH"); // 5 mm
+m3_clamp_clearance_mm = 3.2; // Close M3 clearance leaves a 0.4 mm radial shoulder
 m3_clamp_top_margin_mm = 0.5; // Material above clamp passage at rail top
 face_mount_clearance_mm = 3.6; // Through-clearance behind each uFace screw
 sleeve_setback_mm = 0; // [0:1:30] Preview only, sleeve front from the port
@@ -222,7 +224,7 @@ assert(sleeve_outer_mm <= 2 * cell_interior_half_y,
        "The lens sleeve is wider than the illumination cell interior.");
 assert(sleeve_outer_mm / 2 <= cell_interior_top_z,
        "The lens sleeve hits the illumination cell roof.");
-assert(rail_bottom_z > cell_outer_bottom_z,
+assert(rail_bottom_z - rail_floor_weld_mm > cell_outer_bottom_z,
        "The rail extends below the illumination cell floor.");
 assert(harness_slot_top_z > rail_top_z,
        "The harness slot roof must clear the rail top.");
@@ -231,6 +233,9 @@ assert(cell_interior_length_mm
        "The illumination cell is too short for the sleeve, post, and travel.");
 assert(cell_aperture_mm <= sleeve_bore_mm,
        "The mating-plate light port is wider than the sleeve bore.");
+assert(cell_mount_bridge_depth_mm > 0
+           && locator_size_mm <= internal_clearance_mm,
+       "The cell mounting bridge must fit inside the cube opening.");
 assert(harness_wall_mm >= m3_insert_depth_mm + 1,
        "The harness side walls are too thin to host the M3 heat-set inserts.");
 
@@ -674,21 +679,36 @@ module cell_interior_void() {
 module cell_rail() {
     translate([cell_interior_far_x,
                -rail_width_mm / 2,
-               rail_bottom_z])
+               rail_bottom_z - rail_floor_weld_mm])
         cube([rail_length_mm,
               rail_width_mm,
-              rail_height_mm]);
+              rail_height_mm + rail_floor_weld_mm]);
 }
 
 // The official uFace, rotated so its plate normal lies along the light axis.
 // This is what bolts the cell into one pocket of the optical cube.
 module cell_mating_plate() {
-    // The uFace is fused into the cell's near end wall, not left as a
-    // separate plate. Its outside thickness and 59 mm outline remain the
-    // standard uFace geometry.
-    translate([cell_mate_x, 0, 0])
-        rotate([0, 90, 0])
-            official_face_at_inside_plane();
+    // official_face_at_inside_plane() already places the standard uFace from
+    // the outer cube surface at -face_outer_depth_mm toward the cube interior.
+    // Rotating it about the shared X=0 opening datum therefore needs no second
+    // cell_mate_x translation. That duplicate offset put the plate 14 mm into
+    // the cell, where it crossed the lens harness instead of entering the cube
+    // face slot.
+    rotate([0, 90, 0])
+        official_face_at_inside_plane();
+}
+
+// A short square locator bridges the cell wall and uFace across their shared
+// X=cell_mate_x plane. Its 44.2 mm outline uses the same measured clearance as
+// the other custom face locators, so it fits the 45 mm cube opening. The light
+// port is cut through it later with the rest of the assembled cell solid.
+module cell_mating_bridge() {
+    translate([cell_mate_x - cell_mount_bridge_depth_mm / 2,
+               -locator_size_mm / 2,
+               -locator_size_mm / 2])
+        cube([cell_mount_bridge_depth_mm,
+              locator_size_mm,
+              locator_size_mm]);
 }
 
 // uFace provides the outer counterbores. These continuations carry the screw
@@ -716,6 +736,7 @@ module illumination_cell_solid() {
             }
             cell_rail();
             cell_mating_plate();
+            cell_mating_bridge();
         }
 
         // Light port through the near end wall and the mating plate.
