@@ -7,3 +7,8 @@
 /previews/**
 !/previews/current/
 !/previews/current/**
+
+# Reproducible local and CI build outputs.
+/build/
+__pycache__/
+*.pyc

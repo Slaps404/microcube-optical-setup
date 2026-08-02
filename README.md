@@ -9,9 +9,9 @@ official uCube library and the measured 45 mm clear opening cube.
 - `optical_setup.scad` is the editable geometry source of truth.
 - `DESIGN.md` records the active architecture, measured dimensions, provisional
   dimensions, and required physical tests.
-- `exports/current` is **stale**. It predates the 45 mm cube migration,
-  counterbore correction, and custom illumination cell. Do not print it as the
-  current design.
+- `exports/current` contains the tracked active printable STL pack. Historical
+  `adjustable_*` files remain in that folder but are explicitly excluded in its
+  README.
 
 ## Layout
 
@@ -19,7 +19,9 @@ official uCube library and the measured 45 mm clear opening cube.
 - `vendor/uCube`: official uCube library, with local fixes in `PATCHES.md`.
 - `vendor/BOSL2`: pinned M37 thread-geometry dependency.
 - `research`: sourced illumination research.
-- `exports`: local STL outputs. Attach validated outputs to a release.
+- `exports/current`: tracked printable STLs and their OpenSCAD entry files.
+- `slicer`: resolved Ender 3 V2 profiles for 0.4, 0.2, and 0.1 mm nozzles.
+- `scripts`: reproducible STL export, mesh checks, and slicer smoke tests.
 - `previews/current`: curated images for documentation. Other QA renders under
   `previews/` are ignored by Git.
 
@@ -107,6 +109,18 @@ openscad --hardwarnings -o /tmp/optical_setup.csg optical_setup.scad
 After changing geometry, render and inspect front, back, left, right, top, and
 isometric previews. OpenSCAD validity confirms the model can render, not that
 printed parts will fit.
+
+Regenerate every active STL, check that each mesh is one connected watertight
+surface, and run the Ender 3 V2 slicer smoke tests with:
+
+```sh
+scripts/export_printables.sh
+scripts/slice_smoke_test.sh
+```
+
+GitHub Actions runs both commands and publishes the validated STL pack as a
+build artifact. Slicer success catches toolpath and build-volume failures, but
+does not replace physical fit coupons or first-layer calibration.
 
 ## Physical tests required
 

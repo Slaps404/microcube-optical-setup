@@ -1,0 +1,31 @@
+name: CAD validation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  export-mesh-and-slice:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install CAD and slicer tools
+        run: brew install --cask openscad prusaslicer
+
+      - name: Export and validate printable meshes
+        run: scripts/export_printables.sh
+
+      - name: Run Ender 3 V2 slicer smoke tests
+        run: scripts/slice_smoke_test.sh
+
+      - name: Upload validated STL pack
+        uses: actions/upload-artifact@v4
+        with:
+          name: ender3v2-print-pack
+          path: |
+            build/stl/*.stl
+            slicer/*.ini

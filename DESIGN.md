@@ -144,6 +144,7 @@ The lens's camera-side C-mount is a separate interface.
 | Library or tool | Purpose | Location |
 | --- | --- | --- |
 | OpenSCAD | Parametric CAD, preview, STL | `C:/Program Files/OpenSCAD`; validate with hard warnings. |
+| PrusaSlicer | Ender 3 V2 toolpath smoke tests | Resolved 0.4, 0.2, and 0.1 mm nozzle profiles under `slicer/`. |
 | Official uCube library | Cube shells and uFaces | `vendor/uCube`; fixes documented in `PATCHES.md`. |
 | BOSL2 | M37 thread geometry | Pinned under `vendor/BOSL2`. |
 | GitHub | Source and exports | `Slaps404/microcube-optical-setup`, branch `main`. |
@@ -187,6 +188,7 @@ The lens's camera-side C-mount is a separate interface.
 | Light-tightness | Assemble, light the LED, darken the room | No visible leak at seams or through the walls | Bench assembly |
 | Illumination | Sweep both sliders with the real LED | Even field on the cube face without imaging the emitter | Optical prototype |
 | Mesh validation | Hard warnings plus six-view inspection | Every printable mode reports `Simple: yes` | Every CAD revision |
+| Slicer validation | Slice all eight active STLs with the assigned Ender 3 V2 profile | G-code is produced without slicer errors or bed-volume failures | Every CAD revision |
 
 ## 8. Render modes
 
