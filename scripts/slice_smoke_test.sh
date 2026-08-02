@@ -22,7 +22,8 @@ slice() {
   local name="$1"
   local profile="$2"
   shift 2
-  "$slicer" --load "$root/slicer/$profile" "$@" \
+  "$slicer" --config-compatibility enable_silent \
+    --load "$root/slicer/$profile" "$@" \
     --export-gcode \
     --output "$output_dir/$name.gcode" \
     "$stl_dir/$name.stl" 2>&1 | tee "$output_dir/$name.log"
