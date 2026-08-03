@@ -108,7 +108,7 @@ side_vent_slot_height_mm = 12; // [8:1:20] Vertical for support-free wall printi
 side_vent_slot_pitch_mm = 6; // [5:0.5:9]
 vent_region_from_far_mm = 24; // [18:1:32] Slot-group center from far interior wall
 vent_baffle_thickness_mm = 1.2; // [1:0.2:2]
-vent_baffle_gap_mm = 3; // [2:0.5:6] Air channel behind each outer slot group
+vent_baffle_gap_mm = 5.5; // [2:0.5:6] Balances side-shroud plenum area with intake-slot area
 vent_baffle_overlap_mm = 4; // [3:0.5:7] Light-blocking overlap past slot edges
 side_intake_positive_y = true;
 
@@ -273,6 +273,13 @@ side_vent_baffle_bottom_z = side_vent_group_center_z
 side_vent_baffle_inner_y = cell_interior_half_y
                             - vent_baffle_gap_mm
                             - vent_baffle_thickness_mm;
+side_vent_clear_span_x_mm = 2 * side_vent_baffle_half_x
+                            - 2 * vent_baffle_thickness_mm;
+side_vent_slot_area_mm2 = side_vent_slot_count
+                          * side_vent_slot_width_mm
+                          * side_vent_slot_height_mm;
+side_vent_plenum_area_mm2 = side_vent_clear_span_x_mm
+                            * vent_baffle_gap_mm;
 
 assert(sleeve_outer_mm <= 2 * cell_interior_half_y,
        "The lens sleeve is wider than the illumination cell interior.");
@@ -334,6 +341,10 @@ assert(side_vent_baffle_bottom_z > cell_seam_z + cell_seam_clearance_mm,
 assert(side_vent_group_center_z + side_vent_slot_height_mm / 2
            < cell_interior_top_z,
        "The side intake slots overrun the roof.");
+assert(side_vent_baffle_inner_y > sleeve_outer_mm / 2,
+       "The side vent baffle collides with the lens sleeve envelope.");
+assert(side_vent_plenum_area_mm2 >= side_vent_slot_area_mm2,
+       "The side vent plenum chokes the combined intake-slot area.");
 assert(lens_axis_y == 0 && lens_axis_z == 0
            && led_axis_y == 0 && led_axis_z == 0,
        "The lens and LED axes must remain on the cube centerline.");
@@ -350,6 +361,8 @@ echo(str("Harness rail fit: ", harness_slot_clearance_mm,
 echo(str("Sleeve focus travel: ",
          cell_interior_length_mm - sleeve_depth_mm
              - led_post_thickness_mm - harness_wall_mm, " mm maximum"));
+echo(str("Side intake slot/plenum area: ", side_vent_slot_area_mm2,
+         "/", side_vent_plenum_area_mm2, " mm^2"));
 
 assert(plate_slot_mm >= plate_thickness_mm,
        "The beamsplitter slot must be at least as thick as the plate.");

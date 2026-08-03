@@ -66,7 +66,9 @@ exhaust slots with 45-degree internal louvers, plus four vertical 12 x 3 mm
 intake slots low on the positive-Y wall behind an offset internal shroud. The
 separated low intake and high exhaust encourage passive convection. Both vent
 groups remove the direct perpendicular light path, but physical light-leak and
-temperature tests are still required.
+temperature tests are still required. The side shroud has a 5.5 mm air gap,
+giving its clear downward plenum about 146 mm2 of area versus 144 mm2 across
+the four intake slots, so the hidden channel does not choke the visible slots.
 
 Assembly and focus adjustment happen by lifting the lid, so there is no access
 slot or cover strip. The top U is intentionally only the roof and upper side
