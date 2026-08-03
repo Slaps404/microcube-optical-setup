@@ -1,7 +1,7 @@
 # Microcube Optical Setup: Design Record
 
 > **Status:** Active design context, pending physical prototype review
-> **Updated:** 2026-08-01
+> **Updated:** 2026-08-03
 > **Note:** Renamed from `proposed_plan.md`; the design is no longer a proposal.
 
 ---
@@ -61,6 +61,13 @@ Prints as **two U shells**:
   wall, and the integral rail.
 - **Top U:** both side walls plus the roof, dropping on as a lid.
 
+The top U includes passive ventilation near the LED end: five 20 x 3 mm roof
+exhaust slots with 45-degree internal louvers, plus four vertical 12 x 3 mm
+intake slots low on the positive-Y wall behind an offset internal shroud. The
+separated low intake and high exhaust encourage passive convection. Both vent
+groups remove the direct perpendicular light path, but physical light-leak and
+temperature tests are still required.
+
 Assembly and focus adjustment happen by lifting the lid, so there is no access
 slot or cover strip. The top U is intentionally only the roof and upper side
 walls, with no end-wall tabs or cross-pieces.
@@ -85,6 +92,12 @@ Two sliders share one `harness_foot` module, so they grip identically: a
 slip-fit U straddling the rail with two opposing M3 set screws in heat-set
 inserts pressing the rail flanks. The 11.5 mm slot gives the 10.5 mm rail 1.0 mm
 total lateral clearance, or 0.5 mm per side.
+
+The upper geometry is offset toward positive X relative to each harness so one
+end face is coplanar for support-free printing. The lens harness rear is flush
+with the sleeve rear, while the LED harness front is flush with the LED pad
+face. The sleeve and LED optical planes remain fixed; only the harness centers
+move.
 
 Each insert bore is intentionally stepped. The 4.0 mm by 5 mm insert pocket
 ends at a 1 mm backing shoulder, followed by a 3.2 mm screw passage to the rail.
@@ -113,7 +126,9 @@ own MCPCB is the only thermal mass. Capturing the star's edges or adding a
 glued-on heatsink is a v2 change to one small part, not to the cell.
 
 A 120 degree emitter spills a cone far wider than the lens, so **closer is
-brighter**. Travel toward zero gap is worth more than travel past 25 mm.
+brighter**. Travel toward zero gap is worth more than travel past 25 mm. V1 is
+limited to short-duration operation. The passive vents reduce trapped heat but
+do not replace a heatsink for continuous use.
 
 ### Camera interface
 Male M37 x 0.75 printed thread engaging the lens's female front/filter thread.
@@ -133,7 +148,8 @@ The lens's camera-side C-mount is a separate interface.
 | Lens retention | Purchased tube, spring clip, 1 mm lip | Tube-in-tube beats machining our own bore for manufactured lenses. A groove was considered and explicitly rejected. |
 | Sleeve wall | 2 mm | Path B frees the interior size, so the earlier 1 mm workaround is unnecessary and would print weak. |
 | Focus adjustment | Two independently clamped sliders | Both LED and lens positions must be tuned empirically. |
-| Thermal design | None in v1 | Strobing removes the need, and the heatsink is unpurchased and unmeasured. Building a 100 mm enclosure around guessed dimensions is the expensive kind of guess. |
+| Thermal design | Baffled passive vents, no heatsink in v1 | Short-duration operation limits heat input. Low side intake and high roof exhaust reduce trapped heat, but continuous use still requires a measured thermal solution. |
+| Slider print faces | Offset upper features relative to harnesses | Coplanar end faces let the lens and LED sliders print on their backs without supports while preserving the optical planes. |
 | Harness wall | 6 mm | A 5 mm heat-set insert cannot live in a 3 mm wall. Enforced by assert. |
 | Harness insert shoulder | Retained | The insert pocket needs a depth stop; the smaller continuation gives the clamp screw access to the rail. |
 | Cell-to-cube interface | Standard uFace plus 44.2 mm bridge | The uFace enters the standard cube slot, while the bridge overlaps the cell wall and face so they slice as one connected part. |
@@ -160,8 +176,13 @@ The lens's camera-side C-mount is a separate interface.
   needs a printer/material coupon with the purchased insert.
 - **Seam clearances are untested.** The 0.25 mm lid slip fit and the
   tongue-and-groove both need a printed coupon.
-- **Light-tightness is unproven.** There is no tongue baffle at the removable
-  lid seam, so plan on 3 perimeters or a matte black interior.
+- **Light-tightness is unproven.** The vent louvers and intake shroud block the
+  direct perpendicular path, but oblique leakage through the vents and leakage
+  at the removable lid seam still require a dark-room test. Plan on 3
+  perimeters or a matte black interior.
+- **Passive cooling is unproven.** The vents are appropriate only for the
+  planned short-duration LED operation. Measure LED-board and enclosure
+  temperature before increasing duty cycle; vents are not a heatsink.
 - **The LED post is a thin tall cantilever.** It carries only a 2 g board, but
   check stiffness and print quality on the first article.
 - **Optical data is provisional:** clear aperture, EFL 40 mm, and BFL 26 mm are
@@ -186,6 +207,7 @@ The lens's camera-side C-mount is a separate interface.
 | Lid seam | Print short sections of both U shells | Lid drops on and the seam has no objectionable light leak | Fit coupon |
 | Beamsplitter slot | Test the 2.1 mm slot | Plate seats securely, supports hidden in side view | Bench assembly |
 | Light-tightness | Assemble, light the LED, darken the room | No visible leak at seams or through the walls | Bench assembly |
+| Passive ventilation | Run the intended short-duration LED sequence and measure the LED board and enclosure | Temperatures remain within the purchased LED and material limits; stop if they continue rising | Bench assembly |
 | Illumination | Sweep both sliders with the real LED | Even field on the cube face without imaging the emitter | Optical prototype |
 | Mesh validation | Hard warnings plus six-view inspection | Every printable mode reports `Simple: yes` | Every CAD revision |
 | Slicer validation | Slice all eight active STLs with the assigned Ender 3 V2 profile | G-code is produced without slicer errors or bed-volume failures | Every CAD revision |

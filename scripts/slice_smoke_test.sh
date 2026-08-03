@@ -37,9 +37,8 @@ slice beamsplitter_mounting_face ender3v2-pla-pro-04.ini
 slice official_ucube_shell ender3v2-pla-pro-04.ini \
   --support-material --support-material-auto --support-material-buildplate-only
 slice lens_sleeve_slider ender3v2-pla-pro-02.ini \
-  --rotate-y 90 --brim-width 3 \
-  --support-material --support-material-auto --support-material-buildplate-only
-slice led_post_slider ender3v2-pla-pro-02.ini --brim-width 3
+  --rotate-y -90 --brim-width 3
+slice led_post_slider ender3v2-pla-pro-02.ini --rotate-y 90 --brim-width 3
 slice m37_camera_mounting_face ender3v2-pla-pro-02.ini
 slice m37_thread_fit_coupon ender3v2-pla-pro-01.ini --brim-width 2
 

@@ -58,8 +58,9 @@ front/filter thread. This is separate from the lens's camera-side C-mount.
 Illumination uses a custom, light-tight cell bolted to one side uFace, not a
 second official cube. The cell is 80 mm long and prints as two U shells: a
 bottom shell with the mating plate, floor, far wall, and integral rail; and a
-top shell that acts as the removable lid. A tongue-and-groove seam blocks a
-straight light path.
+top shell that acts as the removable lid. The lid has five 45-degree-baffled
+roof exhaust slots and four low side-intake slots behind an internal shroud.
+A tongue-and-groove seam blocks a straight light path.
 
 One centered 10.5 x 9 mm rail carries two independently clamped sliders:
 
@@ -69,7 +70,9 @@ One centered 10.5 x 9 mm rail carries two independently clamped sliders:
 
 Both sliders use opposing M3 heat-set-insert clamp screws. Their positions are
 set on the bench to tune focus and illumination, rather than assumed from
-optical estimates.
+optical estimates. Each upper feature is offset on its harness to create one
+coplanar end face for support-free print orientation without changing the
+modeled optical positions.
 
 Modes 2 through 4 are legacy compact-light parts. They remain in the source,
 but are not part of the active design.

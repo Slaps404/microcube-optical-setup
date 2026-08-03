@@ -93,6 +93,25 @@ cell_aperture_mm = 40; // [30:1:44] Light port through the mating plate
 cell_seam_clearance_mm = 0.25; // [0.1:0.05:0.5] Lid slip fit
 cell_mount_bridge_depth_mm = 1; // Overlaps the cell wall and uFace by 0.5 mm each
 
+/* [Passive ventilation]
+   Short-duration LED use still benefits from passive airflow. Warm air exits
+   through roof slots above the LED end while replacement air enters through
+   lower slots in one side wall. Internal offset baffles remove the straight
+   light path through both slot groups. */
+roof_vent_slot_count = 5; // [3:1:7]
+roof_vent_slot_length_mm = 20; // [12:1:28] Parallel to the light axis
+roof_vent_slot_width_mm = 3; // [2:0.5:5]
+roof_vent_slot_pitch_mm = 6; // [5:0.5:9]
+side_vent_slot_count = 4; // [2:1:6]
+side_vent_slot_width_mm = 3; // [2:0.5:5] Along the light axis
+side_vent_slot_height_mm = 12; // [8:1:20] Vertical for support-free wall printing
+side_vent_slot_pitch_mm = 6; // [5:0.5:9]
+vent_region_from_far_mm = 24; // [18:1:32] Slot-group center from far interior wall
+vent_baffle_thickness_mm = 1.2; // [1:0.2:2]
+vent_baffle_gap_mm = 3; // [2:0.5:6] Air channel behind each outer slot group
+vent_baffle_overlap_mm = 4; // [3:0.5:7] Light-blocking overlap past slot edges
+side_intake_positive_y = true;
+
 /* [Lens sleeve, rail, and sliders]
    The two lenses are held on spring clips inside a purchased 40.0 mm lens tube.
    Our sleeve holds that tube: a 1 mm internal lip at the far end stops it, and
@@ -216,11 +235,44 @@ sleeve_front_x = cell_interior_near_x - sleeve_setback_mm;
 sleeve_rear_x = sleeve_front_x - sleeve_depth_mm;
 led_pad_x = sleeve_rear_x - led_gap_mm;
 led_plate_rear_x = led_pad_x - led_post_thickness_mm;
-// Stop at the forward edge of the lens harness rather than running toward the
-// cube-facing plate. The exposed rail end looked like a perpendicular bridge
-// beside the attachment face and serves no purpose there.
-rail_near_x = sleeve_rear_x + sleeve_depth_mm / 2 + harness_length_mm / 2;
+
+// Offset both harnesses toward -X while leaving the optics fixed. This is
+// equivalent to moving each upper feature toward +X relative to its harness,
+// producing one coplanar end face that can sit on the print bed. The lens foot
+// is flush with the sleeve rear; the LED foot is flush with the LED pad face.
+lens_harness_center_x = sleeve_rear_x + harness_length_mm / 2;
+led_harness_center_x = led_pad_x - harness_length_mm / 2;
+
+// Stop at the forward edge of the shifted lens harness. The rail still
+// supports the full empirically adjusted focus range without protruding toward
+// the cube-facing plate.
+rail_near_x = lens_harness_center_x + harness_length_mm / 2;
 rail_length_mm = rail_near_x - cell_interior_far_x;
+
+// Fixed vent region near the far/LED end. It does not follow the preview-only
+// LED gap because the real LED slider can move anywhere along the rail.
+vent_region_center_x = cell_interior_far_x + vent_region_from_far_mm;
+roof_vent_group_half_y =
+    ((roof_vent_slot_count - 1) * roof_vent_slot_pitch_mm
+        + roof_vent_slot_width_mm) / 2;
+roof_vent_louver_half_x = roof_vent_slot_length_mm / 2
+                          + vent_baffle_overlap_mm;
+roof_vent_louver_run_mm = roof_vent_slot_width_mm
+                          + vent_baffle_thickness_mm;
+roof_vent_baffle_bottom_z = cell_interior_top_z
+                             - roof_vent_louver_run_mm;
+side_vent_group_center_z = cell_seam_z + 10;
+side_vent_group_half_x =
+    ((side_vent_slot_count - 1) * side_vent_slot_pitch_mm
+        + side_vent_slot_width_mm) / 2;
+side_vent_baffle_half_x = side_vent_group_half_x
+                          + vent_baffle_overlap_mm;
+side_vent_baffle_bottom_z = side_vent_group_center_z
+                             - side_vent_slot_height_mm / 2
+                             - vent_baffle_thickness_mm;
+side_vent_baffle_inner_y = cell_interior_half_y
+                            - vent_baffle_gap_mm
+                            - vent_baffle_thickness_mm;
 
 assert(sleeve_outer_mm <= 2 * cell_interior_half_y,
        "The lens sleeve is wider than the illumination cell interior.");
@@ -245,12 +297,16 @@ assert(harness_wall_mm >= m3_insert_length_mm + 1,
 
 assert(sleeve_front_x <= cell_interior_near_x,
        "The lens sleeve passes through the illumination cell end wall.");
-assert(led_plate_rear_x - harness_length_mm / 2 >= cell_interior_far_x,
+assert(led_harness_center_x - harness_length_mm / 2 >= cell_interior_far_x,
        "The LED post overruns the far end of the illumination cell.");
-assert((sleeve_rear_x + sleeve_depth_mm / 2)
-           - (led_plate_rear_x + led_post_thickness_mm / 2)
-           >= harness_length_mm,
+assert(lens_harness_center_x - led_harness_center_x >= harness_length_mm,
        "The sleeve and LED post feet collide on the rail at this LED gap.");
+assert(abs(lens_harness_center_x - harness_length_mm / 2 - sleeve_rear_x)
+           < epsilon,
+       "The lens sleeve and harness print faces are not flush.");
+assert(abs(led_harness_center_x + harness_length_mm / 2 - led_pad_x)
+           < epsilon,
+       "The LED post and harness print faces are not flush.");
 assert(sleeve_bore_mm - 2 * sleeve_lip_mm < tube_outer_mm,
        "The retaining lip does not overlap the tube it is meant to stop.");
 assert(harness_outer_width_mm <= 2 * cell_interior_half_y,
@@ -263,6 +319,21 @@ assert(rail_insert_center_z - m3_clamp_clearance_mm / 2 >= rail_bottom_z,
        "The harness clamp passage falls below the rail.");
 assert(rail_length_mm > harness_length_mm,
        "The rail is too short to support both slider harnesses.");
+assert(vent_region_center_x - roof_vent_slot_length_mm / 2
+           > cell_interior_far_x
+       && vent_region_center_x + roof_vent_slot_length_mm / 2
+           < cell_interior_near_x,
+       "The roof vents overrun an illumination-cell end wall.");
+assert(roof_vent_group_half_y + roof_vent_louver_run_mm / 2
+           < cell_interior_half_y,
+       "The roof vent louvers overrun an illumination-cell side wall.");
+assert(roof_vent_baffle_bottom_z > sleeve_outer_mm / 2,
+       "The roof vent baffle collides with the lens sleeve.");
+assert(side_vent_baffle_bottom_z > cell_seam_z + cell_seam_clearance_mm,
+       "The side vent baffle crosses the removable-lid seam.");
+assert(side_vent_group_center_z + side_vent_slot_height_mm / 2
+           < cell_interior_top_z,
+       "The side intake slots overrun the roof.");
 assert(lens_axis_y == 0 && lens_axis_z == 0
            && led_axis_y == 0 && led_axis_z == 0,
        "The lens and LED axes must remain on the cube centerline.");
@@ -778,12 +849,123 @@ module illumination_cell_bottom_u() {
     }
 }
 
-// Top U: only both upper side walls and the roof, dropping on between the
-// mating plate and the far wall. There are no end-wall tabs or cross-pieces.
-module illumination_cell_top_u() {
+// Unvented top-U shell used as the base for the removable lid.
+module illumination_cell_top_u_shell() {
     intersection() {
         illumination_cell_solid();
         cell_lid_region(inset = cell_seam_clearance_mm);
+    }
+}
+
+// Five roof exhaust slots, parallel to the light axis and grouped over the
+// fixed LED-end region. They open only through the 4 mm roof.
+module roof_vent_cutouts() {
+    for (index = [0 : roof_vent_slot_count - 1]) {
+        slot_y = (index - (roof_vent_slot_count - 1) / 2)
+                 * roof_vent_slot_pitch_mm;
+        translate([vent_region_center_x - roof_vent_slot_length_mm / 2,
+                   slot_y - roof_vent_slot_width_mm / 2,
+                   cell_interior_top_z - epsilon])
+            cube([roof_vent_slot_length_mm,
+                  roof_vent_slot_width_mm,
+                  cell_wall_mm + 2 * epsilon]);
+    }
+}
+
+// Each roof slot gets a 45-degree internal louver. The blade overlaps the slot
+// in plan view, removing its direct vertical light path, while growing outward
+// from the roof without a horizontal bridge when the lid prints roof-down.
+module roof_vent_baffle() {
+    for (index = [0 : roof_vent_slot_count - 1]) {
+        slot_y = (index - (roof_vent_slot_count - 1) / 2)
+                 * roof_vent_slot_pitch_mm;
+        hull() {
+            translate([vent_region_center_x - roof_vent_louver_half_x,
+                       slot_y - roof_vent_louver_run_mm / 2,
+                       cell_interior_top_z - epsilon])
+                cube([2 * roof_vent_louver_half_x,
+                      vent_baffle_thickness_mm,
+                      vent_baffle_thickness_mm]);
+            translate([vent_region_center_x - roof_vent_louver_half_x,
+                       slot_y + roof_vent_louver_run_mm / 2
+                           - vent_baffle_thickness_mm,
+                       roof_vent_baffle_bottom_z])
+                cube([2 * roof_vent_louver_half_x,
+                      vent_baffle_thickness_mm,
+                      vent_baffle_thickness_mm]);
+        }
+    }
+}
+
+// Four vertical low intake slots in one removable side wall. Their 3 mm width
+// avoids a long unsupported bridge when the lid prints roof-down. Positive Y
+// is the default; mirroring keeps the handedness selectable.
+module positive_y_side_vent_cutouts() {
+    for (index = [0 : side_vent_slot_count - 1]) {
+        slot_x = vent_region_center_x
+                 + (index - (side_vent_slot_count - 1) / 2)
+                   * side_vent_slot_pitch_mm;
+        translate([slot_x - side_vent_slot_width_mm / 2,
+                   cell_interior_half_y - epsilon,
+                   side_vent_group_center_z - side_vent_slot_height_mm / 2])
+            cube([side_vent_slot_width_mm,
+                  cell_wall_mm + 2 * epsilon,
+                  side_vent_slot_height_mm]);
+    }
+}
+
+module side_vent_cutouts() {
+    if (side_intake_positive_y)
+        positive_y_side_vent_cutouts();
+    else
+        mirror([0, 1, 0])
+            positive_y_side_vent_cutouts();
+}
+
+// The inner wall overlaps the side slots on every edge. Two end webs tie it
+// back to the lid and leave only the lower edge open, creating a simple
+// downward-then-inward labyrinth for incoming air and stray light.
+module positive_y_side_vent_baffle() {
+    baffle_height = cell_interior_top_z - side_vent_baffle_bottom_z + epsilon;
+
+    translate([vent_region_center_x - side_vent_baffle_half_x,
+               side_vent_baffle_inner_y,
+               side_vent_baffle_bottom_z])
+        cube([2 * side_vent_baffle_half_x,
+              vent_baffle_thickness_mm,
+              baffle_height]);
+
+    for (end = [-1, 1])
+        translate([vent_region_center_x
+                       + end * (side_vent_baffle_half_x
+                                - vent_baffle_thickness_mm / 2)
+                       - vent_baffle_thickness_mm / 2,
+                   side_vent_baffle_inner_y,
+                   side_vent_baffle_bottom_z])
+            cube([vent_baffle_thickness_mm,
+                  vent_baffle_gap_mm + vent_baffle_thickness_mm + epsilon,
+                  baffle_height]);
+}
+
+module side_vent_baffle() {
+    if (side_intake_positive_y)
+        positive_y_side_vent_baffle();
+    else
+        mirror([0, 1, 0])
+            positive_y_side_vent_baffle();
+}
+
+// Top U: both upper side walls and the roof, plus passive light-baffled vents.
+// There are no end-wall tabs or cross-pieces.
+module illumination_cell_top_u() {
+    difference() {
+        union() {
+            illumination_cell_top_u_shell();
+            roof_vent_baffle();
+            side_vent_baffle();
+        }
+        roof_vent_cutouts();
+        side_vent_cutouts();
     }
 }
 
@@ -843,7 +1025,7 @@ module lens_sleeve_slider() {
                     cylinder(h = sleeve_depth_mm, d = sleeve_outer_mm);
 
             harness_foot(length = harness_length_mm,
-                         center_x = sleeve_rear_x + sleeve_depth_mm / 2);
+                         center_x = lens_harness_center_x);
         }
 
         // Tube bore, open at the rear, stopping at the lip.
@@ -882,8 +1064,7 @@ module led_post_slider() {
                       plate_half - harness_foot_top_z + epsilon]);
 
             harness_foot(length = harness_length_mm,
-                         center_x = led_plate_rear_x
-                                    + led_post_thickness_mm / 2);
+                         center_x = led_harness_center_x);
         }
 
         // Bottom-open cable notch, clear of the star footprint above it. This
