@@ -92,8 +92,8 @@ axis. The slot roof rests directly on the rail top, with no vertical clearance.
 
 Two sliders share one `harness_foot` module, so they grip identically: a
 slip-fit U straddling the rail with two opposing M3 set screws in heat-set
-inserts pressing the rail flanks. The 11.5 mm slot gives the 10.5 mm rail 1.0 mm
-total lateral clearance, or 0.5 mm per side.
+inserts pressing the rail flanks. The 10.9 mm slot gives the 10.5 mm rail 0.4 mm
+total lateral clearance, or 0.2 mm per side.
 
 The sleeve harness spans the full 27 mm sleeve depth, making both end faces
 coplanar and centering the modeled mass over its rail contact for support-free
@@ -146,7 +146,7 @@ The lens's camera-side C-mount is a separate interface.
 | Cube rescaling | Rejected | Print time and setup time are the binding constraints. Prefer local geometry changes. |
 | Rail count | One centered rail | It bridges the center of one end to the center of the other, which also dissolves any collision with the corner inserts. |
 | Rail height | Derived from the sleeve | Centering the bore on the beam axis outranks rail height. |
-| Rail sliding fit | 1.0 mm total lateral, 0 mm vertical | The extra lateral clearance favors reliable first-print sliding; direct top seating prevents optical-axis drop before clamping. |
+| Rail sliding fit | 0.4 mm total lateral, 0 mm vertical | Physical prints showed excessive play at 1.0 mm total. The tighter 0.2 mm-per-side slip fit reduces rocking; direct top seating prevents optical-axis drop before clamping. |
 | Lens retention | Purchased tube, spring clip, 1 mm lip | Tube-in-tube beats machining our own bore for manufactured lenses. A groove was considered and explicitly rejected. |
 | Sleeve wall | 2 mm | Path B frees the interior size, so the earlier 1 mm workaround is unnecessary and would print weak. |
 | Focus adjustment | Two independently clamped sliders | Both LED and lens positions must be tuned empirically. |

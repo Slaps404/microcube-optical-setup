@@ -124,7 +124,7 @@ sleeve_lip_mm = 1; // [0.8:0.1:2] Internal tube stop
 rail_width_mm = 10.5; // [10.5] MEASURED cube screw-pad width
 rail_height_mm = 9; // [7:0.5:12]
 rail_floor_weld_mm = 0.5; // Rail overlap into the floor for one printable solid
-harness_slot_clearance_mm = 1.0; // [0.4:0.1:1.4] Total width clearance, 0.5 mm per side
+harness_slot_clearance_mm = 0.4; // [0.4:0.1:1.4] Total width clearance, 0.2 mm per side
 harness_roof_thickness_mm = 1.5; // [1:0.25:3] Solid material above the seated rail
 // The side walls host M3 heat-set inserts end-on. Reuse the official uCube
 // screw specification so the cell takes the same inserts as the main cube.
