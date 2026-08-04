@@ -75,7 +75,7 @@ provisional_led_emitter_height_mm = 1.4;
    Path B: the illumination optics live in their own light-tight box that bolts
    to one uFace pocket of the optical cube, instead of inside a second official
    cube. An official 73 mm cube has 14 mm end walls, leaving only 45 mm of
-   interior along the light axis, which cannot hold the 27 mm sleeve plus focus
+   interior along the light axis, which cannot hold the 25 mm sleeve plus focus
    travel plus the LED post. Bolting through a uFace keeps official mounting
    compatibility while letting the box be as long as the optics need.
 
@@ -119,7 +119,7 @@ side_intake_positive_y = true;
 tube_outer_mm = 40; // [40] MEASURED purchased lens tube OD
 sleeve_clearance_mm = 1.0; // [0.4:0.1:1.6] Total diametral slip fit
 sleeve_wall_mm = 2; // [1.5:0.5:3]
-sleeve_depth_mm = 27; // [20:1:32] PROVISIONAL, confirm on the bench
+sleeve_depth_mm = 25; // [20:1:32] Confirmed against the purchased tube
 sleeve_lip_mm = 1; // [0.8:0.1:2] Internal tube stop
 rail_width_mm = 10.5; // [10.5] MEASURED cube screw-pad width
 rail_height_mm = 9; // [7:0.5:12]

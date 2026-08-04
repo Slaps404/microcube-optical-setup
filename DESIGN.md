@@ -52,7 +52,7 @@ illumination cell.
 ### Illumination cell (Path B)
 A **custom light-tight box that bolts into one uFace pocket**, not a second
 official cube. Reason: an official 73 mm cube has 14 mm end walls, so its
-interior is only 45 mm along the light axis, which cannot hold a 27 mm sleeve
+interior is only 45 mm along the light axis, which cannot hold a 25 mm sleeve
 plus focus travel plus the LED post. Bolting through a uFace keeps official
 screw compatibility while letting the box be as long as the optics need.
 
@@ -76,7 +76,7 @@ walls, with no end-wall tabs or cross-pieces.
 
 The enclosure is 73 mm wide at the body but retains the standard 59 mm uFace
 mounting plate and its unchanged screw pattern. The interior is 70 mm long
-with 34 mm of sleeve focus travel.
+with 36 mm of sleeve focus travel.
 
 The cell uFace uses the same cube-opening datum as the other custom faces. A
 44.2 mm square, 1 mm-deep bridge crosses the cell-wall/uFace interface and
@@ -95,7 +95,7 @@ slip-fit U straddling the rail with two opposing M3 set screws in heat-set
 inserts pressing the rail flanks. The 10.9 mm slot gives the 10.5 mm rail 0.4 mm
 total lateral clearance, or 0.2 mm per side.
 
-The sleeve harness spans the full 27 mm sleeve depth, making both end faces
+The sleeve harness spans the full 25 mm sleeve depth, making both end faces
 coplanar and centering the modeled mass over its rail contact for support-free
 printing and stable unclamped placement. The LED upper geometry remains offset
 toward positive X relative to its harness so the harness front is flush with
@@ -108,7 +108,7 @@ slot. Both slider types use the shared `m3_insert_diameter_mm` and
 `m3_insert_length_mm` parameters. Final fit still requires a coupon with the
 purchased insert.
 
-- **Slider 1, lens sleeve** (one printed part): bore 41, wall 2, OD 45, depth 27.
+- **Slider 1, lens sleeve** (one printed part): bore 41, wall 2, OD 45, depth 25.
   A 1 mm internal lip at the cube-facing end stops the purchased tube; the tube
   loads from the open rear and a spring clip retains it. **No groove is cut.**
 - **Slider 2, LED post:** a 23.1 mm-wide flat plate, flush with the harness
@@ -169,9 +169,10 @@ The lens's camera-side C-mount is a separate interface.
 
 ## 6. Open questions and known risks
 
-- **Nothing has been printed.** OpenSCAD validity does not prove printer
-  tolerance, insert fit, screw alignment, or assembly access.
-- **Sleeve depth 27 mm is provisional.** Confirm against the real tube.
+- **An initial cell and slider prototype has been printed.** Its 1.0 mm total
+  rail clearance had excessive play. The revised 0.4 mm fit still needs a
+  physical print; OpenSCAD validity does not prove printer tolerance.
+- **Sleeve depth 25 mm is confirmed against the purchased tube.**
 - **M3 insert fit is unprinted:** the current cell harness pocket is 4.0 mm
   diameter by 5.0 mm deep, followed by a 3.2 mm screw passage. This leaves a
   0.4 mm radial shoulder and 1 mm axial backing wall. The complete fit still

@@ -64,7 +64,7 @@ A tongue-and-groove seam blocks a straight light path.
 
 One centered 10.5 x 9 mm rail carries two independently clamped sliders:
 
-- A 27 mm-deep lens sleeve for a purchased 40.0 mm lens tube. Its 1 mm inner
+- A 25 mm-deep lens sleeve for a purchased 40.0 mm lens tube. Its 1 mm inner
   lip stops the tube, and a spring clip retains it.
 - An LED post for the 20 mm star MCPCB, with a cable pass-through below it.
 
@@ -128,8 +128,9 @@ does not replace physical fit coupons or first-layer calibration.
 
 ## Physical tests required
 
-Nothing has been printed yet. Test these coupons or fit-critical features before
-a full print:
+An initial cell and slider prototype has been printed. The revised 0.4 mm rail
+fit and 25 mm sleeve still require physical verification. Test these coupons or
+fit-critical features before another full print:
 
 - One custom uFace on the physical cube, confirming outward-facing
   counterbores and fully seated screw heads.
