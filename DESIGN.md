@@ -147,6 +147,7 @@ The lens's camera-side C-mount is a separate interface.
 | Rail count | One centered rail | It bridges the center of one end to the center of the other, which also dissolves any collision with the corner inserts. |
 | Rail height | Derived from the sleeve | Centering the bore on the beam axis outranks rail height. |
 | Rail sliding fit | 0.4 mm total lateral, 0 mm vertical | Physical prints showed excessive play at 1.0 mm total. The tighter 0.2 mm-per-side slip fit reduces rocking; direct top seating prevents optical-axis drop before clamping. |
+| Beamsplitter fit | 2.4 mm printed slot for measured 2.5 mm plate | The intentional 0.1 mm interference is removed by light filing until the plate seats securely. |
 | Lens retention | Purchased tube, spring clip, 1 mm lip | Tube-in-tube beats machining our own bore for manufactured lenses. A groove was considered and explicitly rejected. |
 | Sleeve wall | 2 mm | Path B frees the interior size, so the earlier 1 mm workaround is unnecessary and would print weak. |
 | Focus adjustment | Two independently clamped sliders | Both LED and lens positions must be tuned empirically. |
@@ -208,7 +209,7 @@ The lens's camera-side C-mount is a separate interface.
 | Sleeve bore | Print a shallow sleeve ring | The 40.0 mm tube inserts without force, minimal play | Fit coupon |
 | M37 thread | Print `m37_thread_fit_coupon.stl` | Lens engages smoothly without splitting | Fit coupon |
 | Lid seam | Print short sections of both U shells | Lid drops on and the seam has no objectionable light leak | Fit coupon |
-| Beamsplitter slot | Test the 2.1 mm slot | Plate seats securely, supports hidden in side view | Bench assembly |
+| Beamsplitter slot | File the 2.4 mm slot for the measured 2.5 mm plate | Plate seats securely without edge stress; supports hidden in side view | Bench assembly |
 | Light-tightness | Assemble, light the LED, darken the room | No visible leak at seams or through the walls | Bench assembly |
 | Passive ventilation | Run the intended short-duration LED sequence and measure the LED board and enclosure | Temperatures remain within the purchased LED and material limits; stop if they continue rising | Bench assembly |
 | Illumination | Sweep both sliders with the real LED | Even field on the cube face without imaging the emitter | Optical prototype |

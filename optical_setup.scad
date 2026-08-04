@@ -27,8 +27,10 @@ locator_clearance_mm = 0.2; // [0.1:0.1:0.6]
 /* [Beamsplitter] */
 plate_width_mm = 50; // [45:0.1:50]
 plate_height_mm = 50; // [45:0.1:50]
-plate_thickness_mm = 2.05; // [1:0.05:3]
-plate_slot_mm = 2.1; // [2.05:0.05:3]
+plate_thickness_mm = 2.5; // [2.5] MEASURED beamsplitter thickness
+plate_slot_mm = 2.4; // [2.4] Intentionally undersized for filing to final fit
+plate_slot_filing_allowance_mm = 0.1;
+plate_slot_interference_mm = plate_thickness_mm - plate_slot_mm;
 plate_angle_degrees = 45; // [45]
 support_width_mm = 3; // [2:0.25:5]
 support_length_mm = 48; // [44:0.5:48]
@@ -364,8 +366,10 @@ echo(str("Sleeve focus travel: ",
 echo(str("Side intake slot/plenum area: ", side_vent_slot_area_mm2,
          "/", side_vent_plenum_area_mm2, " mm^2"));
 
-assert(plate_slot_mm >= plate_thickness_mm,
-       "The beamsplitter slot must be at least as thick as the plate.");
+assert(plate_slot_interference_mm >= 0
+           && plate_slot_interference_mm
+              <= plate_slot_filing_allowance_mm + epsilon,
+       "The beamsplitter slot exceeds the allowed post-print filing amount.");
 assert(plate_width_mm * cos(plate_angle_degrees) <= internal_clearance_mm,
        "The projected beamsplitter width does not fit the clear cube opening.");
 assert(plate_height_mm <= official_holder_span_mm,
@@ -380,6 +384,8 @@ assert(camera_optical_bore_mm < camera_thread_diameter_mm - 2,
 echo(str("uCube clear/face/overall: ", internal_clearance_mm, "/",
          internal_clearance_mm + 2 * frame_feature_mm, "/",
          internal_clearance_mm + 4 * frame_feature_mm, " mm"));
+echo(str("Beamsplitter plate/slot/interference: ", plate_thickness_mm,
+         "/", plate_slot_mm, "/", plate_slot_interference_mm, " mm"));
 echo(str("Beamsplitter endpoint clearance: ",
          (internal_clearance_mm - plate_width_mm * cos(plate_angle_degrees)) / 2,
          " mm per side"));

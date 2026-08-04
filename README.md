@@ -51,7 +51,9 @@ The optical cube uses the measured uCube geometry:
 | uFace corner screw centers | +/-26 mm |
 | Mid-edge cube-to-cube screw centers | +/-29.5 mm |
 
-The bottom uFace holds a 50 x 50 x 2.05 mm plate beamsplitter at 45 degrees.
+The bottom uFace holds a measured 50 x 50 x 2.5 mm plate beamsplitter at 45
+degrees. Its 2.4 mm printed slot is intentionally 0.1 mm undersized for final
+fit by light filing.
 The camera uFace provides a male M37 x 0.75 thread for the lens's female
 front/filter thread. This is separate from the lens's camera-side C-mount.
 
@@ -141,8 +143,9 @@ fit-critical features before another full print:
 - The M37 thread coupon, before the full camera face.
 - Short bottom and lid seam sections, confirming the lid seats and blocks
   daylight.
-- The 2.1 mm beamsplitter slot.
+- The 2.4 mm beamsplitter slot against the 2.5 mm plate, filing only enough for
+  a secure seated fit.
 
-Several values remain provisional, including the sleeve depth, heat-set insert
-dimensions, optical clear aperture and focal data, cable routing, and the final
-focus distances. See `DESIGN.md` for the full risk and test record.
+Several values remain provisional, including heat-set insert dimensions,
+optical clear aperture and focal data, cable routing, and the final focus
+distances. See `DESIGN.md` for the full risk and test record.
