@@ -52,7 +52,7 @@ illumination cell.
 ### Illumination cell (Path B)
 A **custom light-tight box that bolts into one uFace pocket**, not a second
 official cube. Reason: an official 73 mm cube has 14 mm end walls, so its
-interior is only 45 mm along the light axis, which cannot hold a 25 mm sleeve
+interior is only 45 mm along the light axis, which cannot hold a 27 mm sleeve
 plus focus travel plus the LED post. Bolting through a uFace keeps official
 screw compatibility while letting the box be as long as the optics need.
 
@@ -95,11 +95,11 @@ slip-fit U straddling the rail with two opposing M3 set screws in heat-set
 inserts pressing the rail flanks. The 11.5 mm slot gives the 10.5 mm rail 1.0 mm
 total lateral clearance, or 0.5 mm per side.
 
-The upper geometry is offset toward positive X relative to each harness so one
-end face is coplanar for support-free printing. The lens harness rear is flush
-with the sleeve rear, while the LED harness front is flush with the LED pad
-face. The sleeve and LED optical planes remain fixed; only the harness centers
-move.
+The sleeve harness spans the full 27 mm sleeve depth, making both end faces
+coplanar and centering the modeled mass over its rail contact for support-free
+printing and stable unclamped placement. The LED upper geometry remains offset
+toward positive X relative to its harness so the harness front is flush with
+the LED pad face. The sleeve and LED optical planes remain fixed.
 
 Each insert bore is intentionally stepped. The 4.0 mm by 5 mm insert pocket
 ends at a 1 mm backing shoulder, followed by a 3.2 mm screw passage to the rail.
@@ -108,7 +108,7 @@ slot. Both slider types use the shared `m3_insert_diameter_mm` and
 `m3_insert_length_mm` parameters. Final fit still requires a coupon with the
 purchased insert.
 
-- **Slider 1, lens sleeve** (one printed part): bore 41, wall 2, OD 45, depth 25.
+- **Slider 1, lens sleeve** (one printed part): bore 41, wall 2, OD 45, depth 27.
   A 1 mm internal lip at the cube-facing end stops the purchased tube; the tube
   loads from the open rear and a spring clip retains it. **No groove is cut.**
 - **Slider 2, LED post:** a 23.1 mm-wide flat plate, flush with the harness
@@ -151,7 +151,7 @@ The lens's camera-side C-mount is a separate interface.
 | Sleeve wall | 2 mm | Path B frees the interior size, so the earlier 1 mm workaround is unnecessary and would print weak. |
 | Focus adjustment | Two independently clamped sliders | Both LED and lens positions must be tuned empirically. |
 | Thermal design | Baffled passive vents, no heatsink in v1 | Short-duration operation limits heat input. Low side intake and high roof exhaust reduce trapped heat, but continuous use still requires a measured thermal solution. |
-| Slider print faces | Offset upper features relative to harnesses | Coplanar end faces let the lens and LED sliders print on their backs without supports while preserving the optical planes. |
+| Slider print faces | Full-depth sleeve harness; offset LED feature | Coplanar end faces let both sliders print on their backs without supports. The full-depth sleeve foot also centers its modeled mass over the rail contact while preserving the optical plane. |
 | Harness wall | 6 mm | A 5 mm heat-set insert cannot live in a 3 mm wall. Enforced by assert. |
 | Harness insert shoulder | Retained | The insert pocket needs a depth stop; the smaller continuation gives the clamp screw access to the rail. |
 | Cell-to-cube interface | Standard uFace plus 44.2 mm bridge | The uFace enters the standard cube slot, while the bridge overlaps the cell wall and face so they slice as one connected part. |
@@ -171,7 +171,7 @@ The lens's camera-side C-mount is a separate interface.
 
 - **Nothing has been printed.** OpenSCAD validity does not prove printer
   tolerance, insert fit, screw alignment, or assembly access.
-- **Sleeve depth 25 mm is provisional.** Confirm against the real tube.
+- **Sleeve depth 27 mm is provisional.** Confirm against the real tube.
 - **M3 insert fit is unprinted:** the current cell harness pocket is 4.0 mm
   diameter by 5.0 mm deep, followed by a 3.2 mm screw passage. This leaves a
   0.4 mm radial shoulder and 1 mm axial backing wall. The complete fit still

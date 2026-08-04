@@ -75,7 +75,7 @@ provisional_led_emitter_height_mm = 1.4;
    Path B: the illumination optics live in their own light-tight box that bolts
    to one uFace pocket of the optical cube, instead of inside a second official
    cube. An official 73 mm cube has 14 mm end walls, leaving only 45 mm of
-   interior along the light axis, which cannot hold the 25 mm sleeve plus focus
+   interior along the light axis, which cannot hold the 27 mm sleeve plus focus
    travel plus the LED post. Bolting through a uFace keeps official mounting
    compatibility while letting the box be as long as the optics need.
 
@@ -129,7 +129,8 @@ harness_roof_thickness_mm = 1.5; // [1:0.25:3] Solid material above the seated r
 // The side walls host M3 heat-set inserts end-on. Reuse the official uCube
 // screw specification so the cell takes the same inserts as the main cube.
 harness_wall_mm = 6; // [6:0.5:9]
-harness_length_mm = 16; // [12:1:24] Along the rail
+lens_harness_length_mm = sleeve_depth_mm; // Full sleeve depth centers its mass over the rail contact
+led_harness_length_mm = 16; // [12:1:24] Along the rail
 // Shared by both opposing pockets on both the lens and LED slider harnesses.
 m3_insert_diameter_mm = 4; // [3.5:0.1:5] Default matches official uCube insert diameter
 m3_insert_length_mm = 5; // [3:0.5:8] Default matches official uCube insertH
@@ -236,17 +237,15 @@ sleeve_rear_x = sleeve_front_x - sleeve_depth_mm;
 led_pad_x = sleeve_rear_x - led_gap_mm;
 led_plate_rear_x = led_pad_x - led_post_thickness_mm;
 
-// Offset both harnesses toward -X while leaving the optics fixed. This is
-// equivalent to moving each upper feature toward +X relative to its harness,
-// producing one coplanar end face that can sit on the print bed. The lens foot
-// is flush with the sleeve rear; the LED foot is flush with the LED pad face.
-lens_harness_center_x = sleeve_rear_x + harness_length_mm / 2;
-led_harness_center_x = led_pad_x - harness_length_mm / 2;
+// The lens foot spans the sleeve's full X depth, centering its mass over the
+// rail contact while keeping both end faces coplanar for support-free printing.
+// The LED foot remains offset toward -X so its front is flush with the pad face.
+lens_harness_center_x = sleeve_rear_x + lens_harness_length_mm / 2;
+led_harness_center_x = led_pad_x - led_harness_length_mm / 2;
 
-// Stop at the forward edge of the shifted lens harness. The rail still
-// supports the full empirically adjusted focus range without protruding toward
-// the cube-facing plate.
-rail_near_x = lens_harness_center_x + harness_length_mm / 2;
+// Stop at the forward edge of the lens harness. Because that harness spans the
+// full sleeve depth, the rail now covers the full cell interior length.
+rail_near_x = lens_harness_center_x + lens_harness_length_mm / 2;
 rail_length_mm = rail_near_x - cell_interior_far_x;
 
 // Fixed vent region near the far/LED end. It does not follow the preview-only
@@ -304,14 +303,15 @@ assert(harness_wall_mm >= m3_insert_length_mm + 1,
 
 assert(sleeve_front_x <= cell_interior_near_x,
        "The lens sleeve passes through the illumination cell end wall.");
-assert(led_harness_center_x - harness_length_mm / 2 >= cell_interior_far_x,
+assert(led_harness_center_x - led_harness_length_mm / 2 >= cell_interior_far_x,
        "The LED post overruns the far end of the illumination cell.");
-assert(lens_harness_center_x - led_harness_center_x >= harness_length_mm,
+assert(lens_harness_center_x - led_harness_center_x
+           >= (lens_harness_length_mm + led_harness_length_mm) / 2,
        "The sleeve and LED post feet collide on the rail at this LED gap.");
-assert(abs(lens_harness_center_x - harness_length_mm / 2 - sleeve_rear_x)
+assert(abs(lens_harness_center_x - lens_harness_length_mm / 2 - sleeve_rear_x)
            < epsilon,
        "The lens sleeve and harness print faces are not flush.");
-assert(abs(led_harness_center_x + harness_length_mm / 2 - led_pad_x)
+assert(abs(led_harness_center_x + led_harness_length_mm / 2 - led_pad_x)
            < epsilon,
        "The LED post and harness print faces are not flush.");
 assert(sleeve_bore_mm - 2 * sleeve_lip_mm < tube_outer_mm,
@@ -324,7 +324,7 @@ assert(cell_outer_span_mm >= face_outline_mm,
        "The cell must not be narrower than its standard uFace mount.");
 assert(rail_insert_center_z - m3_clamp_clearance_mm / 2 >= rail_bottom_z,
        "The harness clamp passage falls below the rail.");
-assert(rail_length_mm > harness_length_mm,
+assert(rail_length_mm > max(lens_harness_length_mm, led_harness_length_mm),
        "The rail is too short to support both slider harnesses.");
 assert(vent_region_center_x - roof_vent_slot_length_mm / 2
            > cell_interior_far_x
@@ -1037,7 +1037,7 @@ module lens_sleeve_slider() {
                 rotate([0, 90, 0])
                     cylinder(h = sleeve_depth_mm, d = sleeve_outer_mm);
 
-            harness_foot(length = harness_length_mm,
+            harness_foot(length = lens_harness_length_mm,
                          center_x = lens_harness_center_x);
         }
 
@@ -1076,7 +1076,7 @@ module led_post_slider() {
                       2 * plate_half,
                       plate_half - harness_foot_top_z + epsilon]);
 
-            harness_foot(length = harness_length_mm,
+            harness_foot(length = led_harness_length_mm,
                          center_x = led_harness_center_x);
         }
 
