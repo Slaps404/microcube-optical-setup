@@ -92,8 +92,8 @@ axis. The slot roof rests directly on the rail top, with no vertical clearance.
 
 Two sliders share one `harness_foot` module, so they grip identically: a
 slip-fit U straddling the rail with two opposing M3 set screws in heat-set
-inserts pressing the rail flanks. The 10.9 mm slot gives the 10.5 mm rail 0.4 mm
-total lateral clearance, or 0.2 mm per side.
+inserts pressing the rail flanks. The 10.8 mm slot gives the 10.5 mm rail 0.3 mm
+total lateral clearance, or 0.15 mm per side.
 
 The sleeve harness spans the full 25 mm sleeve depth, making both end faces
 coplanar and centering the modeled mass over its rail contact for support-free
@@ -111,9 +111,9 @@ purchased insert.
 - **Slider 1, lens sleeve** (one printed part): bore 41, wall 2, OD 45, depth 25.
   A 1 mm internal lip at the cube-facing end stops the purchased tube; the tube
   loads from the open rear and a spring clip retains it. **No groove is cut.**
-- **Slider 2, LED post:** a 23.1 mm-wide flat plate, flush with the harness
+- **Slider 2, LED post:** a 22.8 mm-wide flat plate, flush with the harness
   sides, with its pad on the beam axis and a cable pass-through below the star
-  footprint. The 20 mm star retains 1.55 mm of support per side.
+  footprint. The 20 mm star retains 1.4 mm of support per side.
 
 ### Optics
 The two lenses ride on spring clips inside a **purchased 40.0 mm lens tube**
@@ -146,7 +146,7 @@ The lens's camera-side C-mount is a separate interface.
 | Cube rescaling | Rejected | Print time and setup time are the binding constraints. Prefer local geometry changes. |
 | Rail count | One centered rail | It bridges the center of one end to the center of the other, which also dissolves any collision with the corner inserts. |
 | Rail height | Derived from the sleeve | Centering the bore on the beam axis outranks rail height. |
-| Rail sliding fit | 0.4 mm total lateral, 0 mm vertical | Physical prints showed excessive play at 1.0 mm total. The tighter 0.2 mm-per-side slip fit reduces rocking; direct top seating prevents optical-axis drop before clamping. |
+| Rail sliding fit | 0.3 mm total lateral, 0 mm vertical | Physical prints showed excessive play at 1.0 mm total. The tighter 0.15 mm-per-side slip fit reduces rocking; direct top seating prevents optical-axis drop before clamping. |
 | Beamsplitter fit | 2.4 mm printed slot for measured 2.5 mm plate | The intentional 0.1 mm interference is removed by light filing until the plate seats securely. |
 | Lens retention | Purchased tube, spring clip, 1 mm lip | Tube-in-tube beats machining our own bore for manufactured lenses. A groove was considered and explicitly rejected. |
 | Sleeve wall | 2 mm | Path B frees the interior size, so the earlier 1 mm workaround is unnecessary and would print weak. |

@@ -126,7 +126,7 @@ sleeve_lip_mm = 1; // [0.8:0.1:2] Internal tube stop
 rail_width_mm = 10.5; // [10.5] MEASURED cube screw-pad width
 rail_height_mm = 9; // [7:0.5:12]
 rail_floor_weld_mm = 0.5; // Rail overlap into the floor for one printable solid
-harness_slot_clearance_mm = 0.4; // [0.4:0.1:1.4] Total width clearance, 0.2 mm per side
+harness_slot_clearance_mm = 0.3; // [0.3:0.1:1.4] Total width clearance, 0.15 mm per side
 harness_roof_thickness_mm = 1.5; // [1:0.25:3] Solid material above the seated rail
 // The side walls host M3 heat-set inserts end-on. Reuse the official uCube
 // screw specification so the cell takes the same inserts as the main cube.
@@ -1067,7 +1067,7 @@ module lens_sleeve_slider() {
 // small part, since v1 strobes the LED and needs no secondary heatsink.
 module led_post_slider() {
     // Match the harness width so the post has no unsupported side overhang.
-    // The 20 mm star retains 1.55 mm of support per side.
+    // The 20 mm star retains 1.4 mm of support per side.
     plate_half = harness_outer_width_mm / 2;
     cable_notch_bottom_z = harness_foot_top_z - epsilon;
     cable_notch_top_z = -led_star_diameter_mm / 2 - 1;

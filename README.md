@@ -130,7 +130,7 @@ does not replace physical fit coupons or first-layer calibration.
 
 ## Physical tests required
 
-An initial cell and slider prototype has been printed. The revised 0.4 mm rail
+An initial cell and slider prototype has been printed. The revised 0.3 mm rail
 fit and 25 mm sleeve still require physical verification. Test these coupons or
 fit-critical features before another full print:
 
