@@ -9,7 +9,7 @@ $fn = 64;
 epsilon = 0.02;
 
 /* [Preview] */
-render_mode = 15; // [0:complete_assembly, 1:beamsplitter_face, 2:legacy_light_face, 3:legacy_back_cover, 4:legacy_optic_cartridge, 5:camera_face, 6:camera_thread_test, 7:exploded_assembly, 8:inspection_assembly, 9:official_ucube_shell, 10:cell_bottom_u, 11:cell_top_u, 12:lens_sleeve_slider, 13:led_post_slider, 14:cell_assembly, 15:cell_assembly_open]
+render_mode =12; // [0:complete_assembly, 1:beamsplitter_face, 2:legacy_light_face, 3:legacy_back_cover, 4:legacy_optic_cartridge, 5:camera_face, 6:camera_thread_test, 7:exploded_assembly, 8:inspection_assembly, 9:official_ucube_shell, 10:cell_bottom_u, 11:cell_top_u, 12:lens_sleeve_slider, 13:led_post_slider, 14:cell_assembly, 15:cell_assembly_open]
 show_optical_references = true;
 camera_preview_detailed_thread = true;
 show_auxiliary_illumination_cube = true;
@@ -117,17 +117,25 @@ side_intake_positive_y = true;
 /* [Lens sleeve, rail, and sliders]
    The two lenses are held on spring clips inside a purchased 40.0 mm lens tube.
    Our sleeve holds that tube: a 1 mm internal lip at the far end stops it, and
-   a spring clip retains it. No groove is cut in the sleeve. */
+   a spring clip in an internal groove retains it. The groove setback is measured
+   from the open rear end, opposite the lip. */
 tube_outer_mm = 40; // [40] MEASURED purchased lens tube OD
 sleeve_clearance_mm = 1.0; // [0.4:0.1:1.6] Total diametral slip fit
 sleeve_wall_mm = 2; // [1.5:0.5:3]
 sleeve_depth_mm = 25; // [20:1:32] Confirmed against the purchased tube
 sleeve_lip_mm = 1; // [0.8:0.1:2] Internal tube stop
+sleeve_clip_groove_setback_mm = 5.25; // [5:0.25:5.5] From open rear edge
+sleeve_clip_groove_width_mm = 1.25; // [1:0.05:1.5] Axial groove width for the spring
+sleeve_clip_groove_radial_depth_mm = 0.5; // [0.25:0.25:1] Recess into sleeve wall
 rail_width_mm = 10.5; // [10.5] MEASURED cube screw-pad width
 rail_height_mm = 9; // [7:0.5:12]
 rail_floor_weld_mm = 0.5; // Rail overlap into the floor for one printable solid
 harness_slot_clearance_mm = 0.3; // [0.3:0.1:1.4] Total width clearance, 0.15 mm per side
 harness_roof_thickness_mm = 1.5; // [1:0.25:3] Solid material above the seated rail
+// The harness side runners intentionally rest on the bottom-U floor. The slot
+// roof simultaneously rests on the rail top, giving the slider two seating
+// datums instead of a floating lower edge.
+harness_floor_clearance_mm = 0; // [0:0.05:0.5] Clearance above the bottom-U floor
 // The side walls host M3 heat-set inserts end-on. Reuse the official uCube
 // screw specification so the cell takes the same inserts as the main cube.
 harness_wall_mm = 6; // [6:0.5:9]
@@ -215,9 +223,11 @@ cell_interior_length_mm = cell_interior_near_x - cell_interior_far_x;
 
 // The harness foot straddles the rail. Its slot roof rests directly on the
 // rail top; harness_roof_thickness_mm is solid material, not empty clearance.
+// The side runners rest on the bottom-U floor at the same datum as the rail
+// bottom. The slot roof rests directly on the rail top.
 harness_slot_width_mm = rail_width_mm + harness_slot_clearance_mm;
 harness_slot_top_z = rail_top_z;
-harness_foot_bottom_z = rail_bottom_z + 2;
+harness_foot_bottom_z = cell_floor_top_z + harness_floor_clearance_mm;
 harness_outer_width_mm = harness_slot_width_mm + 2 * harness_wall_mm;
 
 // The foot must rise just far enough to fuse into the sleeve across its whole
@@ -290,6 +300,9 @@ assert(rail_bottom_z - rail_floor_weld_mm > cell_outer_bottom_z,
        "The rail extends below the illumination cell floor.");
 assert(harness_slot_top_z == rail_top_z,
        "The harness slot roof must seat directly on the rail top.");
+assert(harness_foot_bottom_z >= cell_floor_top_z
+           && harness_foot_bottom_z < harness_slot_top_z,
+       "The harness side runners must rest on or above the bottom-U floor.");
 assert(harness_slot_width_mm >= rail_width_mm,
        "The harness slot cannot be narrower than the rail.");
 assert(cell_interior_length_mm
@@ -318,6 +331,12 @@ assert(abs(led_harness_center_x + led_harness_length_mm / 2 - led_pad_x)
        "The LED post and harness print faces are not flush.");
 assert(sleeve_bore_mm - 2 * sleeve_lip_mm < tube_outer_mm,
        "The retaining lip does not overlap the tube it is meant to stop.");
+assert(sleeve_clip_groove_setback_mm + sleeve_clip_groove_width_mm
+           < sleeve_depth_mm - sleeve_lip_mm,
+       "The spring-clip groove must fit between the open rear and retaining lip.");
+assert(sleeve_clip_groove_radial_depth_mm > 0
+           && sleeve_clip_groove_radial_depth_mm < sleeve_wall_mm,
+       "The spring-clip groove must leave material in the sleeve wall.");
 assert(harness_outer_width_mm <= 2 * cell_interior_half_y,
        "The harness foot is wider than the illumination cell interior.");
 assert(led_star_diameter_mm <= harness_outer_width_mm,
@@ -357,9 +376,16 @@ echo(str("Cell interior: ", cell_interior_length_mm, " long, ",
 echo(str("Sleeve bore/OD: ", sleeve_bore_mm, "/", sleeve_outer_mm,
          " mm; rail ", rail_width_mm, " x ", rail_height_mm,
          " with top at Z=", rail_top_z));
+echo(str("Sleeve clip groove: ", sleeve_clip_groove_setback_mm,
+         " mm from open rear, ", sleeve_clip_groove_width_mm,
+         " mm wide, ", sleeve_clip_groove_radial_depth_mm,
+         " mm radial recess"));
 echo(str("Harness rail fit: ", harness_slot_clearance_mm,
          " mm total lateral clearance, ",
-         harness_slot_top_z - rail_top_z, " mm vertical clearance"));
+         harness_slot_top_z - rail_top_z, " mm vertical clearance, ",
+         harness_slot_top_z - harness_foot_bottom_z,
+         " mm slot depth with ", harness_floor_clearance_mm,
+         " mm floor clearance"));
 echo(str("Sleeve focus travel: ",
          cell_interior_length_mm - sleeve_depth_mm
              - led_post_thickness_mm - harness_wall_mm, " mm maximum"));
@@ -1035,7 +1061,6 @@ module harness_foot(length, center_x) {
 // Slider 1, one printed part: the sleeve that holds the purchased 40.0 mm lens
 // tube, plus its rail foot. The tube seats against a 1 mm internal lip at the
 // cube-facing end and is retained by a spring clip loaded from the open rear.
-// No groove is cut in the sleeve.
 module lens_sleeve_slider() {
     difference() {
         union() {
@@ -1058,6 +1083,16 @@ module lens_sleeve_slider() {
             rotate([0, 90, 0])
                 cylinder(h = sleeve_depth_mm + 2 * epsilon,
                          d = sleeve_bore_mm - 2 * sleeve_lip_mm);
+
+        // Internal circumferential spring-clip groove. The requested
+        // 5-5.5 mm dimension is axial setback from the open rear edge, not
+        // radial depth: a 5 mm radial cut would break through this 2 mm wall.
+        translate([sleeve_rear_x + sleeve_clip_groove_setback_mm - epsilon,
+                   0, 0])
+            rotate([0, 90, 0])
+                cylinder(h = sleeve_clip_groove_width_mm + 2 * epsilon,
+                         d = sleeve_bore_mm
+                             + 2 * sleeve_clip_groove_radial_depth_mm);
     }
 }
 

@@ -67,7 +67,8 @@ A tongue-and-groove seam blocks a straight light path.
 One centered 10.5 x 9 mm rail carries two independently clamped sliders:
 
 - A 25 mm-deep lens sleeve for a purchased 40.0 mm lens tube. Its 1 mm inner
-  lip stops the tube, and a spring clip retains it.
+  lip stops the tube, and a 1.25 mm-wide internal spring-clip groove 5.25 mm in
+  from the open rear retains it.
 - An LED post for the 20 mm star MCPCB, with a cable pass-through below it.
 
 Both sliders use opposing M3 heat-set-insert clamp screws. Their positions are
@@ -76,6 +77,10 @@ optical estimates. The sleeve harness spans the full sleeve depth to center its
 mass over the rail contact. The LED feature remains offset on its harness to
 create one coplanar end face for support-free print orientation without
 changing the modeled optical position.
+
+The harness side runners rest directly on the bottom-U floor. The current
+model gives a nominal 9 mm harness slot depth around the measured 9 mm rail,
+so the slider seats on both the floor and the rail top.
 
 Modes 2 through 4 are legacy compact-light parts. They remain in the source,
 but are not part of the active design.

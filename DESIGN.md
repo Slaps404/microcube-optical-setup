@@ -1,7 +1,7 @@
 # Microcube Optical Setup: Design Record
 
 > **Status:** Active design context, pending physical prototype review
-> **Updated:** 2026-08-03
+> **Updated:** 2026-08-14
 > **Note:** Renamed from `proposed_plan.md`; the design is no longer a proposal.
 
 ---
@@ -95,6 +95,15 @@ slip-fit U straddling the rail with two opposing M3 set screws in heat-set
 inserts pressing the rail flanks. The 10.8 mm slot gives the 10.5 mm rail 0.3 mm
 total lateral clearance, or 0.15 mm per side.
 
+The harness side runners rest directly on the bottom-U floor. Their nominal
+slot depth is 9 mm around the 9 mm rail, so the slider seats on both the floor
+and the rail top.
+
+The latest printed fit measured a 10.4 mm rail width and 10.85 mm harness slot
+width, or 0.45 mm total lateral clearance. It also measured 9 mm rail depth
+against the original 7 mm harness slot depth; the revised 9 mm slot closes
+that unsupported lower span and brings the runners onto the floor datum.
+
 The sleeve harness spans the full 25 mm sleeve depth, making both end faces
 coplanar and centering the modeled mass over its rail contact for support-free
 printing and stable unclamped placement. The LED upper geometry remains offset
@@ -110,7 +119,9 @@ purchased insert.
 
 - **Slider 1, lens sleeve** (one printed part): bore 41, wall 2, OD 45, depth 25.
   A 1 mm internal lip at the cube-facing end stops the purchased tube; the tube
-  loads from the open rear and a spring clip retains it. **No groove is cut.**
+  loads from the open rear and a 1.25 mm-wide internal circumferential spring-clip
+  groove retains it 5.25 mm in from that rear edge. The groove has a 0.5 mm
+  radial recess, leaving 1.5 mm of sleeve wall.
 - **Slider 2, LED post:** a 22.8 mm-wide flat plate, flush with the harness
   sides, with its pad on the beam axis and a cable pass-through below the star
   footprint. The 20 mm star retains 1.4 mm of support per side.
@@ -147,8 +158,9 @@ The lens's camera-side C-mount is a separate interface.
 | Rail count | One centered rail | It bridges the center of one end to the center of the other, which also dissolves any collision with the corner inserts. |
 | Rail height | Derived from the sleeve | Centering the bore on the beam axis outranks rail height. |
 | Rail sliding fit | 0.3 mm total lateral, 0 mm vertical | Physical prints showed excessive play at 1.0 mm total. The tighter 0.15 mm-per-side slip fit reduces rocking; direct top seating prevents optical-axis drop before clamping. |
+| Harness side depth | 9 mm slot depth around 9 mm rail, 0 mm floor clearance | Seats the side runners on the bottom-U floor while the slot roof seats on the rail top. |
 | Beamsplitter fit | 2.4 mm printed slot for measured 2.5 mm plate | The intentional 0.1 mm interference is removed by light filing until the plate seats securely. |
-| Lens retention | Purchased tube, spring clip, 1 mm lip | Tube-in-tube beats machining our own bore for manufactured lenses. A groove was considered and explicitly rejected. |
+| Lens retention | Purchased tube, spring clip, 1 mm lip, 1.25 mm-wide internal groove | The lip fixes the cube-facing end. The rear groove gives the clip a positive seat while retaining the tube-in-tube fit. |
 | Sleeve wall | 2 mm | Path B frees the interior size, so the earlier 1 mm workaround is unnecessary and would print weak. |
 | Focus adjustment | Two independently clamped sliders | Both LED and lens positions must be tuned empirically. |
 | Thermal design | Baffled passive vents, no heatsink in v1 | Short-duration operation limits heat input. Low side intake and high roof exhaust reduce trapped heat, but continuous use still requires a measured thermal solution. |
@@ -174,6 +186,9 @@ The lens's camera-side C-mount is a separate interface.
   rail clearance had excessive play. The revised 0.4 mm fit still needs a
   physical print; OpenSCAD validity does not prove printer tolerance.
 - **Sleeve depth 25 mm is confirmed against the purchased tube.**
+- **Spring-clip groove fit is unprinted:** the current groove is 1.25 mm wide,
+  5.25 mm axially in from the open rear, and recessed 0.5 mm radially. Test
+  the actual spring clip and tube together before committing to the full print.
 - **M3 insert fit is unprinted:** the current cell harness pocket is 4.0 mm
   diameter by 5.0 mm deep, followed by a 3.2 mm screw passage. This leaves a
   0.4 mm radial shoulder and 1 mm axial backing wall. The complete fit still
@@ -205,8 +220,9 @@ The lens's camera-side C-mount is a separate interface.
 | What to test | Method | Success criteria | Phase |
 | --- | --- | --- | --- |
 | Face screws | Mount one custom uFace on the real cube | Counterbores face outward and cap screws seat fully | Fit coupon, do this first |
-| Rail and harness | Print a short rail section and one foot | Foot slides by hand and clamps without rocking | Fit coupon |
+| Rail and harness | Print a short rail section and one foot | Foot rests on the floor and rail, slides by hand without binding, and clamps without rocking | Fit coupon |
 | Sleeve bore | Print a shallow sleeve ring | The 40.0 mm tube inserts without force, minimal play | Fit coupon |
+| Sleeve spring clip | Print a shallow sleeve ring with the rear groove | The spring clip seats fully, retains the tube against the 1 mm lip, and can be removed without damaging the tube | Fit coupon |
 | M37 thread | Print `m37_thread_fit_coupon.stl` | Lens engages smoothly without splitting | Fit coupon |
 | Lid seam | Print short sections of both U shells | Lid drops on and the seam has no objectionable light leak | Fit coupon |
 | Beamsplitter slot | File the 2.4 mm slot for the measured 2.5 mm plate | Plate seats securely without edge stress; supports hidden in side view | Bench assembly |
