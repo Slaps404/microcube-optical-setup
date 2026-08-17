@@ -72,8 +72,10 @@ The screws provide clamp force. Broad mating faces, gussets, shoulders, and
 keys should define squareness and carry shear. One screw or one small printed
 tab should not define the pose of either optical assembly.
 
-The pictured arm appears similar to 2040 extrusion, but its actual profile,
-slot spacing, and available faces must be measured before modeling.
+The stand uses standard 2020 T-slot extrusion, so the outside section is 20 x
+20 mm with one centered slot on each face. A single face therefore cannot
+provide a two-column bolt pattern. Use two vertically separated fasteners in
+the rear slot plus wraparound features or fasteners into the side slots.
 
 ### 2. Direct post-mounted uCube adapter
 
@@ -90,8 +92,9 @@ Add a short horizontal saddle under the cube and two shallow side cheeks:
 - The side cheeks register the 73 mm cube and resist yaw.
 - The four uFace screws clamp the cube against the adapter.
 - Upper and lower post bolts, widely separated along the post, resist pitch.
-- Two bolt columns across the post face, when the real extrusion permits them,
-  resist roll and yaw better than one T-slot column.
+- Two wraparound post saddles, one above and one below the cube center, contact
+  the front and side faces of the 20 x 20 mm post. Side-slot fasteners or fitted
+  side walls resist roll and yaw better than relying on friction in one slot.
 
 This adapter belongs on an unused face, preferably opposite the illumination
 cell. It must leave the top camera port, bottom/sample path, illumination port,
@@ -297,7 +300,8 @@ provisional support geometry.
 | 16 mm lens envelope | 39 mm diameter x 50 mm nominal length | Raspberry Pi documentation | Official envelope |
 | Combined camera and lens mesh | 39 x 51.7 x 72.0222 mm bounding box | Imported community reference mesh | Packaging reference only |
 | Beamsplitter | 50 x 50 x 2.5 mm | Physical measurement recorded in this project | Measured |
-| Extrusion profile and slot spacing | Unknown | Must measure the pictured stand | Do not infer from the image |
+| Vertical post and camera-arm envelope | 20 x 20 mm, one centered slot per face | User identification as standard 2020 T-slot | Confirmed outside envelope |
+| Slot opening and compatible T-nut | Commonly 6 mm slot with M5 hardware | Manufacturer-dependent 20-series interface | Verify the physical nut before modeling |
 | Post-adapter height, thickness, and T-slot fasteners | Unknown | Depends on measured stand and chosen material | Concept only |
 | Köhler rail spacing and module lengths | Unknown | Depends on the optical prescription | Concept only |
 
@@ -314,10 +318,10 @@ Sources:
 
 ## Measurements needed before CAD
 
-- Exact vertical and horizontal extrusion profiles. Do not assume 2040 from the
-  image.
-- Number of usable T-slot columns, slot center spacing, fastener size, and
-  accessible post faces.
+- Confirm the horizontal arm is also 2020, not only the vertical post.
+- Measure the slot-mouth width and identify the existing T-nut thread. Start
+  from a 6 mm slot and M5 only after physically confirming the hardware.
+- Confirm which front and side post slots remain accessible at the cube height.
 - Maximum possible vertical spacing between the upper and lower cube-adapter
   bolts.
 - Available horizontal camera-arm length above the uCube.

@@ -212,8 +212,10 @@ The lens's camera-side C-mount is a separate interface.
 - **External frame mounting is not yet dimensioned.** The current lab clamp
   loads the lens barrel with the uCube and illumination cell. The revised
   concept gives the uCube a broad direct mount on the vertical post and gives
-  the camera a separate horizontal extrusion above it. The earlier one-tab
-  C-frame concept is rejected as too flexible; see
+  the camera a separate horizontal extrusion above it. The post is confirmed
+  as standard 20 x 20 mm T-slot extrusion with one centered slot per face, but
+  its slot opening and T-nut thread still need physical confirmation. The
+  earlier one-tab C-frame concept is rejected as too flexible; see
   `research/optical-head-frame-integration.md`.
 - **The complete-assembly preview has the camera on a side face, which does not
   match the physical downward-looking setup.** The printable M37 face itself is
