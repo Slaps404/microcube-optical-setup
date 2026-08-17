@@ -23,11 +23,11 @@ structural load path.
 
 ## Design principle
 
-Use **two strong load paths and one shared datum**:
+Use **two strong load paths and one shared post datum**:
 
-- Support the uCube directly from a lower cradle attached to the extrusion.
-- Support the camera directly from a separate upper plate attached to the same
-  rigid C-frame or yoke.
+- Support the uCube directly from a broad adapter on the vertical extrusion.
+- Support the camera directly from a separate horizontal extrusion and camera
+  plate above the cube.
 - Keep the camera lens axis vertical and coaxial with the center of the uCube.
 - Keep the lens-to-uCube connection for coaxial optical alignment and light
   sealing, with little or no structural load.
@@ -40,60 +40,76 @@ axis and the horizontal illumination axis.
 
 ```mermaid
 flowchart TD
-    E[2040 cantilever arm] --> F[Rigid C-frame or yoke]
-    F --> U[Lower uCube cradle]
-    F --> C[Upper horizontal camera plate]
+    P[Vertical extrusion post] --> A[Wide uCube backplate and lower saddle]
+    P --> E[Horizontal camera extrusion]
+    E --> G[Opposed corner brackets and gussets]
+    G --> C[Horizontal camera plate]
     C --> B[IMX477 board or captive tripod cradle]
     B --> L[16 mm lens pointing down]
+    A --> U[uCube]
     L -. coaxial optical connection, not main load .-> U
     U --> I[Illumination cell on adjacent cube face]
     I -. 90 degrees .-> L
-    F --> R[Horizontal accessory rail]
+    P --> R[Separately supported horizontal accessory rail]
     R --> K[Illumination modules, including Kohler]
     K --> I
 ```
 
 ## Recommended concept
 
-### 1. Rigid C-frame or yoke
+### 1. Broad post interface, not a one-tab hanger
 
-Mount one stiff C-frame below the cantilever extrusion. Its upper shelf carries
-the camera and its lower shelf or cradle carries the uCube. This frame becomes
-the master mechanical datum for the complete optical head.
+The small single contact shown in the first concept is not acceptable. Both
+supports must spread load across the vertical extrusion.
 
-The frame should:
+The camera arm should meet the post with two opposed metal corner brackets or
+gussets, preferably backed by a plate that uses multiple T-nuts. The uCube
+adapter should contact the post over a tall, flat region with upper and lower
+fasteners. If the post exposes two slot columns, use both columns to create a
+rectangular four-bolt pattern.
 
-- Bolt to at least two T-nuts along the extrusion, not one central bolt.
-- Span enough of the arm to resist yaw and roll.
-- Use two separated ribs, side rails, or metal angles so the upper and lower
-  supports remain parallel.
-- Include registers or dowel features so screw clearance does not define
-  alignment by itself.
-- Leave the top lens opening and the used horizontal cube face unobstructed.
+The screws provide clamp force. Broad mating faces, gussets, shoulders, and
+keys should define squareness and carry shear. One screw or one small printed
+tab should not define the pose of either optical assembly.
 
-The pictured arm appears similar to 2040 extrusion, but its actual profile and
-slot spacing must be measured before modeling.
+The pictured arm appears similar to 2040 extrusion, but its actual profile,
+slot spacing, and available faces must be measured before modeling.
 
-### 2. Independent uCube support
+### 2. Direct post-mounted uCube adapter
 
-Support the uCube independently using a lower shelf, perimeter ring, or two
-opposed side brackets. The top face must remain open for the downward-looking
-camera lens.
+The preferred cube support is a replacement rear uFace that grows into a
+post-mounting backplate. It uses the existing four M3 face screws on a 52 mm
+square pitch, so the uCube remains registered by its normal face geometry. The
+plate extends above and below the 73 mm cube so its T-slot bolts remain
+accessible after the cube is installed.
 
-- A close-fitting register around the cube exterior provides repeatable X/Y
-  location and prevents rotation.
-- Fasteners into unused uCube faces or corner structure provide clamping.
-- The lower cradle carries the cube, beamsplitter face, and illumination-cell
-  loads directly into the C-frame.
-- The cradle must not block the top camera port, the horizontal illumination
-  port, or the required sample/object port.
+Add a short horizontal saddle under the cube and two shallow side cheeks:
+
+- The saddle carries gravity in compression instead of asking the four M3
+  screws to carry all weight in shear.
+- The side cheeks register the 73 mm cube and resist yaw.
+- The four uFace screws clamp the cube against the adapter.
+- Upper and lower post bolts, widely separated along the post, resist pitch.
+- Two bolt columns across the post face, when the real extrusion permits them,
+  resist roll and yaw better than one T-slot column.
+
+This adapter belongs on an unused face, preferably opposite the illumination
+cell. It must leave the top camera port, bottom/sample path, illumination port,
+and all needed face screws accessible.
+
+A machined aluminum backplate with printed locator blocks is the stiffest
+version. A fully printed PETG or nylon saddle is appropriate for the first fit
+test, but it should have broad ribs and should not be treated as a proven final
+instrument mount until deflection is measured.
 
 The uCube becomes the local optical datum. Its vertical centerline defines the
 camera axis, and its side face defines the horizontal illumination axis.
 
-### 3. Independent camera support
+### 3. Independent camera support on a horizontal extrusion
 
-Attach a horizontal camera plate above the uCube to the same C-frame. The plate
+Attach a horizontal extrusion above the uCube. Join it to the vertical post
+with opposed corner brackets or gussets on both sides, not one small connector.
+A camera plate spans between two brackets below the horizontal extrusion and
 supports the IMX477 camera while its 16 mm lens points vertically downward into
 the top uCube face.
 
@@ -120,8 +136,8 @@ the camera plate, load the lens barrel, or tilt the uCube.
 
 Use this assembly sequence:
 
-1. Rigidly mount and square the uCube in the lower cradle.
-2. Loosely mount the IMX477 camera in the upper plate.
+1. Rigidly mount and square the uCube on the post adapter and lower saddle.
+2. Loosely mount the IMX477 camera in the camera plate.
 3. Lower or slide the camera plate until the 16 mm lens engages the top uCube
    interface without side load.
 4. Use slots or thin shims to remove any gap and align the support.
@@ -129,7 +145,7 @@ Use this assembly sequence:
 6. Mark the final shim stack or slot position for repeatable reassembly.
 
 The camera support should be stiff after tightening, but vertically adjustable
-during first alignment. Long vertical slots in the C-frame, or shims under the
+during first alignment. Slots in the paired camera brackets, or shims under the
 camera plate, prevent the support from steering the lens.
 
 ### 5. Illumination cell support
@@ -146,8 +162,8 @@ axis.
 
 Do not make the uCube carry a long train of future illumination optics. Add a
 horizontal accessory rail whose centerline is fixed to the center of the
-illumination uFace, but whose structural load returns directly to the C-frame
-or main extrusion.
+illumination uFace, but whose structural load returns directly to the vertical
+post or base frame.
 
 The uFace then provides optical registration and light sealing. The rail carries
 the mass and bending moment.
@@ -178,33 +194,71 @@ round rod or one loose T-slot leaves module roll underconstrained.
 
 Reserve a similar vertical expansion zone above the uCube. A removable spacer
 or vertically sliding camera plate would allow future filters, analyzers, or
-relay optics between the cube and camera without redesigning the C-frame.
+relay optics between the cube and camera without redesigning the post mounts.
 
 ## Structural load paths
 
-- Camera: camera board or tripod cradle -> upper plate -> C-frame ->
-  extrusion.
-- uCube and beamsplitter: lower cradle -> C-frame -> extrusion.
-- Illumination cell: uCube face -> lower cradle -> C-frame -> extrusion.
-- Optional cell support: far-end hanger -> C-frame -> extrusion.
-- Future illumination train: accessory rail -> C-frame or extrusion.
+- Camera: camera board or tripod cradle -> camera plate -> paired brackets ->
+  horizontal extrusion -> opposed post gussets -> vertical post.
+- uCube and beamsplitter: cube body -> rear mounting uFace -> lower saddle and
+  tall backplate -> multiple T-nuts -> vertical post.
+- Illumination cell: uCube face -> post-mounted cube adapter -> vertical post.
+- Optional cell support: far-end hanger -> post or base frame.
+- Future illumination train: accessory rail -> post or base frame.
 - Lens connection: optical centering and sealing, not the primary support.
 
 ## Orthogonality checks
 
 Mechanical squareness is necessary but not sufficient. Validate in this order:
 
-1. Check the C-frame against the extrusion with a machinist square.
-2. Check that the upper camera plate and lower cube cradle are parallel.
-3. Confirm the uCube is seated against its register before tightening screws.
-4. Project or image a centered target through the system and watch for image
+1. Check the uCube backplate against the post with a machinist square.
+2. Check the horizontal camera extrusion at 90 degrees to the post.
+3. Check that the camera plate is parallel to the top uCube face.
+4. Confirm the uCube is seated on its saddle and side registers before
+   tightening screws.
+5. Project or image a centered target through the system and watch for image
    shift while tightening the camera support.
-5. Confirm the vertical camera axis is centered through the top and bottom cube
+6. Confirm the vertical camera axis is centered through the top and bottom cube
    openings.
-6. Confirm the illumination axis enters through the center of its horizontal
+7. Confirm the illumination axis enters through the center of its horizontal
    uCube face at 90 degrees to the camera axis.
-7. Recheck after attaching the illumination cell, because its cantilever load
+8. Recheck after attaching the illumination cell, because its cantilever load
    can reveal cube or arm flex.
+
+## Stability check before calling the mount complete
+
+The image is not enough to certify stiffness. The post profile, arm length,
+bracket material, fasteners, and real assembly mass are still unknown.
+
+The current active STL set has about 285 cm3 of printed material including the
+uCube shell. At 1.24 g/cm3 this is roughly 353 g of PLA at 100 percent material
+density. This is only a mesh-volume estimate. It does not include the camera,
+lens, glass, LEDs, wiring, fasteners, unused faces, or slicer-dependent infill
+and wall settings. Weigh the complete physical head instead of using this
+estimate for the final calculation.
+
+For each cantilevered load, calculate the post-joint moment from
+`moment = mass x 9.81 x horizontal reach`, using kilograms and meters. Then use
+the real extrusion manufacturer's section data and the actual bracket pattern
+to check deflection. Do not certify a profile guessed from the screenshot.
+
+Physical proof test:
+
+1. Square and focus the complete system on a fixed crosshair target.
+2. Record the target position in camera pixels.
+3. Add a temporary 1.5 times service load at the real center-of-mass location.
+4. Record camera-to-cube image shift, not only motion of the extrusion tip.
+5. Remove the load and confirm the image returns with no permanent shift.
+6. Attach and remove the illumination cell and repeat, because it produces the
+   strongest twisting load on the cube adapter.
+7. Recheck every T-slot fastener after the first several assembly cycles.
+
+Set the allowable pixel shift from the imaging experiment. A made-up mechanical
+deflection limit would not prove that the optical result is acceptable.
+
+Also inspect the upright-to-base joint. If the visible triangular plate is the
+only base gusset, add an opposed gusset or backing plate so the whole post does
+not rack even when the optical head itself is stiff.
 
 ## Pulled reference models
 
@@ -244,13 +298,13 @@ provisional support geometry.
 | Combined camera and lens mesh | 39 x 51.7 x 72.0222 mm bounding box | Imported community reference mesh | Packaging reference only |
 | Beamsplitter | 50 x 50 x 2.5 mm | Physical measurement recorded in this project | Measured |
 | Extrusion profile and slot spacing | Unknown | Must measure the pictured stand | Do not infer from the image |
-| C-frame thickness, shelf spacing, and fasteners | Unknown | Depends on measured stand and chosen material | Concept only |
+| Post-adapter height, thickness, and T-slot fasteners | Unknown | Depends on measured stand and chosen material | Concept only |
 | Köhler rail spacing and module lengths | Unknown | Depends on the optical prescription | Concept only |
 
 The black camera/lens mesh, uCube shell, and blue illumination cell in the
-concept render use the available reference geometry. The orange C-frame and
-green accessory rail are spatial sketches. They are not printable support
-parts and should not be used for fabrication.
+first concept render use the available reference geometry. Its orange one-tab
+C-frame is rejected because it does not spread load into the vertical post.
+It is not a printable support part and should not be used for fabrication.
 
 Sources:
 
@@ -260,8 +314,13 @@ Sources:
 
 ## Measurements needed before CAD
 
-- Exact extrusion profile, likely 2040 but not yet confirmed.
-- T-slot center spacing and available arm length above the uCube.
+- Exact vertical and horizontal extrusion profiles. Do not assume 2040 from the
+  image.
+- Number of usable T-slot columns, slot center spacing, fastener size, and
+  accessible post faces.
+- Maximum possible vertical spacing between the upper and lower cube-adapter
+  bolts.
+- Available horizontal camera-arm length above the uCube.
 - Desired cube center height above the sample.
 - Physical camera PCB hole diameter and rear-component keepouts.
 - Camera ribbon-cable exit direction and minimum bend clearance.
@@ -275,9 +334,11 @@ Sources:
 
 Model only these pieces first:
 
-1. One extrusion-to-C-frame interface.
-2. One registered lower uCube cradle that leaves the top port open.
-3. One vertically adjustable upper camera plate, initially using either the
+1. One rear uFace adapter with a lower saddle, side registers, and tall post
+   mounting tabs.
+2. One horizontal camera extrusion joined to the post by opposed brackets or
+   gussets.
+3. One vertically adjustable camera plate, initially using either the
    four board holes or a captive tripod-foot cradle.
 4. One removable illumination-rail datum aligned to the center of the active
    horizontal uCube face.

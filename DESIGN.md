@@ -209,10 +209,12 @@ The lens's camera-side C-mount is a separate interface.
 - **The cell bottom sits 0.5 mm below the cube bottom**, since the floor wall is
   4 mm where 3.5 mm would be flush. Cosmetic on a benchtop.
 - **Cable path needs physical definition** beyond the pass-through notch.
-- **External frame mounting is not yet designed.** The current lab clamp loads
-  the lens barrel with the uCube and illumination cell. The active mounting
-  concept supports the camera above and the uCube below from one rigid C-frame;
-  see `research/optical-head-frame-integration.md`.
+- **External frame mounting is not yet dimensioned.** The current lab clamp
+  loads the lens barrel with the uCube and illumination cell. The revised
+  concept gives the uCube a broad direct mount on the vertical post and gives
+  the camera a separate horizontal extrusion above it. The earlier one-tab
+  C-frame concept is rejected as too flexible; see
+  `research/optical-head-frame-integration.md`.
 - **The complete-assembly preview has the camera on a side face, which does not
   match the physical downward-looking setup.** The printable M37 face itself is
   orientation-neutral. Correct the preview transform in a separate geometry
