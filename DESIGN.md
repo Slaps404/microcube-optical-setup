@@ -46,8 +46,8 @@ source of truth.
 
 ### Optical cube
 Official `uCube` shell. The bottom face carries the beamsplitter at 45 degrees,
-one side face carries the M37 camera interface, and another side face carries the
-illumination cell.
+the top face carries the M37 camera interface for the downward-looking camera,
+and one side face carries the horizontal illumination cell.
 
 ### Illumination cell (Path B)
 A **custom light-tight box that bolts into one uFace pocket**, not a second
@@ -209,6 +209,18 @@ The lens's camera-side C-mount is a separate interface.
 - **The cell bottom sits 0.5 mm below the cube bottom**, since the floor wall is
   4 mm where 3.5 mm would be flush. Cosmetic on a benchtop.
 - **Cable path needs physical definition** beyond the pass-through notch.
+- **External frame mounting is not yet designed.** The current lab clamp loads
+  the lens barrel with the uCube and illumination cell. The active mounting
+  concept supports the camera above and the uCube below from one rigid C-frame;
+  see `research/optical-head-frame-integration.md`.
+- **The complete-assembly preview has the camera on a side face, which does not
+  match the physical downward-looking setup.** The printable M37 face itself is
+  orientation-neutral. Correct the preview transform in a separate geometry
+  task after the external frame concept is selected.
+- **Future illumination optics need a frame-supported expansion rail.** Preserve
+  a horizontal rail datum through the center of the illumination uFace so a
+  longer train, including field and aperture diaphragms for Köhler illumination,
+  does not cantilever from the printed cube face.
 - **Focus distances must be set empirically.** The ~2 cm LED-to-lens figure is a
   guess, not a measurement. Both sliders adjust, so nothing depends on it.
 - The active Path B cell has individual export entry points for its bottom U,
