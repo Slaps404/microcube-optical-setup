@@ -14,6 +14,8 @@ parts=(
   m37_camera_mounting_face
   m37_thread_fit_coupon
   official_ucube_shell
+  post_mount
+  post_mount_socket_coupon
 )
 
 mkdir -p "$output_dir"

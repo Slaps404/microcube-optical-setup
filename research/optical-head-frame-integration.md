@@ -79,6 +79,10 @@ the rear slot plus wraparound features or fasteners into the side slots.
 
 ### 2. Direct post-mounted uCube adapter
 
+**Status: built as `post_mount` (render mode 16).** What follows is the concept.
+See "As-built post_mount" at the end of this document for what was actually
+modeled and where it departs from the concept.
+
 The preferred cube support is a replacement rear uFace that grows into a
 post-mounting backplate. It uses the existing four M3 face screws on a 52 mm
 square pitch, so the uCube remains registered by its normal face geometry. The
@@ -233,9 +237,9 @@ Mechanical squareness is necessary but not sufficient. Validate in this order:
 The image is not enough to certify stiffness. The post profile, arm length,
 bracket material, fasteners, and real assembly mass are still unknown.
 
-The current active STL set has about 285 cm3 of printed material including the
-uCube shell. At 1.24 g/cm3 this is roughly 353 g of PLA at 100 percent material
-density. This is only a mesh-volume estimate. It does not include the camera,
+The current active STL set has about 404 cm3 of printed material including the
+uCube shell and `post_mount`. At 1.24 g/cm3 this is roughly 502 g of PLA at 100
+percent material density. This is only a mesh-volume estimate. It does not include the camera,
 lens, glass, LEDs, wiring, fasteners, unused faces, or slicer-dependent infill
 and wall settings. Weigh the complete physical head instead of using this
 estimate for the final calculation.
@@ -349,3 +353,114 @@ Model only these pieces first:
 
 Do not redesign the beamsplitter face, M37 camera face, or illumination cell
 until the shared-frame support is physically checked.
+
+## As-built post_mount
+
+Item 1 of the prototype boundary is modeled. `post_mount()` in
+`optical_setup.scad`, exported as `exports/current/post_mount.scad`, with
+`post_mount_socket_coupon` as its fit coupon.
+
+### Geometry
+
+| Quantity | Value | Where it comes from |
+| --- | --- | --- |
+| Overall envelope | 58.2 x 105 x 56.5 mm | Derived, not typed in |
+| Enclosed volume | 120.63 cm^3 | Measured off the exported STL |
+| Standoff, post face to cube center | 72 mm | Half of the 149.9 mm backlight short side, less a little |
+| Backplate | 28.2 wide x 105 tall x 6 mm | Socket width and bolt access |
+| Socket | 20.2 mm inner, 4 mm walls, 14 mm deep, 1.6 mm corner reliefs | 20 x 20 post plus 0.2 mm total clearance |
+| M5 holes | Round, 5.5 mm, at Y +/-43 | Bolt-head access past the cube |
+| M5 head approach | 11 mm pocket 3 mm deep, then a bell to a 24 mm mouth over 16.45 mm | Derived so a 9 mm driver has a straight run out through the gusset |
+| M3 face screws | Pitch 26.0 mm, 6.0 mm cap reliefs bored 13.2 mm through the gusset | Pitch from the vendor formula, relief diameter from `capR = 3`, depth derived from the flare rate |
+| Verified driver access | M3 clear to 6.0 mm, M5 clear to 9 mm | Swept-cylinder intersection against the bracket plus the 73 mm cube envelope |
+| Gusset flare | 37.95 degrees over a 30 mm run | Asserted to stay inside the 45 degree overhang limit |
+| Gusset windows | 3 circles, r 7 mm, 17 mm pitch, straddling the neutral axis | Mass and print time |
+
+### Departures from the concept above
+
+- **No saddle and no side cheeks.** The concept asked for a lower saddle and
+  side registers. The cube face interface is the unmodified vendor uFace and
+  nothing else, matching how the illumination cell mates. The four M3 face
+  screws carry the load, as they already do for the cell. If the first article
+  sags, the saddle is the first thing to add back.
+- **One socket, not two saddles.** A single three-sided socket 14 mm deep
+  captures the post across the full 105 mm of backplate, which does the same
+  job as two separate saddles with fewer surfaces to print accurately.
+- **Bolt access drives the plate height, not the cube.** This was not visible in
+  the reference image. The T-nut sits in the post slot on the cube centerline,
+  so both M5 heads face the cube and the 73 mm cube blocks them. Both holes are
+  pushed out to Y +/-43 so the head and its washer clear the cube envelope by
+  1 mm, and that clearance, not the cube, is what sets the 105 mm plate height.
+
+### Further departures from the reference bracket
+
+- **Round holes, not the reference bracket's pill slots.** The T-nut already
+  slides freely along the post slot, so the bracket picks its own height when it
+  is clamped. Slots would only spend plate material and add a stress riser at
+  the most heavily loaded section to buy travel that already exists.
+- **No coved root fillets.** The reference cove fills the inside corner of an L,
+  where a horizontal plate meets a vertical one. Here the uFace and the
+  backplate are parallel and 30 mm apart, so there is no corner. The flare is
+  the cove. A concave arc between the same two endpoints, held inside the 45
+  degree overhang budget, only scoops about 1.4 mm out of a 30 mm run.
+- **The head bell opens through the outboard edge of the flare, and its height
+  is derived, not chosen.** The bolt head faces the cube, so the hex key has to
+  come back out through the gusset. The flare edge only recedes inboard of a
+  9 mm driver at Z=-25.55, so the bell has to reach past that point. The first
+  version used a typed-in 9 mm rise that stopped at Z=-31.5 and left a 2.7 mm
+  shelf of gusset capping the funnel, which blocked even a 4 mm key. The rise is
+  now computed from the flare rate and asserted. The bell never touches the
+  critical section at the backplate junction, where the head pocket is still a
+  plain 10 mm cylinder fully enclosed in material.
+- **Fastener access is verified geometrically, not by eye.** A driver cylinder
+  is swept along each access axis and intersected with the bracket plus the
+  73 mm cube envelope. M3 face screws are clear to a 6.0 mm driver, which is the
+  vendor cap counterbore diameter. M5 post bolts are clear to a 9 mm driver,
+  held two full mm under the 11 mm funnel throat because the throat is a
+  72-sided polygon and a nominally equal driver binds on facets.
+
+- **The head pocket is sized for a washer, not just the head.** A bare M5 socket
+  cap bears on 33 mm^2 of plate, which is 30 MPa at 1 kN of preload. A DIN 125
+  washer spreads that over 55 mm^2, or 18 MPa. PLA creeps well below its yield
+  stress under permanent load, so that margin is the difference between a joint
+  that holds its alignment and one that has to be re-torqued. The washer OD is
+  10.0 mm, but the throat is drawn as a 72-gon, so a nominal 10 measures 9.99
+  across the flats and would not pass it. The pocket is 11.
+
+- **Infill is not the strength lever on this part.** The gusset root has a
+  section modulus of about 49,900 mm^3. The 5 N cell load on a 72 mm arm works
+  it to 0.003 MPa, which is 0.01 percent of PLA interlayer strength, and models
+  a 0.00007 mm tip deflection. So print it on the shared 0.4 mm profile as it
+  stands, 15 percent grid and 3 perimeters, and add one solid modifier around the
+  two M5 seats. What governs is local bearing and creep there, not the section.
+  Sliced that way it is 69 g and 6h47m, of which about a seventh of the filament
+  is buildplate-only support under the plate ledge. Raising infill to 20 percent
+  gyroid and adding a fourth perimeter measures 82 g and 8h39m, which spends 13 g
+  and two hours on a section already 4 orders of magnitude oversized.
+  `led_post_slider` is a different case: a 3.8 g part with nothing structural in
+  it, where infill only matters for giving the clamp-screw heat-set insert bite
+  in the 6 mm harness wall. Its limit is heat, since v1 has no secondary
+  heatsink.
+- **The gusset root is masked by the vendor plate.** The gusset overlaps 0.5 mm
+  into the uFace so the two slice as one solid, but inside that overlap it is a
+  plain square slab. Unioned raw it re-filled the voids the vendor plate cuts
+  for itself: the four mid-edge notches that clear the cube's retaining tabs,
+  and the four corner cap counterbores. Neither defect shows up as a manifold
+  error, so the export check passed the whole time. The weld band is now
+  clipped to vendor face material and inset 0.1 mm inside the plate outline,
+  and the boolean against the cube measures exactly empty. The inset matters on
+  its own: the gusset is already flaring in Y by the time it reaches the band,
+  so flush with the plate outline would stand 0.37 mm proud into the cube's
+  0.4 mm face gap. The clip is written as one difference on one solid rather
+  than two stacked pieces, because the stacked form duplicated a face across
+  the whole gusset cross-section and OpenCSG preview z-fights on it.
+
+### Still open
+
+- Post slot opening width and T-nut thread are unconfirmed. M5 is assumed.
+- The 0.2 mm total socket clearance is a first guess. Print the coupon first.
+- Deflection and PLA creep are unmeasured. The bracket is permanently loaded in
+  bending by the cantilevered illumination cell, which is the worst case for
+  PLA. Prefer PETG.
+- The camera still has no support of its own. Items 2 and 3 of the prototype
+  boundary are not designed.

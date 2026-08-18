@@ -40,6 +40,16 @@ slice lens_sleeve_slider ender3v2-pla-pro-02.ini \
   --rotate-y -90 --brim-width 3
 slice led_post_slider ender3v2-pla-pro-02.ini --rotate-y 90 --brim-width 3
 slice m37_camera_mounting_face ender3v2-pla-pro-02.ini
+# Face plate end down, gusset flaring upward. The flare is its own support for
+# the backplate above it; buildplate-only support catches the 6.6 mm ledge where
+# the uFace plate steps out past the locator boss it stands on.
+# Sliced on the plain shared profile on purpose. Raising infill and adding a fourth
+# perimeter costs 13 g and two hours and buys nothing: the root runs at 0.01 percent
+# of PLA interlayer strength. What this part needs is local, a solid modifier around
+# the two M5 seats, which is set per-object in the slicer and not on the CLI.
+slice post_mount ender3v2-pla-pro-04.ini --rotate-x 180 --brim-width 3 \
+  --support-material --support-material-auto --support-material-buildplate-only
+slice post_mount_socket_coupon ender3v2-pla-pro-04.ini --rotate-x 180 --brim-width 2
 slice m37_thread_fit_coupon ender3v2-pla-pro-01.ini --brim-width 2
 
 for gcode in "$output_dir"/*.gcode; do

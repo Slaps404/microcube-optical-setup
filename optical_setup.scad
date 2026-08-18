@@ -9,11 +9,14 @@ $fn = 64;
 epsilon = 0.02;
 
 /* [Preview] */
-render_mode =12; // [0:complete_assembly, 1:beamsplitter_face, 2:legacy_light_face, 3:legacy_back_cover, 4:legacy_optic_cartridge, 5:camera_face, 6:camera_thread_test, 7:exploded_assembly, 8:inspection_assembly, 9:official_ucube_shell, 10:cell_bottom_u, 11:cell_top_u, 12:lens_sleeve_slider, 13:led_post_slider, 14:cell_assembly, 15:cell_assembly_open]
+render_mode = 16; // [0:complete_assembly, 1:beamsplitter_face, 2:legacy_light_face, 3:legacy_back_cover, 4:legacy_optic_cartridge, 5:camera_face, 6:camera_thread_test, 7:exploded_assembly, 8:inspection_assembly, 9:official_ucube_shell, 10:cell_bottom_u, 11:cell_top_u, 12:lens_sleeve_slider, 13:led_post_slider, 14:cell_assembly, 15:cell_assembly_open, 16:post_mount, 17:post_mount_socket_coupon]
 show_optical_references = true;
 camera_preview_detailed_thread = true;
 show_auxiliary_illumination_cube = true;
 show_legacy_light_chamber = true;
+show_post_mount = true;
+show_post_stub = true;
+post_stub_length_mm = 260; // [80:10:400] Preview only, length of the T-slot post
 
 /* [Official uCube] */
 // MEASURED on the physical scaled cube: the square through-hole is 45 mm and
@@ -169,6 +172,56 @@ camera_test_base_diameter_mm = 44; // [42:1:48]
 camera_test_base_height_mm = 1; // [1:0.5:2]
 camera_test_thread_height_mm = 2; // [2:0.5:4]
 
+/* [Post mount] */
+// A blank side uFace that grows into a bracket for a 20 x 20 mm T-slot post.
+// It replaces the lab arrangement where the camera lens barrel carries the
+// whole optical head. Mounts on the cube face OPPOSITE the illumination cell,
+// so the cell's cantilever weight becomes a pitch moment in the plane of the
+// gusset rather than roll about the post.
+post_mount_standoff_mm = 72; // [50:1:110] Post mating face to cube center
+post_section_mm = 20; // [20] 2020 T-slot outside section
+post_socket_clearance_mm = 0.2; // [0:0.05:0.8] Total width clearance on the post
+post_socket_wall_mm = 4; // [3:0.5:6]
+post_socket_depth_mm = 14; // [8:1:20] How far the socket walls wrap the post
+post_socket_relief_mm = 1.6; // [1:0.2:2.5] Inside corner relief for post radii
+post_backplate_thickness_mm = 6; // [4:0.5:10]
+post_backplate_edge_margin_mm = 4; // [3:0.5:8] Material past each head channel
+post_mount_weld_mm = 0.5; // Gusset overlap into the uFace for one printable solid
+// Holds the weld band inside the plate outline instead of flush with it. Flush
+// would sit exactly on the vendor plate's side faces, which is both a
+// coincident-face pair and zero clearance to the cube's 0.4 mm face gap.
+post_mount_weld_inset_mm = 0.1; // [0:0.05:0.4]
+// vendor/uCube/uCube.scad sets capR = 3, so the vendor counterbore opens to
+// 6.0 at the outer face and leaves 0.1 mm of plate rim at the corner. Matching
+// that diameter exactly is the widest relief that does not breach the rim.
+post_mount_screw_relief_mm = 6.0; // Keeps the vendor cap counterbores fully open
+post_mount_head_pocket_mm = 3; // [2:0.5:6] Straight head pocket above the seat
+post_mount_funnel_mouth_mm = 24; // [14:1:32] Funnel mouth diameter
+// A driver on the bolt axis has to clear the gusset before it sees daylight.
+// The flare only recedes inboard of the bolt some way up, so the funnel rise is
+// DERIVED from where that happens rather than typed in. Typing it in is what
+// left a 2.7 mm shelf capping the funnel in the first version of this part, and
+// a 4 mm key could not reach the head at all.
+m5_driver_clearance_mm = 9; // [6:0.5:13] Straight run a hex key needs on the bolt axis
+post_mount_driver_margin_mm = 1.5; // [0:0.5:5] Extra breakout past that run
+post_mount_window_radius_mm = 7; // [0:0.5:14] Coved gusset window, 0 disables
+post_mount_window_pitch_mm = 17; // [10:0.5:30] Window spacing along Y
+post_mount_window_count = 3; // [1:1:5] Windows across the gusset
+post_mount_bed_limit_mm = 220; // [150:10:350] Shortest printable bed axis
+post_coupon_length_mm = 20; // [12:1:30] Socket fit-coupon length
+// Round holes, not slots. The T-nut already slides freely in the post slot, so
+// the bracket sets its own height with plain holes and spends no plate material
+// or stress-riser risk on travel it does not need.
+m5_hole_diameter_mm = 5.5; // [5:0.1:6.5] M5 through-clearance
+// Sized for a DIN 125 M5 washer (10.0 mm OD), not just the cap head (8.5 mm).
+// The washer takes bolt bearing from 33 mm^2 to 55 mm^2, which is 30 MPa down to
+// 18 MPa at 1 kN preload. PLA creeps well below yield under permanent load, so
+// that margin is the difference between a joint that holds and one that needs
+// re-torquing. Note the throat is a 72-gon: 11 measures 10.99 across the flats,
+// so a nominal 10 would NOT pass a 10 mm washer.
+m5_head_clearance_mm = 11; // [9:0.5:14] M5 washer + socket cap head clearance
+m5_head_cube_margin_mm = 1; // [0:0.5:4] Head clearance past the cube envelope
+
 cube_spec = CubeSize(
     size = internal_clearance_mm,
     d = frame_feature_mm,
@@ -178,6 +231,13 @@ cube_spec = CubeSize(
 
 face_plate_thickness_mm = frame_feature_mm / 2;
 face_outline_mm = internal_clearance_mm + 2 * frame_feature_mm - 2 * face_gap_mm;
+// vendor/uCube/Parts/uCubeCore.scad cuts the four face screws at
+// 0.5*(faceSize - d), where faceSize is the full 59 mm face. face_outline_mm is
+// the PLATE outline, which is 2*face_gap_mm smaller. Deriving the screw pitch
+// from the plate outline instead put every screw passage 0.4 mm per axis off
+// the real hole, which is 0.57 mm radially.
+face_screw_offset_mm =
+    (internal_clearance_mm + 2 * frame_feature_mm - frame_feature_mm) / 2;
 locator_size_mm = internal_clearance_mm - locator_clearance_mm;
 inside_half_mm = internal_clearance_mm / 2;
 official_holder_span_mm = internal_clearance_mm + 1.5 * frame_feature_mm;
@@ -186,6 +246,79 @@ face_inner_depth_mm = 1.5 * frame_feature_mm;
 face_center_from_origin_mm =
     (internal_clearance_mm + 4 * frame_feature_mm) / 2
         - face_plate_thickness_mm / 2;
+
+// Post-mount coordinates. Same uFace local frame as every other custom face:
+// Z=0 is the visible inner edge of the cube opening and +Z runs into the cube.
+// The bracket is the only face that builds toward -Z, away from the cube.
+cube_overall_mm = internal_clearance_mm + 4 * frame_feature_mm;
+cube_half_mm = cube_overall_mm / 2;
+post_mount_face_z = -face_outer_depth_mm;
+post_mount_cube_center_z = post_mount_face_z + cube_half_mm;
+post_face_z = post_mount_cube_center_z - post_mount_standoff_mm;
+post_backplate_inner_z = post_face_z + post_backplate_thickness_mm;
+post_mount_gusset_root_z = post_mount_face_z + post_mount_weld_mm;
+post_mount_flare_run_mm = post_mount_gusset_root_z - post_backplate_inner_z;
+
+post_socket_inner_mm = post_section_mm + post_socket_clearance_mm;
+post_backplate_width_mm = post_socket_inner_mm + 2 * post_socket_wall_mm;
+
+// Bolt placement is set by hex-key access, not by the plate. The T-nut sits in
+// the post slot on the cube centerline, so each M5 head faces the cube and a
+// driver on the centerline would run straight into it. Pushing both bolts clear
+// of the 73 mm cube envelope is the whole reason this plate is tall.
+m5_bolt_y = cube_half_mm + m5_head_clearance_mm / 2 + m5_head_cube_margin_mm;
+post_backplate_half_height_mm =
+    m5_bolt_y + m5_head_clearance_mm / 2 + post_backplate_edge_margin_mm;
+// Y that the flare edge gives up per mm travelled back toward the backplate.
+post_mount_flare_y_rate =
+    (post_backplate_half_height_mm - face_outline_mm / 2)
+    / post_mount_flare_run_mm;                                   // 0.747
+
+// Z at which the flare edge has pulled inboard of the driver, so a straight key
+// on the bolt axis is finally in open air. The funnel has to reach past this.
+post_mount_driver_breakout_z =
+    post_mount_gusset_root_z
+    - (m5_bolt_y - m5_driver_clearance_mm / 2 - face_outline_mm / 2)
+      / post_mount_flare_y_rate;                                 // -24.75
+post_mount_funnel_top_z =
+    post_mount_driver_breakout_z + post_mount_driver_margin_mm;  // -23.25
+post_mount_funnel_rise_mm =
+    post_mount_funnel_top_z
+    - (post_backplate_inner_z + post_mount_head_pocket_mm);      // 17.25
+post_mount_funnel_height_mm =
+    post_mount_head_pocket_mm + post_mount_funnel_rise_mm;
+post_backplate_height_mm = 2 * post_backplate_half_height_mm;
+
+// Same idea as the M5 funnel, one axis over. The flare gives up X as it runs
+// back to the backplate, so an M3 cap driver in a corner counterbore is buried
+// until the flare edge has pulled inboard of the relief. Bore the relief that
+// far and no further, instead of guessing a depth.
+post_mount_flare_x_rate =
+    (face_outline_mm / 2 - post_backplate_width_mm / 2)
+    / post_mount_flare_run_mm;                                   // 0.5
+post_mount_screw_breakout_z =
+    post_mount_gusset_root_z
+    - (face_outline_mm / 2
+       - (face_screw_offset_mm - post_mount_screw_relief_mm / 2))
+      / post_mount_flare_x_rate;                                 // -26.2
+post_mount_screw_relief_depth_mm =
+    post_mount_face_z
+    - (post_mount_screw_breakout_z - post_mount_driver_margin_mm); // 13.7
+
+// Printed uFace down: build height runs along -Z, so the gusset flares outward
+// in Y as it rises and this angle has to stay inside the overhang limit.
+post_mount_flare_angle_deg =
+    atan((post_backplate_half_height_mm - face_outline_mm / 2)
+         / post_mount_flare_run_mm);
+post_mount_locator_top_z = -face_inner_depth_mm + face_plate_thickness_mm;
+post_mount_socket_tip_z = post_face_z - post_socket_depth_mm;
+post_mount_build_height_mm = post_mount_locator_top_z - post_mount_socket_tip_z;
+
+// Z of the window row. The gusset bends about the Y axis, so its neutral axis
+// runs along the mid-plane of the taper: only the centre window actually sits
+// on it, and the outer two trade a little stiffness for a lot of mass.
+post_mount_window_center_z =
+    (post_mount_gusset_root_z + post_backplate_inner_z) / 2;
 
 // Illumination-cell coordinates. X is the light axis and matches the uFace
 // local Z convention: X=0 is the visible inner edge of the cube opening, +X
@@ -291,6 +424,71 @@ side_vent_slot_area_mm2 = side_vent_slot_count
                           * side_vent_slot_height_mm;
 side_vent_plenum_area_mm2 = side_vent_clear_span_x_mm
                             * vent_baffle_gap_mm;
+
+assert(post_mount_flare_run_mm > 0,
+       "The post standoff is too short to leave any gusset between the uFace \
+and the backplate.");
+assert(post_mount_flare_angle_deg <= 45,
+       "The post-mount gusset flares past the 45 degree overhang limit, so it \
+can no longer print without support.");
+assert(post_backplate_width_mm <= face_outline_mm,
+       "The post backplate is wider than the uFace, so the gusset would grow \
+outward in X and overhang.");
+assert(m5_bolt_y - m5_head_clearance_mm / 2 >= cube_half_mm,
+       "The M5 bolts sit inside the cube envelope, where a hex key cannot \
+reach the heads.");
+assert(m5_bolt_y + m5_head_clearance_mm / 2 <= post_backplate_half_height_mm,
+       "The M5 head seat breaks out of the end of the backplate.");
+assert(post_mount_funnel_mouth_mm > m5_head_clearance_mm
+           && post_mount_head_pocket_mm > 0,
+       "The head funnel has to flare outward from a real head pocket.");
+// Strictly wider, not merely equal. The throat is a 72-sided polygon, so an
+// exactly-equal nominal diameter measures about 0.01 mm undersize across the
+// flats and the driver binds on facets.
+assert(m5_head_clearance_mm >= m5_driver_clearance_mm + 1,
+       "The funnel throat is not comfortably wider than the driver it has to \
+pass.");
+assert(post_mount_funnel_rise_mm > 0,
+       "The funnel breaks out of the gusset before the head pocket ends, so the \
+head seat has no wall.");
+// The check the first version of this part failed. The funnel must reach far
+// enough out that the flare edge has receded inboard of the driver, otherwise a
+// shelf of gusset caps the funnel and no key reaches the bolt.
+// Holds by construction unless post_mount_driver_margin_mm goes negative, which
+// is exactly the edit that would silently bring the shelf back.
+assert(post_mount_funnel_top_z >= post_mount_driver_breakout_z,
+       "A shelf of gusset caps the M5 funnel and blocks the hex key.");
+assert(post_mount_funnel_top_z < post_mount_gusset_root_z,
+       "The M5 funnel breaks through the uFace instead of out the side of the \
+gusset.");
+assert(post_mount_screw_relief_depth_mm > post_mount_weld_mm,
+       "The M3 cap reliefs do not even clear the weld band, so the gusset caps \
+all four vendor counterbores.");
+assert(face_screw_offset_mm + post_mount_screw_relief_mm / 2
+           <= face_outline_mm / 2,
+       "The M3 cap reliefs break out of the edge of the uFace.");
+assert(post_backplate_height_mm <= post_mount_bed_limit_mm
+           && face_outline_mm <= post_mount_bed_limit_mm
+           && post_mount_build_height_mm <= post_mount_bed_limit_mm,
+       "The post mount does not fit the print bed.");
+assert(post_socket_relief_mm < post_socket_wall_mm,
+       "The socket corner relief eats the whole socket wall.");
+assert(post_mount_window_radius_mm == 0
+           || (post_mount_window_center_z - post_mount_window_radius_mm
+                   > post_backplate_inner_z
+               && post_mount_window_center_z + post_mount_window_radius_mm
+                      < post_mount_gusset_root_z),
+       "The gusset window breaks out of the gusset.");
+assert(post_mount_window_radius_mm == 0
+           || post_mount_window_count == 1
+           || post_mount_window_pitch_mm - 2 * post_mount_window_radius_mm >= 3,
+       "The gusset windows leave less than a 3 mm rib between them.");
+assert(post_mount_window_radius_mm == 0
+           || (post_mount_window_count - 1) / 2 * post_mount_window_pitch_mm
+                  + post_mount_window_radius_mm + 3
+              <= m5_bolt_y - post_mount_funnel_mouth_mm / 2,
+       "The outermost gusset window leaves less than a 3 mm rib against the \
+M5 head funnel.");
 
 assert(sleeve_outer_mm <= 2 * cell_interior_half_y,
        "The lens sleeve is wider than the illumination cell interior.");
@@ -415,6 +613,29 @@ echo(str("Beamsplitter plate/slot/interference: ", plate_thickness_mm,
 echo(str("Beamsplitter endpoint clearance: ",
          (internal_clearance_mm - plate_width_mm * cos(plate_angle_degrees)) / 2,
          " mm per side"));
+echo(str("Post mount envelope: ", face_outline_mm, " x ",
+         post_backplate_height_mm, " x ", post_mount_build_height_mm,
+         " mm, standoff ", post_mount_standoff_mm, " mm to cube center"));
+echo(str("Post mount gusset flare: ", post_mount_flare_angle_deg,
+         " deg over a ", post_mount_flare_run_mm, " mm run"));
+echo(str("Post socket: ", post_socket_inner_mm, " mm wide, ",
+         post_socket_depth_mm, " mm deep, ", post_socket_wall_mm,
+         " mm walls"));
+echo(str("M5 holes: ", m5_hole_diameter_mm, " mm at Y +/-", m5_bolt_y,
+         ", head clears the cube by ",
+         m5_bolt_y - m5_head_clearance_mm / 2 - cube_half_mm,
+         " mm, funnel ", m5_head_clearance_mm, " to ",
+         post_mount_funnel_mouth_mm, " mm over ",
+         post_mount_funnel_rise_mm, " mm"));
+echo(str("M5 driver access: ", m5_driver_clearance_mm,
+         " mm straight run, flare clears the bolt axis at Z=",
+         post_mount_driver_breakout_z, ", funnel top at Z=",
+         post_mount_funnel_top_z, ", clears the cube by ",
+         m5_bolt_y - m5_driver_clearance_mm / 2 - cube_half_mm, " mm"));
+echo(str("M3 corner screws: pitch ", face_screw_offset_mm,
+         " mm from vendor spec, ", post_mount_screw_relief_mm,
+         " mm reliefs bored ", post_mount_screw_relief_depth_mm,
+         " mm, flare clears them at Z=", post_mount_screw_breakout_z));
 
 // Rounded XY prism, centered in XY and extending upward from Z=0.
 module rounded_xy_prism(width, depth, height, radius) {
@@ -843,8 +1064,8 @@ module cell_mating_screw_passages() {
     for (y = [-1, 1])
         for (z = [-1, 1])
             translate([cell_mate_x - cell_wall_mm - epsilon,
-                       y * (face_outline_mm - frame_feature_mm) / 2,
-                       z * (face_outline_mm - frame_feature_mm) / 2])
+                       y * face_screw_offset_mm,
+                       z * face_screw_offset_mm])
                 rotate([0, 90, 0])
                     cylinder(h = cell_wall_mm + face_plate_thickness_mm
                                  + 2 * epsilon,
@@ -1172,6 +1393,221 @@ module illumination_cell_assembly(include_lid = true,
         lens_tube_reference();
 }
 
+// ---------------------------------------------------------------------------
+// Post mount
+// ---------------------------------------------------------------------------
+
+// Flares the uFace footprint out to the post backplate in one hull. Printed
+// uFace down, every layer of this taper is either the same size or supported
+// by the layer below, so the whole gusset also acts as the printing support
+// for the backplate that overhangs it.
+// The reference bracket's coved gussets fill the inside corner of an L, where a
+// horizontal plate meets a vertical one. This part has no such corner: the uFace
+// and the backplate are parallel, 30 mm apart, and the gusset is the straight
+// standoff between them. So the cove becomes the flare itself. A concave arc
+// between the same two endpoints, held inside the 45 degree overhang budget, only
+// scoops about 1.4 mm out of a 30 mm run, which is below print resolution for the
+// stiffness it would buy. The taper carries the moment instead: section modulus
+// goes as height squared, and the plate is tallest exactly where the moment peaks.
+module post_mount_gusset() {
+    hull() {
+        translate([0, 0, post_mount_gusset_root_z])
+            cube([face_outline_mm, face_outline_mm, epsilon], center = true);
+        translate([0, 0, post_backplate_inner_z])
+            cube([post_backplate_width_mm, post_backplate_height_mm, epsilon],
+                 center = true);
+    }
+}
+
+// The gusset root overlaps 0.5 mm into the uFace so the two slice as one solid.
+// Inside that overlap it is a plain square slab, which quietly re-fills the
+// voids the vendor plate cuts for itself: the four mid-edge notches that clear
+// the cube's retaining tabs, and the four corner cap counterbores. Clip the
+// weld band to vendor-face material so the overlap can only ever add where the
+// plate is already solid.
+// The gusset root overlaps 0.5 mm into the uFace so the two slice as one solid.
+// Two things have to be true inside that overlap. It may only occupy space the
+// vendor plate already fills, or it re-fills the four mid-edge notches that
+// clear the cube's retaining tabs and the four corner cap counterbores. And it
+// may not stand proud of the plate outline: the gusset is already flaring in Y
+// by the time it reaches this band, so left alone it puts 0.37 mm out into the
+// cube's 0.4 mm face gap.
+//
+// Written as ONE difference on ONE solid rather than two stacked pieces. The
+// stacked form duplicated a face across the whole gusset cross-section at the
+// plate plane, which z-fights in OpenCSG preview and drops surfaces out of the
+// picture wherever you can see into the part.
+module post_mount_gusset_welded() {
+    big     = 4 * face_outline_mm;
+    band_h  = post_mount_weld_mm + epsilon;
+    footprint = face_outline_mm - 2 * post_mount_weld_inset_mm;
+
+    difference() {
+        post_mount_gusset();
+
+        // Inside the weld band, delete everything that is not both within the
+        // inset plate footprint and inside vendor plate material.
+        intersection() {
+            translate([0, 0, post_mount_face_z + band_h / 2])
+                cube([big, big, band_h], center = true);
+
+            difference() {
+                translate([0, 0, post_mount_face_z + big / 2])
+                    cube([big, big, big], center = true);
+                intersection() {
+                    translate([0, 0, post_mount_face_z
+                                     + face_plate_thickness_mm / 2])
+                        cube([footprint, footprint,
+                              face_plate_thickness_mm + 2 * epsilon],
+                             center = true);
+                    official_face_at_inside_plane();
+                }
+            }
+        }
+    }
+}
+
+module post_mount_backplate() {
+    translate([0, 0, post_face_z + post_backplate_thickness_mm / 2])
+        cube([post_backplate_width_mm, post_backplate_height_mm,
+              post_backplate_thickness_mm], center = true);
+}
+
+// Three-sided socket. The broad flanks set the pose against the extrusion so
+// the two M5 bolts only have to supply clamp force, not alignment.
+module post_mount_socket_walls(length) {
+    for (side = [-1, 1])
+        translate([side * (post_socket_inner_mm + post_socket_wall_mm) / 2,
+                   0,
+                   post_face_z - post_socket_depth_mm / 2])
+            cube([post_socket_wall_mm, length, post_socket_depth_mm],
+                 center = true);
+}
+
+// Extrusion corners are radiused, so relieve the inside corners of the socket
+// or the post seats on its own fillets instead of on the mating face.
+module post_mount_corner_reliefs(length) {
+    for (side = [-1, 1])
+        translate([side * post_socket_inner_mm / 2, 0, post_face_z])
+            rotate([90, 0, 0])
+                cylinder(h = length + 2 * epsilon, r = post_socket_relief_mm,
+                         center = true, $fn = 32);
+}
+
+// The bolt head seats in a straight 3 mm pocket, then the approach opens into a
+// bell so the screw can be started off-axis and a hex key can enter at an angle
+// instead of having to arrive dead on the bolt line, which is where the cube is.
+// The bell is wider than the gusset is at that height, so it deliberately breaks
+// through the outboard edge of the flare: there is no material out there to keep,
+// and opening that side lets the screw drop in sideways. Printing uFace down, the
+// bell narrows as the print rises, at most 32.5 degrees off vertical where the
+// flare is steepest, inside the overhang budget, and the step down to the
+// through-hole is a 2.25 mm annular bridge.
+module post_mount_head_funnel() {
+    steps = 20;
+    throat_r = m5_head_clearance_mm / 2;
+    mouth_r = post_mount_funnel_mouth_mm / 2;
+
+    rotate_extrude($fn = 72)
+        polygon(concat(
+            [[0, 0],
+             [throat_r, 0],
+             [throat_r, post_mount_head_pocket_mm]],
+            [for (i = [0 : steps])
+                let (t = i / steps)
+                    [throat_r + (mouth_r - throat_r) * sin(90 * t),
+                     post_mount_head_pocket_mm
+                         + post_mount_funnel_rise_mm * t]],
+            [[0, post_mount_funnel_height_mm]]));
+}
+
+// One M5 through-hole per bolt, then the flared head approach above it.
+module post_mount_bolt_features() {
+    for (side = [-1, 1])
+        translate([0, side * m5_bolt_y, 0]) {
+            translate([0, 0, post_face_z - epsilon])
+                cylinder(h = post_backplate_thickness_mm + 2 * epsilon,
+                         d = m5_hole_diameter_mm, $fn = 48);
+            translate([0, 0, post_backplate_inner_z])
+                post_mount_head_funnel();
+        }
+}
+
+// Keeps the vendor cap counterbores open through the 0.5 mm of gusset that
+// welds onto the plate, and gives the hex key a straight run out of the part.
+module post_mount_screw_passages() {
+    for (x = [-1, 1])
+        for (y = [-1, 1])
+            translate([x * face_screw_offset_mm,
+                       y * face_screw_offset_mm,
+                       post_mount_face_z - post_mount_screw_relief_depth_mm])
+                cylinder(h = post_mount_screw_relief_depth_mm
+                             + post_mount_weld_mm + epsilon,
+                         d = post_mount_screw_relief_mm, $fn = 32);
+}
+
+// A row of round windows through the gusset. Bending stiffness comes from the
+// material out at the flare edge, so the middle of the taper is where material
+// can leave most cheaply. The windows are bored along X, so printed uFace down
+// their axes lie in the build plane and each one bridges its own crown rather
+// than needing support.
+module post_mount_window() {
+    if (post_mount_window_radius_mm > 0)
+        for (i = [0 : post_mount_window_count - 1])
+            translate([0,
+                       (i - (post_mount_window_count - 1) / 2)
+                           * post_mount_window_pitch_mm,
+                       post_mount_window_center_z])
+                rotate([0, 90, 0])
+                    cylinder(h = 2 * face_outline_mm,
+                             r = post_mount_window_radius_mm,
+                             center = true, $fn = 64);
+}
+
+module post_mount() {
+    difference() {
+        union() {
+            official_face_at_inside_plane();
+            square_locator(solid = true);
+            post_mount_gusset_welded();
+            post_mount_backplate();
+            post_mount_socket_walls(post_backplate_height_mm);
+        }
+
+        post_mount_corner_reliefs(post_backplate_height_mm);
+        post_mount_bolt_features();
+        post_mount_screw_passages();
+        post_mount_window();
+    }
+}
+
+// Short slice of the socket and mating plate. Print this first and check that
+// the post slides in with a light hand before committing to the full bracket.
+module post_mount_socket_coupon() {
+    difference() {
+        union() {
+            translate([0, 0, post_face_z + post_backplate_thickness_mm / 2])
+                cube([post_backplate_width_mm, post_coupon_length_mm,
+                      post_backplate_thickness_mm], center = true);
+            post_mount_socket_walls(post_coupon_length_mm);
+        }
+
+        post_mount_corner_reliefs(post_coupon_length_mm);
+        translate([0, 0, post_face_z - epsilon])
+            cylinder(h = post_backplate_thickness_mm + 2 * epsilon,
+                     d = m5_hole_diameter_mm, $fn = 48);
+    }
+}
+
+// Mounts on the +X cube face, opposite the illumination cell. Local +Y becomes
+// global +Z so the backplate stands vertically along the post.
+module post_mount_transform() {
+    translate([inside_half_mm, 0, 0])
+        rotate([90, 0, 0])
+            rotate([0, -90, 0])
+                children();
+}
+
 module light_face_transform() {
     translate([-inside_half_mm, 0, 0])
         rotate([0, 90, 0])
@@ -1222,6 +1658,20 @@ module complete_assembly(show_cube = true, show_references = true) {
         color([0.10, 0.68, 0.62])
             light_face_transform()
                 optic_cartridge();
+    }
+
+    // Grey +X post mount, opposite the illumination cell, plus a stub of the
+    // 2020 post so the standoff and the bolt access can be read at a glance.
+    if (show_post_mount) {
+        color([0.55, 0.57, 0.60])
+            post_mount_transform()
+                post_mount();
+
+        if (show_post_stub && show_references)
+            color([0.30, 0.32, 0.34, 0.45])
+                translate([post_mount_standoff_mm + post_section_mm / 2, 0, 0])
+                    cube([post_section_mm, post_section_mm,
+                          post_stub_length_mm], center = true);
     }
 
     // Purple camera uFace on +Y for the demo. This is the reflected-beam side
@@ -1348,6 +1798,10 @@ module render_selected_part() {
     else if (render_mode == 15)
         illumination_cell_assembly(include_lid = false,
                                    include_references = true);
+    else if (render_mode == 16)
+        post_mount();
+    else if (render_mode == 17)
+        post_mount_socket_coupon();
 }
 
 // Part-specific SCAD entry files set this before including the shared source.

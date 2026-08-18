@@ -168,6 +168,22 @@ The lens's camera-side C-mount is a separate interface.
 | Harness wall | 6 mm | A 5 mm heat-set insert cannot live in a 3 mm wall. Enforced by assert. |
 | Harness insert shoulder | Retained | The insert pocket needs a depth stop; the smaller continuation gives the clamp screw access to the rail. |
 | Cell-to-cube interface | Standard uFace plus 44.2 mm bridge | The uFace enters the standard cube slot, while the bridge overlaps the cell wall and face so they slice as one connected part. |
+| Post mount face | The side face opposite the illumination cell | The cell hangs its whole mass off one cube face. Mounting opposite turns that into a pitch moment in the plane of the gusset, which the tall backplate and the vertically separated M5 bolts resist directly. A 90 degree mount would turn the same load into roll about the post, which shows up as image rotation. |
+| Post standoff | 72 mm from the post mating face to the cube center | The backlight short side measures 149.9 mm, so half of it is 74.95 mm. 72 mm puts the cube center just inside the backlight center and still leaves 30 mm of gusset between the uFace and the backplate. |
+| Post interface | Three-sided socket, 0.2 mm total width clearance, 4 mm walls, 14 mm deep | The broad flanks set the pose against the extrusion so the two M5 bolts only supply clamp force, not alignment. The 0.2 mm is a starting guess and is what the socket coupon exists to check. |
+| M5 hole position | Round 5.5 mm holes at Y +/-43 | The T-nut sits in the post slot on the cube centerline, so each bolt head faces the cube. Both holes have to sit far enough out along Y that a bolt head plus a washer clears the 73 mm cube envelope. That, not the plate, is what sets the 105 mm backplate height. |
+| Round holes, not slots | Plain through-holes rather than the reference bracket's pill slots | The T-nut already slides freely along the post slot, so the bracket sets its own height by where it is clamped. Slots would only add material and a stress riser at the most heavily loaded part of the plate to buy travel that is already available. |
+| M5 head approach | 3 mm straight pocket, then a bell flaring to a 24 mm mouth. Its rise is DERIVED, currently 16.45 mm | The bolt head faces the cube, so a hex key has to come back out through the gusset. The flare edge does not recede inboard of a 9 mm driver until Z=-25.55, so the bell has to reach past that or a shelf of gusset caps it. A typed-in 9 mm rise left exactly that shelf, 2.7 mm thick, and no key could reach the bolt. The rise is now computed from the flare rate and asserted. |
+| M5 driver clearance | 9 mm straight run on the bolt axis, verified by swept-cylinder intersection | Both fastener sets are checked by sweeping a driver cylinder along its access axis and intersecting it with the bracket plus the 73 mm cube envelope. M3 measures clear to 6.0 mm and M5 to 9 mm. The M5 figure is held two full mm under the 11 mm funnel throat: the throat is a 72-sided polygon, so a nominally equal driver binds on facets. |
+| M5 funnel throat | 11 mm, sized for a washer and not just the head | A bare M5 socket cap bears on 33 mm^2, which is 30 MPa at 1 kN of preload. A DIN 125 washer takes that to 55 mm^2 and 18 MPa. PLA creeps well below yield under permanent load, so that margin is the difference between a joint that holds and one that needs re-torquing. The washer OD is 10.0 mm, but the throat is a 72-gon, so a nominal 10 measures 9.99 across the flats and would not pass it. 11 is the next step up. |
+| Print settings | The shared 0.4 mm profile as-is, 15 percent grid and 3 perimeters, plus one manual solid modifier around the two M5 seats. Sliced that way it is 69 g and 6h47m, of which about a seventh of the filament is buildplate-only support under the plate ledge | Infill is not the strength lever here. The gusset root has a section modulus of about 49,900 mm^3, so the 5 N cell load at a 72 mm arm works the root to 0.003 MPa, which is 0.01 percent of PLA interlayer strength, and models a 0.00007 mm tip deflection. Raising infill to 20 percent gyroid and adding a fourth perimeter was measured at 82 g and 8h40m, so it spends 13 g and two hours on a section that is already 4 orders of magnitude oversized. What actually governs is local bearing and creep where the bolts clamp, which is why those seats get solid material and a washer instead. `led_post_slider` is a 3.8 g part with nothing structural in it, so raise its infill only to give the clamp-screw heat-set insert bite in the 6 mm harness wall. Its real limit is heat, since v1 has no secondary heatsink and PLA softens near 60 C. |
+| M3 screw pitch | 26.0 mm, derived from the vendor formula `0.5*(faceSize - d)` | Deriving it from `face_outline_mm` instead put every passage 0.4 mm per axis, 0.57 mm radially, off the real hole. That is enough to shave an M3 clearance passage below the 3 mm shank. The same expression was wrong in `cell_mating_screw_passages()` and is now corrected there too. |
+| M3 cap reliefs | 6.0 mm bores, depth DERIVED, currently 13.2 mm | The gusset buries the four vendor counterbores, so each needs a corridor bored through it. 6.0 mm matches the vendor counterbore exactly (`capR = 3`) and is the widest bore that does not breach the 0.1 mm of plate rim left at the corner. The depth is computed from where the flare edge pulls inboard of the bore, the same rule as the M5 bell, instead of the magic 20 mm it used to be. |
+| Gusset weld band | The 0.5 mm root overlap is clipped to vendor plate material and inset 0.1 mm inside the plate outline | The gusset root is a plain square slab. Unioned raw, it silently re-filled the voids the vendor plate cuts for itself: the four mid-edge notches that clear the cube's retaining tabs, and the four cap counterbores. Both defects render as valid watertight manifolds, so `Simple: yes` never caught them. Clipping the band to vendor material means the overlap can only add where the plate is already solid. The 0.1 mm inset is separate: the gusset is already flaring in Y by the time it reaches this band, so flush with the plate outline would put 0.37 mm out into the cube's 0.4 mm face gap. With the inset, the boolean against the cube measures exactly empty. |
+| Weld band written as one difference | Not as two stacked solids meeting at the plate plane | The stacked form duplicated a face across the whole gusset cross-section. CGAL and the exported STL were fine, but OpenCSG preview z-fights on duplicated faces and drops surrounding surfaces out of the picture, which reads as clipping through the part. |
+| Post mount print orientation | uFace flat on the bed, gusset growing upward | Layer lines then run across the bending stress rather than along it, and the flaring gusset is its own printing support for the backplate that overhangs it. The flare is asserted to stay inside 45 degrees; it currently runs at 37.95 degrees over a 30 mm rise. |
+| No coved root fillets | The flare is the cove | The reference bracket's cove fills the inside corner of an L. Here the uFace and the backplate are parallel and 30 mm apart, so there is no corner to fill. A concave arc between the same endpoints, held inside the overhang budget, only scoops about 1.4 mm out of a 30 mm run, which is below what the printer resolves. |
+| Gusset lightening | Three 14 mm round windows on the neutral axis, 17 mm pitch | Bending stiffness comes from material out at the flare, so the material near Y=0 is nearly free to remove. The windows are bored along X, so printed uFace down their axes lie in the build plane and each bridges its own crown. Only the centre window actually sits on the neutral axis; the outer two trade a little stiffness for a lot of mass. |
 | Which cube face | Any of the four side faces | The light axis must be horizontal so the sliders sit on a floor. The cube is 4-fold symmetric, so the printed part is identical whichever side is chosen. Picked at assembly time, not design time. |
 
 ## 5. Dependencies and repository state
@@ -209,14 +225,26 @@ The lens's camera-side C-mount is a separate interface.
 - **The cell bottom sits 0.5 mm below the cube bottom**, since the floor wall is
   4 mm where 3.5 mm would be flush. Cosmetic on a benchtop.
 - **Cable path needs physical definition** beyond the pass-through notch.
-- **External frame mounting is not yet dimensioned.** The current lab clamp
-  loads the lens barrel with the uCube and illumination cell. The revised
-  concept gives the uCube a broad direct mount on the vertical post and gives
-  the camera a separate horizontal extrusion above it. The post is confirmed
-  as standard 20 x 20 mm T-slot extrusion with one centered slot per face, but
-  its slot opening and T-nut thread still need physical confirmation. The
-  earlier one-tab C-frame concept is rejected as too flexible; see
-  `research/optical-head-frame-integration.md`.
+- **External frame mounting is dimensioned but unprinted.** `post_mount` is a
+  blank side uFace that flares into a 28.2 x 105 x 6 mm backplate with a
+  three-sided socket for the post. It replaces the lab clamp that loaded the
+  whole optical head through the lens barrel. The camera still needs its own
+  support on a separate horizontal extrusion above the cube; that is not
+  designed. Open items on this part:
+  - The post is confirmed as standard 20 x 20 mm T-slot extrusion with one
+    centered slot per face, but the **slot opening width and T-nut thread are
+    still unconfirmed**. The design assumes M5 T-nuts.
+  - The 0.2 mm total socket clearance is a guess. Print
+    `post_mount_socket_coupon.stl` first.
+  - **The part is large.** 121 cm^3 of enclosed volume, 58.2 x 105 x 56.5 mm,
+    which is a long print. If print time turns out to be unacceptable, the next
+    step is replacing the solid gusset with three flaring ribs, which models to
+    roughly 90 cm^3 but adds bridging under the backplate.
+  - **PLA creep is a real risk here.** The bracket is permanently loaded in
+    bending by the cantilevered illumination cell. Prefer PETG, or plan to
+    re-check alignment over time.
+  - The earlier one-tab C-frame concept is rejected as too flexible; see
+    `research/optical-head-frame-integration.md`.
 - **The complete-assembly preview has the camera on a side face, which does not
   match the physical downward-looking setup.** The printable M37 face itself is
   orientation-neutral. Correct the preview transform in a separate geometry
@@ -245,8 +273,11 @@ The lens's camera-side C-mount is a separate interface.
 | Light-tightness | Assemble, light the LED, darken the room | No visible leak at seams or through the walls | Bench assembly |
 | Passive ventilation | Run the intended short-duration LED sequence and measure the LED board and enclosure | Temperatures remain within the purchased LED and material limits; stop if they continue rising | Bench assembly |
 | Illumination | Sweep both sliders with the real LED | Even field on the cube face without imaging the emitter | Optical prototype |
+| Post socket fit | Print `post_mount_socket_coupon.stl` and slide it onto the real extrusion | Socket seats flat on the post face with no rock, slides on by hand, and an M5 T-nut bolt pulls it tight without spreading the walls | Fit coupon, do this before the full bracket |
+| Post mount bolt access | Offer the printed bracket up to the post with the cube attached | A hex key reaches both M5 heads without fouling the cube, and the bell lets the screw start off-axis. The CAD says clear to a 9 mm driver; confirm with the real key and the real cube | Bench assembly |
+| Post mount stiffness | Mount the loaded head and check for sag and drift | No visible tilt, and alignment holds over the run; recheck after a week for creep | Bench assembly |
 | Mesh validation | Hard warnings plus six-view inspection | Every printable mode reports `Simple: yes` | Every CAD revision |
-| Slicer validation | Slice all eight active STLs with the assigned Ender 3 V2 profile | G-code is produced without slicer errors or bed-volume failures | Every CAD revision |
+| Slicer validation | Slice all ten active STLs with the assigned Ender 3 V2 profile | G-code is produced without slicer errors or bed-volume failures | Every CAD revision |
 
 ## 8. Render modes
 
@@ -266,3 +297,5 @@ The lens's camera-side C-mount is a separate interface.
 | 13 | LED post slider |
 | 14 | Cell assembly |
 | 15 | Cell assembly, lid off |
+| 16 | Post mount |
+| 17 | Post mount socket fit coupon |
