@@ -210,9 +210,11 @@ The lens's camera-side C-mount is a separate interface.
   5.25 mm axially in from the open rear, and recessed 0.5 mm radially. Test
   the actual spring clip and tube together before committing to the full print.
 - **M3 insert fit is unprinted:** the current cell harness pocket is 4.0 mm
-  diameter by 5.0 mm deep, followed by a 3.2 mm screw passage. This leaves a
-  0.4 mm radial shoulder and 1 mm axial backing wall. The complete fit still
-  needs a printer/material coupon with the purchased insert.
+  diameter by 5.0 mm deep, followed by a 3.2 mm screw passage. The passage
+  center is 3.6 mm below the rail top, leaving 2.0 mm of rail-top clearance
+  above the passage and 1.6 mm above the insert pocket. This leaves a 0.4 mm
+  radial shoulder and 1 mm axial backing wall. The complete fit still needs a
+  printer/material coupon with the purchased insert.
 - **Seam clearances are untested.** The 0.25 mm lid slip fit and the
   tongue-and-groove both need a printed coupon.
 - **Light-tightness is unproven.** The vent louvers and intake shroud block the

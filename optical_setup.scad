@@ -148,7 +148,7 @@ led_harness_length_mm = 16; // [12:1:24] Along the rail
 m3_insert_diameter_mm = 4; // [3.5:0.1:5] Default matches official uCube insert diameter
 m3_insert_length_mm = 5; // [3:0.5:8] Default matches official uCube insertH
 m3_clamp_clearance_mm = 3.2; // Close M3 clearance leaves a 0.4 mm radial shoulder
-m3_clamp_top_margin_mm = 0.5; // Material above clamp passage at rail top
+m3_clamp_top_margin_mm = 2.0; // Material above clamp passage at rail top
 face_mount_clearance_mm = 3.6; // Through-clearance behind each uFace screw
 sleeve_setback_mm = 0; // [0:1:30] Preview only, sleeve front from the port
 led_gap_mm = 20; // [4:1:34] Preview only, sleeve rear to LED pad
@@ -369,8 +369,9 @@ harness_outer_width_mm = harness_slot_width_mm + 2 * harness_wall_mm;
 // otherwise the foot floats free at its corners or becomes a tall solid slab.
 harness_foot_top_z = -sqrt(pow(sleeve_outer_mm / 2, 2)
                            - pow(harness_outer_width_mm / 2, 2)) + 0.5;
-// Keep the insert and screw passage in the upper half of the rail. Centering
-// them on the rail made the harness bottom edge thin and brittle.
+// Keep the insert and screw passage in the upper half of the rail. The extra
+// top margin keeps the screw clear of the rail's printed upper edge while
+// leaving enough material below the insert for a secure clamp.
 rail_insert_center_z = rail_top_z - m3_clamp_clearance_mm / 2
                        - m3_clamp_top_margin_mm;
 
@@ -543,6 +544,12 @@ assert(cell_outer_span_mm >= face_outline_mm,
        "The cell must not be narrower than its standard uFace mount.");
 assert(rail_insert_center_z - m3_clamp_clearance_mm / 2 >= rail_bottom_z,
        "The harness clamp passage falls below the rail.");
+assert(rail_insert_center_z + m3_clamp_clearance_mm / 2 <= rail_top_z,
+       "The harness clamp passage reaches the rail's upper edge.");
+assert(rail_insert_center_z + m3_insert_diameter_mm / 2 <= rail_top_z,
+       "The heat-set insert pocket reaches the rail's upper edge.");
+assert(rail_insert_center_z - m3_insert_diameter_mm / 2 >= harness_foot_bottom_z,
+       "The heat-set insert pocket breaks through the harness floor.");
 assert(rail_length_mm > max(lens_harness_length_mm, led_harness_length_mm),
        "The rail is too short to support both slider harnesses.");
 assert(vent_region_center_x - roof_vent_slot_length_mm / 2
