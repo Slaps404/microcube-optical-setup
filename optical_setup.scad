@@ -133,7 +133,7 @@ sleeve_clip_groove_radial_depth_mm = 0.5; // [0.25:0.25:1] Recess into sleeve wa
 rail_width_mm = 10.5; // [10.5] MEASURED cube screw-pad width
 rail_height_mm = 9; // [7:0.5:12]
 rail_floor_weld_mm = 0.5; // Rail overlap into the floor for one printable solid
-harness_slot_clearance_mm = 0.3; // [0.3:0.1:1.4] Total width clearance, 0.15 mm per side
+harness_slot_clearance_mm = 0; // [0:0.1:1.4] Nominal zero total width clearance; file as needed
 harness_roof_thickness_mm = 1.5; // [1:0.25:3] Solid material above the seated rail
 // The harness side runners intentionally rest on the bottom-U floor. The slot
 // roof simultaneously rests on the rail top, giving the slider two seating

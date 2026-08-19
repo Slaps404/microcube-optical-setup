@@ -91,9 +91,11 @@ underside to leave a solid harness roof while the bore stays exactly on the beam
 axis. The slot roof rests directly on the rail top, with no vertical clearance.
 
 Two sliders share one `harness_foot` module, so they grip identically: a
-slip-fit U straddling the rail with two opposing M3 set screws in heat-set
-inserts pressing the rail flanks. The 10.8 mm slot gives the 10.5 mm rail 0.3 mm
-total lateral clearance, or 0.15 mm per side.
+nominal-zero-clearance U straddling the 10.5 mm rail with two opposing M3 set
+screws in heat-set inserts pressing the rail flanks. The modeled slot is now
+10.5 mm wide. The printed rail and harness showed approximately 10.4 mm and
+11 mm respectively, so this revision is an empirical tightening experiment;
+print a short coupon and file only if needed.
 
 The harness side runners rest directly on the bottom-U floor. Their nominal
 slot depth is 9 mm around the 9 mm rail, so the slider seats on both the floor
@@ -198,9 +200,11 @@ The lens's camera-side C-mount is a separate interface.
 
 ## 6. Open questions and known risks
 
-- **An initial cell and slider prototype has been printed.** Its 1.0 mm total
-  rail clearance had excessive play. The revised 0.4 mm fit still needs a
-  physical print; OpenSCAD validity does not prove printer tolerance.
+- **An initial cell and slider prototype has been printed.** Its measured
+  printed rail and harness were approximately 10.4 mm and 11 mm, or about
+  0.6 mm total play. The modeled fit is now nominally 0 mm total clearance;
+  this still needs a physical coupon because OpenSCAD validity does not prove
+  printer tolerance.
 - **Sleeve depth 25 mm is confirmed against the purchased tube.**
 - **Spring-clip groove fit is unprinted:** the current groove is 1.25 mm wide,
   5.25 mm axially in from the open rear, and recessed 0.5 mm radially. Test
