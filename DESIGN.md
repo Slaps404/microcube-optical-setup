@@ -240,7 +240,9 @@ The lens's camera-side C-mount is a separate interface.
     still unconfirmed**. The design assumes M5 T-nuts.
   - The 0.2 mm total socket clearance is a guess. Print
     `post_mount_socket_coupon.stl` first.
-  - **The part is large.** 121 cm^3 of enclosed volume, 58.2 x 105 x 56.5 mm,
+  - The socket walls now wrap 18 mm of the 20 mm post section while retaining
+    the 0.2 mm total width clearance.
+  - **The part is large.** 121 cm^3 of enclosed volume, 58.2 x 105 x 60.5 mm,
     which is a long print. If print time turns out to be unacceptable, the next
     step is replacing the solid gusset with three flaring ribs, which models to
     roughly 90 cm^3 but adds bridging under the backplate.
