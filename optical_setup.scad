@@ -502,12 +502,6 @@ carrier_m5_counterbore_depth_mm = carrier_socket_wall_mm
 carrier_socket_top_z = -sqrt(pow(carrier_cell_outer_mm / 2, 2)
                              - pow(carrier_socket_outer_width_mm / 2, 2)) + 0.5;
 
-carrier_foot_top_z = (carrier_rail_kind == 0) ? carrier_socket_top_z
-                                              : harness_foot_top_z;
-carrier_led_plate_half_mm = (carrier_rail_kind == 0)
-                                ? carrier_socket_outer_width_mm / 2
-                                : harness_outer_width_mm / 2;
-
 assert(carrier_aperture_mm <= carrier_spacer_inner_mm,
        "The front lip aperture is wider than the supplied divider ID, so the \
 two annular lands would not clamp the same ring of glass.");
@@ -1788,8 +1782,8 @@ module carrier_extrusion_foot(length, center_x) {
 // are derived from sleeve_outer_mm, and the carrier cell deliberately keeps
 // that same 45 mm OD, so it drops onto the existing rail section with no new
 // rail parameters. Only its length along X changes.
-module carrier_foot(length, center_x) {
-    if (carrier_rail_kind == 0)
+module carrier_foot(length, center_x, kind = carrier_rail_kind) {
+    if (kind == 0)
         carrier_extrusion_foot(length, center_x);
     else
         harness_foot(length, center_x);
@@ -1797,8 +1791,8 @@ module carrier_foot(length, center_x) {
 
 // Short slice of whichever foot is selected. Print this first and check the
 // fit on the real rail before committing to a full carrier.
-module carrier_foot_coupon() {
-    carrier_foot(carrier_coupon_length_mm, 0);
+module carrier_foot_coupon(kind = carrier_rail_kind) {
+    carrier_foot(carrier_coupon_length_mm, 0, kind);
 }
 
 // One cell geometry serves both 40.0 mm optics; only cell_length differs.
@@ -1834,29 +1828,30 @@ module carrier_optic_cell(cell_length) {
     }
 }
 
-module optic_carrier(cell_length) {
+module optic_carrier(cell_length, kind = carrier_rail_kind) {
     union() {
         carrier_optic_cell(cell_length);
-        carrier_foot(carrier_foot_length_mm, -cell_length / 2);
+        carrier_foot(carrier_foot_length_mm, -cell_length / 2, kind);
     }
 }
 
 // Carrier A optic: the f = 16 spherical collector, nearest the LED.
-module collector_carrier() {
-    optic_carrier(collector_cell_length_mm);
+module collector_carrier(kind = carrier_rail_kind) {
+    optic_carrier(collector_cell_length_mm, kind);
 }
 
 // Carrier B optic: the f = 40 aspheric condenser, nearest the cube.
-module condenser_carrier() {
-    optic_carrier(condenser_cell_length_mm);
+module condenser_carrier(kind = carrier_rail_kind) {
+    optic_carrier(condenser_cell_length_mm, kind);
 }
 
 // Carrier C: a flat post carrying the 20 mm star LED on the beam axis. Same
 // part as led_post_slider, re-footed and rebuilt in the carrier local frame.
 // The post starts at the top of the foot so both fasteners stay reachable.
-module led_carrier() {
-    plate_half = carrier_led_plate_half_mm;
-    foot_top = carrier_foot_top_z;
+module led_carrier(kind = carrier_rail_kind) {
+    plate_half = (kind == 0) ? carrier_socket_outer_width_mm / 2
+                             : harness_outer_width_mm / 2;
+    foot_top = (kind == 0) ? carrier_socket_top_z : harness_foot_top_z;
     cable_notch_top_z = -led_star_diameter_mm / 2 - 1;
 
     difference() {
@@ -1868,7 +1863,7 @@ module led_carrier() {
                       plate_half - foot_top + epsilon]);
 
             carrier_foot(carrier_foot_length_mm,
-                         -carrier_foot_length_mm / 2);
+                         -carrier_foot_length_mm / 2, kind);
         }
 
         // Bottom-open cable notch, clear of the star footprint above it.

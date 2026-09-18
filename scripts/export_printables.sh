@@ -16,6 +16,14 @@ parts=(
   official_ucube_shell
   post_mount
   post_mount_socket_coupon
+  condenser_carrier_2020
+  condenser_carrier_rail
+  collector_carrier_2020
+  collector_carrier_rail
+  led_carrier_2020
+  led_carrier_rail
+  carrier_foot_coupon_2020
+  carrier_foot_coupon_rail
 )
 
 mkdir -p "$output_dir"
