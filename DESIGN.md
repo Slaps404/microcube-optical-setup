@@ -307,3 +307,55 @@ The lens's camera-side C-mount is a separate interface.
 | 15 | Cell assembly, lid off |
 | 16 | Post mount |
 | 17 | Post mount socket fit coupon |
+| 18 | Condenser carrier |
+| 19 | Collector carrier |
+| 20 | LED carrier |
+| 21 | Carrier foot fit coupon |
+
+Modes 18-21 build with whichever foot `carrier_rail_kind` selects. The eight
+entry files under `exports/current/` pin the foot per part instead, because a
+file-scope assignment in `optical_setup.scad` cannot be overridden from an
+including file.
+
+## 9. Separate-optic carriers
+
+The Koehler retrofit puts the collector and the condenser `f1 + f2 = 16 + 40 =
+56 mm` apart at their principal planes. That does not fit one 25 mm sleeve or
+one 40 mm lens tube, so the two optics move onto independent carriers that
+slide to set focus. This supersedes the single `lens_sleeve_slider` for the
+retrofit; the old slider is retained and unmodified.
+
+Both supplied lenses are 40.0 mm diameter (spherical collector, aspheric
+condenser), so one cell geometry serves both and only the stack length
+differs. The cell deliberately reuses the legacy sleeve envelope: 41 mm bore,
+45 mm OD, same spring-clip groove.
+
+That reuse is the load-bearing decision. A printed threaded retaining ring
+needs a thread major larger than the 41 mm bore, which pushes the cell OD past
+50 mm, which pushes the rail datums 3 mm lower and breaks compatibility with
+the existing printed cell. The supplied set already solves retention without
+any of that: the lens seats on a 38 mm front lip, the supplied 40 OD / 38 ID /
+13 mm divider ring sits behind it as a flat pressure washer, and the spring
+clip loads the divider. The clip never touches glass, and the two annular
+lands that clamp the lens have the same 38 mm ID, so the load is symmetric.
+
+Two feet are provided for the same carriers, chosen by `carrier_rail_kind`:
+
+- `0`, 2020 extrusion: an inverted U with a 20.2 mm straddle slot open
+  downward, 5 mm side walls, and one M5 per side into a T-nut in the
+  extrusion's side slot. The holes sit on the extrusion's vertical
+  centerline, which is the height of the side T-slot. Round holes, not slots,
+  for the same reason as `post_mount`: the T-nut already slides. Each hole is
+  counterbored 2.5 mm at 11 mm on a 72-gon for a DIN 125 M5 washer, leaving a
+  2.5 mm bearing wall. Inside corners of the slot are relieved 1.6 mm for the
+  extrusion's corner radii; unlike `post_mount`'s reliefs these run along X,
+  because here the slot runs along the light axis rather than across it.
+- `1`, printed rail: the legacy `harness_foot` reused unchanged. Its rail
+  datums derive from `sleeve_outer_mm`, and the carrier cell keeps that same
+  45 mm OD, so it drops onto the existing rail section with no new rail
+  parameters. Only its length along X changes, from 25 mm to 16 mm, so more
+  of the rail is focus travel.
+
+Lens center thicknesses are PROVISIONAL (`collector_lens_thickness_mm = 14`,
+`condenser_lens_thickness_mm = 18`) and set the cell lengths. Measure both
+elements and correct these before printing a full carrier.
