@@ -58,7 +58,8 @@ The camera uFace provides a male M37 x 0.75 thread for the lens's female
 front/filter thread. This is separate from the lens's camera-side C-mount.
 
 Illumination uses a custom, light-tight cell bolted to one side uFace, not a
-second official cube. The cell is 80 mm long and prints as two U shells: a
+second official cube. The cell is 190 mm long, with a 180 mm clear interior
+rail, and prints as two U shells: a
 bottom shell with the mating plate, floor, far wall, and integral rail; and a
 top shell that acts as the removable lid. The lid has five 45-degree-baffled
 roof exhaust slots and four low side-intake slots behind an internal shroud.

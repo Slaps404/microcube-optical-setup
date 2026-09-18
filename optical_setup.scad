@@ -88,12 +88,13 @@ provisional_led_emitter_height_mm = 1.4;
    integral rail) and a top U (both side walls plus the roof) that drops on as
    a lid. Lifting the lid is how the optics are installed and focused, so no
    access slot or cover strip is needed. */
-cell_body_length_mm = 80; // [60:1:120] Outward from the cube face
 // The enclosure is wider than its standard 59 mm uFace mounting plate. This
 // creates clearance around both slider harnesses without moving cube screws.
 cell_outer_span_mm = 73; // [60:1:90] Outside width across the cell
 cell_wall_mm = 4; // [3:0.5:6]
 cell_end_wall_mm = 6; // [4:0.5:10]
+rail_sliding_length_mm = 180; // [120:5:200] Clear full-length slider rail
+cell_body_length_mm = rail_sliding_length_mm + cell_wall_mm + cell_end_wall_mm;
 cell_aperture_mm = 40; // [30:1:44] Light port through the mating plate
 cell_seam_clearance_mm = 0.25; // [0.1:0.05:0.5] Lid slip fit
 cell_mount_bridge_depth_mm = 1; // Overlaps the cell wall and uFace by 0.5 mm each
@@ -552,6 +553,8 @@ assert(rail_insert_center_z - m3_insert_diameter_mm / 2 >= harness_foot_bottom_z
        "The heat-set insert pocket breaks through the harness floor.");
 assert(rail_length_mm > max(lens_harness_length_mm, led_harness_length_mm),
        "The rail is too short to support both slider harnesses.");
+assert(abs(rail_length_mm - rail_sliding_length_mm) < epsilon,
+       "The derived rail length does not match the requested sliding length.");
 assert(vent_region_center_x - roof_vent_slot_length_mm / 2
            > cell_interior_far_x
        && vent_region_center_x + roof_vent_slot_length_mm / 2
@@ -578,6 +581,8 @@ assert(lens_axis_y == 0 && lens_axis_z == 0
 echo(str("Cell interior: ", cell_interior_length_mm, " long, ",
          2 * cell_interior_half_y, " wide, ",
          cell_interior_top_z - cell_floor_top_z, " tall"));
+echo(str("Rail sliding length: ", rail_length_mm,
+         " mm; outer cell length: ", cell_body_length_mm, " mm"));
 echo(str("Sleeve bore/OD: ", sleeve_bore_mm, "/", sleeve_outer_mm,
          " mm; rail ", rail_width_mm, " x ", rail_height_mm,
          " with top at Z=", rail_top_z));
