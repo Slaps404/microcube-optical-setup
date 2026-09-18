@@ -75,8 +75,10 @@ slot or cover strip. The top U is intentionally only the roof and upper side
 walls, with no end-wall tabs or cross-pieces.
 
 The enclosure is 73 mm wide at the body but retains the standard 59 mm uFace
-mounting plate and its unchanged screw pattern. The interior is 70 mm long
-with 36 mm of sleeve focus travel.
+mounting plate and its unchanged screw pattern. The outer cell is 190 mm long,
+giving the full-length rail 180 mm of clear sliding room. This is based on the
+roughly 170 to 175 mm occupied span in the bench reference photo, rounded up to
+leave a little positioning margin.
 
 The cell uFace uses the same cube-opening datum as the other custom faces. A
 44.2 mm square, 1 mm-deep bridge crosses the cell-wall/uFace interface and
