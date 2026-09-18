@@ -9,7 +9,7 @@ $fn = 64;
 epsilon = 0.02;
 
 /* [Preview] */
-render_mode = 16; // [0:complete_assembly, 1:beamsplitter_face, 2:legacy_light_face, 3:legacy_back_cover, 4:legacy_optic_cartridge, 5:camera_face, 6:camera_thread_test, 7:exploded_assembly, 8:inspection_assembly, 9:official_ucube_shell, 10:cell_bottom_u, 11:cell_top_u, 12:lens_sleeve_slider, 13:led_post_slider, 14:cell_assembly, 15:cell_assembly_open, 16:post_mount, 17:post_mount_socket_coupon]
+render_mode = 16; // [0:complete_assembly, 1:beamsplitter_face, 2:legacy_light_face, 3:legacy_back_cover, 4:legacy_optic_cartridge, 5:camera_face, 6:camera_thread_test, 7:exploded_assembly, 8:inspection_assembly, 9:official_ucube_shell, 10:cell_bottom_u, 11:cell_top_u, 12:lens_sleeve_slider, 13:led_post_slider, 14:cell_assembly, 15:cell_assembly_open, 16:post_mount, 17:post_mount_socket_coupon, 18:condenser_carrier, 19:collector_carrier, 20:led_carrier, 21:carrier_foot_coupon]
 show_optical_references = true;
 camera_preview_detailed_thread = true;
 show_auxiliary_illumination_cube = true;
@@ -222,6 +222,48 @@ m5_hole_diameter_mm = 5.5; // [5:0.1:6.5] M5 through-clearance
 m5_head_clearance_mm = 11; // [9:0.5:14] M5 washer + socket cap head clearance
 m5_head_cube_margin_mm = 1; // [0:0.5:4] Head clearance past the cube envelope
 
+/* [Extrusion and rail carriers]
+   The Koehler retrofit puts the collector and the condenser f1 + f2 = 56 mm
+   apart at their principal planes. That does not fit one 25 mm sleeve or one
+   40 mm tube, so each optic moves onto its own carrier and the carriers slide
+   to set focus.
+
+   Both supplied lenses are 40.0 mm diameter, so ONE cell geometry serves both
+   and only the stack length differs. The cell reuses the legacy sleeve
+   envelope verbatim (41 mm bore, 45 mm OD, same spring-clip groove). That is
+   deliberate: a printed threaded retainer needs a thread major larger than the
+   41 mm bore, which forces the OD past 50 mm and out of the printed cell. The
+   supplied set already solves retention without that: the lens seats on the
+   front lip, the supplied 40/38 divider ring sits behind it as a flat pressure
+   washer, and the spring clip loads the divider, never the glass.
+
+   Two feet are provided for the same carriers. carrier_rail_kind picks one:
+     0 = straddles a 2020 T-slot extrusion, M5 into T-nuts in the SIDE slots;
+     1 = the legacy printed-rail U-foot with two M3 clamp screws, unchanged
+         except that it is shorter along X so more of the rail is travel.
+   Holes for the extrusion foot sit on the extrusion's vertical centerline,
+   which is the height of the side T-slot. */
+carrier_rail_kind = 0; // [0:extrusion_2020, 1:printed_rail]
+// PROVISIONAL until the two elements are measured out of the supplied set.
+collector_lens_thickness_mm = 14; // [4:0.5:30] PROVISIONAL center thickness
+condenser_lens_thickness_mm = 18; // [4:0.5:30] PROVISIONAL center thickness
+// Supplied divider ring, usable as the pressure washer behind either lens.
+carrier_spacer_thickness_mm = 13; // [6:0.5:20] MEASURED, approximate
+carrier_spacer_outer_mm = 40; // [40] MEASURED divider OD
+carrier_spacer_inner_mm = 38; // [38] MEASURED divider ID
+collector_uses_spacer = true;
+condenser_uses_spacer = false;
+// Front seat. The aperture matches the divider ID so the glass is clamped
+// between two identical annular lands instead of being pinched off-center.
+carrier_aperture_mm = 38; // [30:0.5:39] Clear aperture through the front lip
+carrier_lip_axial_mm = 2; // [1:0.5:4] Axial thickness of that seat
+carrier_foot_length_mm = 16; // [10:1:28] Along the light axis, both foot kinds
+carrier_coupon_length_mm = 20; // [12:1:30] Foot fit-coupon length
+// Extrusion foot only.
+carrier_socket_wall_mm = 5; // [4:0.5:8] Straddling side wall
+carrier_web_mm = 4; // [3:0.5:8] Solid material between extrusion top and cell
+carrier_m5_bearing_wall_mm = 2.5; // [2:0.5:5] Wall left under the washer seat
+
 cube_spec = CubeSize(
     size = internal_clearance_mm,
     d = frame_feature_mm,
@@ -425,6 +467,85 @@ side_vent_slot_area_mm2 = side_vent_slot_count
                           * side_vent_slot_height_mm;
 side_vent_plenum_area_mm2 = side_vent_clear_span_x_mm
                             * vent_baffle_gap_mm;
+
+// --- Carrier derived geometry -------------------------------------------
+// Carrier local frame: optical axis is the line y = 0, z = 0. Light travels
+// +X. The cell's front face (toward the cube) is at x = 0 and the cell body
+// runs to -X, so the stack loads from the rear like the legacy sleeve.
+carrier_cell_bore_mm = sleeve_bore_mm;
+carrier_cell_outer_mm = sleeve_outer_mm;
+// Material the clip groove needs behind the stack, measured from the rear edge.
+carrier_clip_reserve_mm = sleeve_clip_groove_setback_mm
+                          + sleeve_clip_groove_width_mm;
+collector_stack_mm = collector_lens_thickness_mm
+                     + (collector_uses_spacer ? carrier_spacer_thickness_mm : 0);
+condenser_stack_mm = condenser_lens_thickness_mm
+                     + (condenser_uses_spacer ? carrier_spacer_thickness_mm : 0);
+collector_cell_length_mm = carrier_lip_axial_mm + collector_stack_mm
+                           + carrier_clip_reserve_mm;
+condenser_cell_length_mm = carrier_lip_axial_mm + condenser_stack_mm
+                           + carrier_clip_reserve_mm;
+
+// Extrusion foot. The slot is open downward so the carrier drops onto the rail
+// and the M5 bolts pull it sideways onto both T-nuts.
+carrier_slot_width_mm = post_section_mm + post_socket_clearance_mm;
+carrier_socket_outer_width_mm = carrier_slot_width_mm
+                                + 2 * carrier_socket_wall_mm;
+carrier_extrusion_top_z = -(carrier_cell_outer_mm / 2) - carrier_web_mm;
+carrier_extrusion_bottom_z = carrier_extrusion_top_z - post_section_mm;
+// Side T-slot centerline is the extrusion's own vertical centerline.
+carrier_m5_center_z = carrier_extrusion_top_z - post_section_mm / 2;
+carrier_m5_counterbore_depth_mm = carrier_socket_wall_mm
+                                  - carrier_m5_bearing_wall_mm;
+// Same weld idiom as harness_foot_top_z: stop the block just inside the cell
+// cylinder so the union has real overlap rather than a tangent kiss.
+carrier_socket_top_z = -sqrt(pow(carrier_cell_outer_mm / 2, 2)
+                             - pow(carrier_socket_outer_width_mm / 2, 2)) + 0.5;
+
+carrier_foot_top_z = (carrier_rail_kind == 0) ? carrier_socket_top_z
+                                              : harness_foot_top_z;
+carrier_led_plate_half_mm = (carrier_rail_kind == 0)
+                                ? carrier_socket_outer_width_mm / 2
+                                : harness_outer_width_mm / 2;
+
+assert(carrier_aperture_mm <= carrier_spacer_inner_mm,
+       "The front lip aperture is wider than the supplied divider ID, so the \
+two annular lands would not clamp the same ring of glass.");
+assert(carrier_aperture_mm < carrier_cell_bore_mm - 2,
+       "The front lip has under 1 mm of radial land to seat the lens on.");
+assert(carrier_spacer_outer_mm <= carrier_cell_bore_mm,
+       "The supplied divider ring does not fit the carrier bore.");
+assert(carrier_lip_axial_mm + carrier_clip_reserve_mm
+           < min(collector_cell_length_mm, condenser_cell_length_mm),
+       "A carrier cell is not long enough to hold its own optic stack.");
+assert(carrier_foot_length_mm
+           <= min(collector_cell_length_mm, condenser_cell_length_mm),
+       "The carrier foot is longer than the shortest cell it welds to, so it \
+would hang off the end of the part.");
+assert(carrier_socket_outer_width_mm < carrier_cell_outer_mm,
+       "The extrusion socket is wider than the cell it welds into, so the \
+socket top would stand proud of the cylinder with nothing to weld to.");
+assert(carrier_m5_counterbore_depth_mm > 0
+           && carrier_m5_bearing_wall_mm >= 2,
+       "The M5 washer counterbore leaves under 2 mm of bearing wall, which \
+PLA will creep through under permanent preload.");
+assert(carrier_m5_center_z - m5_head_clearance_mm / 2
+           > carrier_extrusion_bottom_z,
+       "The M5 washer pocket breaks out of the bottom of the socket wall.");
+assert(carrier_m5_center_z + m5_head_clearance_mm / 2
+           < carrier_extrusion_top_z,
+       "The M5 washer pocket breaks up through the roof of the straddle slot.");
+assert(post_socket_relief_mm < carrier_socket_wall_mm,
+       "The inside-corner relief is deeper than the socket wall is thick.");
+
+echo(str("Carrier cells: collector ", collector_cell_length_mm,
+         " mm, condenser ", condenser_cell_length_mm,
+         " mm; bore/OD ", carrier_cell_bore_mm, "/", carrier_cell_outer_mm,
+         " mm, aperture ", carrier_aperture_mm, " mm"));
+echo(str("Carrier foot kind ", carrier_rail_kind,
+         " (0 = 2020 extrusion, 1 = printed rail), length ",
+         carrier_foot_length_mm, " mm; extrusion top Z=",
+         carrier_extrusion_top_z, ", M5 centerline Z=", carrier_m5_center_z));
 
 assert(post_mount_flare_run_mm > 0,
        "The post standoff is too short to leave any gusset between the uFace \
@@ -1606,6 +1727,160 @@ module post_mount_socket_coupon() {
     }
 }
 
+// --- Carriers ------------------------------------------------------------
+// Extrusion corners are radiused, so relieve the inside corners of the
+// straddle slot or the carrier seats on its own fillets instead of on the
+// mating faces. Unlike post_mount's reliefs these run along X, because here
+// the slot runs along the light axis rather than across it.
+module carrier_corner_reliefs(length, center_x) {
+    for (side = [-1, 1])
+        translate([center_x,
+                   side * carrier_slot_width_mm / 2,
+                   carrier_extrusion_top_z])
+            rotate([0, 90, 0])
+                cylinder(h = length + 2 * epsilon, r = post_socket_relief_mm,
+                         center = true, $fn = 32);
+}
+
+// Foot A: inverted U over a 2020 extrusion. One M5 per side into a T-nut in
+// the side slot. Round holes, not slots: the T-nut already slides freely, so
+// the carrier sets its own height and spends no material on travel it does
+// not need. The washer counterbore is a 72-gon, matching the reasoning on
+// m5_head_clearance_mm, so a nominal 10 mm washer actually passes.
+module carrier_extrusion_foot(length, center_x) {
+    difference() {
+        translate([center_x - length / 2,
+                   -carrier_socket_outer_width_mm / 2,
+                   carrier_extrusion_bottom_z])
+            cube([length,
+                  carrier_socket_outer_width_mm,
+                  carrier_socket_top_z - carrier_extrusion_bottom_z]);
+
+        // Straddle slot, open downward.
+        translate([center_x - length / 2 - epsilon,
+                   -carrier_slot_width_mm / 2,
+                   carrier_extrusion_bottom_z - epsilon])
+            cube([length + 2 * epsilon,
+                  carrier_slot_width_mm,
+                  post_section_mm + epsilon]);
+
+        carrier_corner_reliefs(length, center_x);
+
+        for (side = [-1, 1]) {
+            translate([center_x,
+                       side * (carrier_socket_outer_width_mm / 2 + epsilon),
+                       carrier_m5_center_z])
+                rotate([side * 90, 0, 0])
+                    cylinder(h = carrier_socket_wall_mm + 2 * epsilon,
+                             d = m5_hole_diameter_mm, $fn = 48);
+
+            translate([center_x,
+                       side * (carrier_socket_outer_width_mm / 2 + epsilon),
+                       carrier_m5_center_z])
+                rotate([side * 90, 0, 0])
+                    cylinder(h = carrier_m5_counterbore_depth_mm + epsilon,
+                             d = m5_head_clearance_mm, $fn = 72);
+        }
+    }
+}
+
+// Foot B is the legacy printed-rail U-foot, reused unchanged. Its rail datums
+// are derived from sleeve_outer_mm, and the carrier cell deliberately keeps
+// that same 45 mm OD, so it drops onto the existing rail section with no new
+// rail parameters. Only its length along X changes.
+module carrier_foot(length, center_x) {
+    if (carrier_rail_kind == 0)
+        carrier_extrusion_foot(length, center_x);
+    else
+        harness_foot(length, center_x);
+}
+
+// Short slice of whichever foot is selected. Print this first and check the
+// fit on the real rail before committing to a full carrier.
+module carrier_foot_coupon() {
+    carrier_foot(carrier_coupon_length_mm, 0);
+}
+
+// One cell geometry serves both 40.0 mm optics; only cell_length differs.
+// Front to rear the bore holds: the seat lip, the lens, the supplied divider
+// ring acting as a flat pressure washer, then the spring clip in its groove.
+module carrier_optic_cell(cell_length) {
+    difference() {
+        translate([-cell_length, 0, 0])
+            rotate([0, 90, 0])
+                cylinder(h = cell_length, d = carrier_cell_outer_mm);
+
+        // Bore, open at the rear, stopping at the lip.
+        translate([-cell_length - epsilon, 0, 0])
+            rotate([0, 90, 0])
+                cylinder(h = cell_length - carrier_lip_axial_mm + epsilon,
+                         d = carrier_cell_bore_mm);
+
+        // Clear aperture through the lip itself.
+        translate([-cell_length - epsilon, 0, 0])
+            rotate([0, 90, 0])
+                cylinder(h = cell_length + 2 * epsilon,
+                         d = carrier_aperture_mm);
+
+        // Internal circumferential spring-clip groove, same geometry and same
+        // reasoning as the legacy sleeve: the dimension is axial setback from
+        // the open rear edge, not radial depth.
+        translate([-cell_length + sleeve_clip_groove_setback_mm - epsilon,
+                   0, 0])
+            rotate([0, 90, 0])
+                cylinder(h = sleeve_clip_groove_width_mm + 2 * epsilon,
+                         d = carrier_cell_bore_mm
+                             + 2 * sleeve_clip_groove_radial_depth_mm);
+    }
+}
+
+module optic_carrier(cell_length) {
+    union() {
+        carrier_optic_cell(cell_length);
+        carrier_foot(carrier_foot_length_mm, -cell_length / 2);
+    }
+}
+
+// Carrier A optic: the f = 16 spherical collector, nearest the LED.
+module collector_carrier() {
+    optic_carrier(collector_cell_length_mm);
+}
+
+// Carrier B optic: the f = 40 aspheric condenser, nearest the cube.
+module condenser_carrier() {
+    optic_carrier(condenser_cell_length_mm);
+}
+
+// Carrier C: a flat post carrying the 20 mm star LED on the beam axis. Same
+// part as led_post_slider, re-footed and rebuilt in the carrier local frame.
+// The post starts at the top of the foot so both fasteners stay reachable.
+module led_carrier() {
+    plate_half = carrier_led_plate_half_mm;
+    foot_top = carrier_foot_top_z;
+    cable_notch_top_z = -led_star_diameter_mm / 2 - 1;
+
+    difference() {
+        union() {
+            translate([-led_post_thickness_mm, -plate_half,
+                       foot_top - epsilon])
+                cube([led_post_thickness_mm,
+                      2 * plate_half,
+                      plate_half - foot_top + epsilon]);
+
+            carrier_foot(carrier_foot_length_mm,
+                         -carrier_foot_length_mm / 2);
+        }
+
+        // Bottom-open cable notch, clear of the star footprint above it.
+        translate([-led_post_thickness_mm - epsilon,
+                   -led_cable_notch_mm / 2,
+                   foot_top - epsilon])
+            cube([led_post_thickness_mm + 2 * epsilon,
+                  led_cable_notch_mm,
+                  cable_notch_top_z - foot_top + epsilon]);
+    }
+}
+
 // Mounts on the +X cube face, opposite the illumination cell. Local +Y becomes
 // global +Z so the backplate stands vertically along the post.
 module post_mount_transform() {
@@ -1809,6 +2084,14 @@ module render_selected_part() {
         post_mount();
     else if (render_mode == 17)
         post_mount_socket_coupon();
+    else if (render_mode == 18)
+        condenser_carrier();
+    else if (render_mode == 19)
+        collector_carrier();
+    else if (render_mode == 20)
+        led_carrier();
+    else if (render_mode == 21)
+        carrier_foot_coupon();
 }
 
 // Part-specific SCAD entry files set this before including the shared source.
